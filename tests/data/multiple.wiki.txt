@@ -1,0 +1,86 @@
+See https://github.com/fititnt/openstreetmap-serverless-functions for proof of concept.
+
+== Data ==
+
+=== YAML database ===
+<syntaxhighlight lang="yaml">
+___wikiasbase: true
+data:
+  test_string: hello world!
+  test_list:
+    - aa
+    - bb
+    - cc
+  test_number: 123
+</syntaxhighlight>
+
+==== Another example ====
+<syntaxhighlight lang="yaml">
+# Example of data to be parsed outside
+___wikiasbase: true
+data:
+  test_string: test2
+</syntaxhighlight>
+
+=== RDF ===
+
+<syntaxhighlight lang="turtle">
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmrel: <https://www.openstreetmap.org/relation/>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmm: <https://example.org/todo-meta/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmx: <https://example.org/todo-xref/>
+PREFIX wikidata: <http://www.wikidata.org/entity/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+osmnode:1
+    osmm:changeset 124176968 ;
+    osmm:loc "Point(42.7957187 13.5690032)"^^geo:wktLiteral ;
+    osmm:timestamp "2022-07-28T09:47:39Z"^^xsd:dateTime ;
+    osmm:type "n" ;
+    osmm:user "owene" ;
+    osmm:userid 29598 ;
+    osmm:version 33 ;
+    osmt:communication:microwave "yes" ;
+    osmt:communication:radio "fm" ;
+    osmt:description "Radio Subasio" ;
+    osmt:frequency "105.5 MHz" ;
+    osmt:man_made "mast" ;
+    osmt:name "Monte Piselli - San Giacomo" ;
+    osmt:tower:construction "lattice" ;
+    osmt:tower:type "communication" ;
+.
+</syntaxhighlight>
+
+=== Wiki template ===
+
+==== ValueDescription ====
+<syntaxhighlight lang="text">
+{{ValueDescription
+|key=highway
+|value=residential
+|image=File:Residential.jpg
+|description=Road in a residential area
+|osmcarto-rendering=File:Rendering-highway_residential.png
+|osmcarto-rendering-size=125px
+|group=highways
+|onNode=no
+|onWay=yes
+|onArea=no
+|onRelation=no
+|combination=
+* {{tag|name}}
+* {{tag|oneway}}
+* {{Tag|surface}}
+* {{Tag|access}}
+|seeAlso=
+* {{Tag|highway|unclassified}}
+* {{Tag|highway|living_street}}
+* {{Tag|highway|service}}
+* {{Tag|highway|tertiary}}
+|implies = * {{tag|access|yes}}
+|status=de facto
+}}
+</syntaxhighlight>
