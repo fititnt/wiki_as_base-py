@@ -37,6 +37,7 @@ jobs:
     # if: ${{ !env.ACT }}
 
     steps:
+
     - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -52,4 +53,4 @@ jobs:
     - name: Test with tox
       run: tox
       # # TODO: remove the continue-on-error
-      continue-on-error: true
+      # continue-on-error: true

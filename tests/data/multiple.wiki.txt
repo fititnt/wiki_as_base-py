@@ -14,6 +14,13 @@ data:
   test_number: 123
 </syntaxhighlight>
 
+==== Another non example ====
+<syntaxhighlight lang="yaml">
+- ignore
+- this
+- list
+</syntaxhighlight>
+
 ==== Another example ====
 <syntaxhighlight lang="yaml">
 # Example of data to be parsed outside

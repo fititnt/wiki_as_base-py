@@ -8,6 +8,11 @@
 pip install wiki_as_base --upgrade
 ```
 
+## Usage
+
+- See [examples/](examples/)
+- See [tests/](tests/)
+
 ## License
 
 Public domain
