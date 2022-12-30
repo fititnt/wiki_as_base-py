@@ -34,10 +34,80 @@ REG_SH_GENERIC = re.compile(
     flags=re.M | re.S | re.U)
 
 
-def wiki_as_base_from_infobox():
+def wiki_as_base_all(
+    wikitext: str,
+    template_keys: List[str] = None,
+    syntaxhighlight_langs: List[str] = None,
+) -> dict:
+    data = {
+        "type": 'wikiasbase',
+        "data": []
+    }
+
+    if template_keys is not None and len(template_keys) > 0:
+        for item in template_keys:
+            result = wiki_as_base_from_infobox(wikitext, item)
+            if result:
+                data['data'].append(
+                    result
+                )
+
+    if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
+        for item in syntaxhighlight_langs:
+            result = wiki_as_base_from_syntaxhighlight(wikitext, item)
+            if result:
+                data['data'].append(
+                    result
+                )
+
+    return data
+
+
+def wiki_as_base_from_infobox(
+    wikitext: str,
+    template_key: str,
+):
+    data = {}
+    data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.
-    pass
+
+    if wikitext.find('{{' + template_key) == -1:
+        return None
+
+    # @TODO better error handling
+    if wikitext.count('{{' + template_key) > 1:
+        return False
+
+    try:
+        start_template = wikitext.split('{{' + template_key)[1]
+        raw_lines = start_template.splitlines()
+        counter_tag = 1
+        index = -1
+        for raw_line in raw_lines:
+            index += 1
+            key = None
+            value = None
+            if counter_tag == 0:
+                break
+            raw_line_trimmed = raw_line.strip()
+            if raw_line_trimmed.startswith('|'):
+                key_tmp, value_tmp = raw_line_trimmed.split('=')
+                key = key_tmp.strip('|').strip()
+                data['_allkeys'].append(key)
+                if len(raw_lines) >= index + 1:
+                    if raw_lines[index + 1].strip() == '}}' or \
+                            raw_lines[index + 1].strip().startswith('|'):
+                        # closed
+                        data[key] = value_tmp.strip()
+                        # pass
+                    # pass
+                # pass
+    except ValueError:
+        return None
+
+    # return wikitext
+    return data
 
 
 def wiki_as_base_from_syntaxhighlight(
