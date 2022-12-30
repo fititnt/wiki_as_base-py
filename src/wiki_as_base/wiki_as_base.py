@@ -33,6 +33,10 @@ WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 WIKI_INFOBOXES = os.getenv(
     "WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
 
+# @TODO WIKI_INFOBOXES_IDS
+WIKI_INFOBOXES_IDS = os.getenv(
+    "WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
+
 WIKI_DATA_LANGS = os.getenv(
     "WIKI_DATA_LANGS", "yaml\nturtle")
 # CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
@@ -65,8 +69,17 @@ def wiki_as_base_all(
     template_keys: List[str] = None,
     syntaxhighlight_langs: List[str] = None,
 ) -> dict:
+    #   "$schema": "https://urn.etica.ai/urn:resolver:schema:api:base",
+    #   "@context": "https://urn.etica.ai/urn:resolver:context:api:base",
     data = {
+        # TODO: make a permanent URL
+        "@context": 'https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld',
+        "$schema": 'https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json',
+
+        # Maybe move @type out here
         "@type": 'wiki/wikiasbase',
+
+        # @TODO implement errors
         "data": []
     }
 
@@ -93,25 +106,40 @@ def wiki_as_base_all(
                 for result in results:
                     if not result:
                         continue
-                    data['data'].append({
-                        "@type": 'wiki/data/' + result[1],
-                        'data_raw': result[0]
-                    })
-
+                    if result[2]:
+                        data['data'].append({
+                            "@type": 'wiki/data/' + result[1],
+                            "@id": result[2],
+                            'data_raw': result[0]
+                        })
+                    else:
+                        data['data'].append({
+                            "@type": 'wiki/data/' + result[1],
+                            # "@id": result[2],
+                            'data_raw': result[0]
+                        })
     return data
 
 
 def wiki_as_base_from_infobox(
     wikitext: str,
     template_key: str,
+    id_from: List[str] = None
 ):
     """wiki_as_base_from_infobox Parse typical Infobox
     """
     data = {}
     data['@type'] = 'wiki/infobox/' + template_key
+    data['@id'] = None
     # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.
+
+    if id_from is None:
+        id_from = [
+            ('key', '=', 'value'),
+            ('key'),
+        ]
 
     if wikitext.find('{{' + template_key) == -1:
         return None
@@ -154,6 +182,18 @@ def wiki_as_base_from_infobox(
         # raise ValueError(error)
         return None
 
+    if id_from is not None and len(id_from):
+        for attemps in id_from:
+            if len(attemps) == 1 and attemps[0] in data and len(data[attemps[0]]) > 0:
+                data['@id'] = data[attemps[0]]
+                break
+            if len(attemps) == 3 and attemps[0] in data and attemps[2] in data:
+                data['@id'] = data[attemps[0]] + attemps[1] + data[attemps[2]]
+                break
+
+    if data['@id'] is None:
+        del data['@id']
+
     return data
 
 
@@ -189,6 +229,10 @@ def wiki_as_base_from_syntaxhighlight(
             f'<syntaxhighlight lang=\"(?P<lang>{lang})\">(?P<data>.*?)</syntaxhighlight>',
             flags=re.M | re.S | re.U)
 
+    # TODO make comments like <!-- work
+    reg_filename = re.compile(
+        '[#|\/\/]\s?filename\s?=\s?(?P<filename>[\w\-\_\.]{3,255})', flags=re.U)
+
     items = re.findall(reg_sh, wikitext)
 
     if len(items) > 0 and has_text is not None:
@@ -208,9 +252,18 @@ def wiki_as_base_from_syntaxhighlight(
     if len(items) == 0:
         return None
 
-    # swap order
+    # swap order and detect filename
     for item in items:
-        result.append((item[1].strip(), item[0]))
+        data_raw = item[1].strip()
+
+        # We would only check first line for a hint of suggested filename
+        items = re.findall(reg_filename, data_raw)
+        # print(items, data_raw)
+        # raise ValueError(items)
+        if items and items[0]:
+            result.append((data_raw, item[0], items[0]))
+        else:
+            result.append((data_raw, item[0], None))
 
     return result
 

@@ -1,5 +1,30 @@
 {
   "@context": {
-    "osmw": "https://wiki.openstreetmap.org/wiki/"
+    "hydra": "https://www.w3.org/ns/hydra/core#",
+    "osmw": "https://wiki.openstreetmap.org/wiki/",
+    "wikiasbase_temp": "https://github.com/fititnt/wiki_as_base-py#",
+    "data": {
+      "@id": "hydra:Collection"
+    },
+    "error": {
+      "@id": "hydra:Error"
+    },
+    "meta": {
+      "@id": "schema:seeAlso",
+      "@type": "hydra:Collection"
+    },
+    "status": {
+      "@id": "hydra:statusCode",
+      "@nest": "error"
+    },
+    "seeAlso": {
+      "@id": "rdfs:seeAlso",
+      "@nest": "error"
+    },
+    "title": {
+      "@id": "hydra:Status",
+      "@nest": "error"
+    },
+    "$schema": "@none"
   }
 }

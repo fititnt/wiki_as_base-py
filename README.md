@@ -45,11 +45,14 @@ cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
 
 <!--
 
+> @TODO add links as URN on https://github.com/EticaAI/urn-resolver/tree/main/resolvers
+
 ## JSON-LD context
 - See also https://w3c.github.io/json-ld-rc/context.jsonld
 
 ## JSON Schema
 - See https://json-schema.org/specification.html
+- See https://github.com/json-api/json-api/blob/gh-pages/schema
 
 -->
 
