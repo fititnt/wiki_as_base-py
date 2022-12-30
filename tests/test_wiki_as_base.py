@@ -31,7 +31,8 @@ def test_wiki_as_base__all_test1():
     # assert False
     assert results is not None
     assert results is not False
-    assert len(results['data']) == 5
+    # assert len(results['data']) == 5
+    assert len(results['data']) == 8
     assert results['@type'] == 'wiki/wikiasbase'
     # assert results[0][1] == 'yaml'  # 0 <syntaxhighlight lang="yaml">
     # assert results[4][1] == 'text'  # 4 <syntaxhighlight lang="text">
@@ -44,7 +45,7 @@ def test_wiki_as_base__infobox_test1():
     # Just to test if tox is working; not really useful
     results = wiki_as_base.wiki_as_base_from_infobox(
         wikitext, 'ValueDescription')
-    # print(results)
+    print(results)
     assert results is not None
     assert results is not False
     # assert len(results) == 5
@@ -60,9 +61,10 @@ def test_wiki_as_base__syntaxhighlight_all():
     results = wiki_as_base.wiki_as_base_from_syntaxhighlight(content)
     # print(results)
     # assert False
-    assert len(results) == 5
+    # assert len(results) == 5
+    assert len(results) == 9
     assert results[0][1] == 'yaml'  # 0 <syntaxhighlight lang="yaml">
-    assert results[4][1] == 'text'  # 4 <syntaxhighlight lang="text">
+    assert results[4][1] == 'sparql'  # 4 <syntaxhighlight lang="sparql">
 
 
 def test_wiki_as_base__syntaxhighlight_yaml_mul():

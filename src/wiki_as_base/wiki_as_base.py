@@ -120,6 +120,7 @@ def wiki_as_base_from_infobox(
     if wikitext.count('{{' + template_key) > 1:
         return False
 
+    # if True:
     try:
         start_template = wikitext.split('{{' + template_key)[1]
         raw_lines = start_template.splitlines()
@@ -133,8 +134,13 @@ def wiki_as_base_from_infobox(
                 break
             raw_line_trimmed = raw_line.strip()
             if raw_line_trimmed.startswith('|'):
-                key_tmp, value_tmp = raw_line_trimmed.split('=')
-                key = key_tmp.strip('|').strip()
+                # parts = raw_line_trimmed.split('=')
+                if raw_line_trimmed.find('=') > -1:
+                    key_tmp, value_tmp = raw_line_trimmed.split('=')
+                    key = key_tmp.strip('|').strip()
+                else:
+                    continue
+                    # key = raw_line_trimmed
                 # data['_allkeys'].append(key)
                 if len(raw_lines) >= index + 1:
                     if raw_lines[index + 1].strip() == '}}' or \
@@ -144,10 +150,10 @@ def wiki_as_base_from_infobox(
                         # pass
                     # pass
                 # pass
-    except ValueError:
+    except ValueError as error:
+        # raise ValueError(error)
         return None
 
-    # return wikitext
     return data
 
 

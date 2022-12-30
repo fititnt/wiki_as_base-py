@@ -1,4 +1,6 @@
-See https://github.com/fititnt/openstreetmap-serverless-functions for proof of concept.
+* See https://github.com/fititnt/wiki_as_base-py for command line tool
+* See https://github.com/fititnt/openstreetmap-serverless-functions for proof of concept (Telegram Bot + FaaS endpoint)
+
 
 == Data ==
 
@@ -61,9 +63,25 @@ osmnode:1
 .
 </syntaxhighlight>
 
+=== SPARQL ===
+
+==== owl-classes.rq ====
+
+<syntaxhighlight lang="sparql">
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?class ?label ?description
+WHERE {
+  ?class a owl:Class.
+  OPTIONAL { ?class rdfs:label ?label}
+  OPTIONAL { ?class rdfs:comment ?description}
+}
+LIMIT 25
+</syntaxhighlight>
+
 === Wiki template ===
 
-==== ValueDescription ====
 <syntaxhighlight lang="text">
 {{ValueDescription
 |key=highway
@@ -90,4 +108,107 @@ osmnode:1
 |implies = * {{tag|access|yes}}
 |status=de facto
 }}
+</syntaxhighlight>
+
+=== Tables ===
+
+See https://en.wikipedia.org/wiki/Help:Table
+
+==== Style 1 ====
+
+{| class="wikitable"
+|+ Caption text
+|-
+! Header text !! Header text !! Header text
+|-
+| Example || Example || Example
+|-
+| Example || Example || Example
+|-
+| Example || Example || Example
+|}
+
+==== Style 2 ====
+
+{| class='wikitable sortable' style='width:100%'
+! keyaaa
+! keybbb
+! keyccc
+! keyddd
+|-
+| 1
+| value 1 bbb
+|
+| value 2 ddd
+|-
+| 2
+| value 2 bbb
+| value 2 ccc
+| value 3 ddd
+|-
+| 3
+| value 3 bbb
+| value 3 ccc
+| value 3 ddd
+|}
+
+== Data validation ==
+
+=== SHACL rule ===
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata.shacl.ttl
+PREFIX osmm: <https://example.org/todo-meta/>
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+PREFIX osmx: <https://example.org/todo-xref/>
+PREFIX osmvsh: <https://www.openstreetmap.org/validation/shacl/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <https://example.org/>
+
+# "wikipedia/wikidata type tag that is incorrect according to not:* tag" via @matkoniecz
+osmvsh:R001_wikidata
+    a sh:NodeShape ;
+    sh:targetClass osmw:Node, osmw:Way, osmw:Relation ;
+    sh:property [
+        sh:path osmt:brand:wikidata ;
+        sh:disjoint osmt:not:brand:wikidata ;
+        sh:message "Impossible to be, and not to be, at the same time something"@en ;
+        sh:message "Impossível ser, e não ser, ao mesmo tempo algo"@pt ;
+    ]
+.
+</syntaxhighlight>
+
+=== Data example ===
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata-valid.tdata.ttl
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+
+osmway:220660292
+    a osmw:Way ;
+    osmt:brand:wikidata "Q1" ;
+    osmt:not:brand:wikidata "Q2" ;
+.
+</syntaxhighlight>
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata-invalid.tdata.ttl
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+
+osmway:220660292
+    a osmw:Way ;
+    osmt:brand:wikidata "Q701338" ;
+    osmt:not:brand:wikidata "Q701338" ;
+.
 </syntaxhighlight>

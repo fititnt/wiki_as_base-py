@@ -27,17 +27,32 @@ export WIKI_DATA_LANGS='yaml\nturtle'
 ```bash
 wiki_as_base --help
 
-# Select base page from the Wiki mentioned on WIKI_API
+## Use remote storage (defined on WIKI_API)
 wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
 
 # The output is JSON-LD. Feel free to further filter the data
 wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[0]
+
+## Example of, instead of use WIKI_API, parse Wiki markup directly. Output JSON- LD
+cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
+
 ```
 
 ### Library
 
 - See [examples/](examples/)
 - See [tests/](tests/)
+
+<!--
+
+## JSON-LD context
+- See also https://w3c.github.io/json-ld-rc/context.jsonld
+
+## JSON Schema
+- See https://json-schema.org/specification.html
+
+-->
+
 
 ## Disclaimer / Trivia
 
