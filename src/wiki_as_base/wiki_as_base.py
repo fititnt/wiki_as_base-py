@@ -40,7 +40,7 @@ def wiki_as_base_all(
     syntaxhighlight_langs: List[str] = None,
 ) -> dict:
     data = {
-        "type": 'wikiasbase',
+        "@type": 'wiki/wikiasbase',
         "data": []
     }
 
@@ -54,11 +54,15 @@ def wiki_as_base_all(
 
     if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
         for item in syntaxhighlight_langs:
-            result = wiki_as_base_from_syntaxhighlight(wikitext, item)
-            if result:
-                data['data'].append(
-                    result
-                )
+            results = wiki_as_base_from_syntaxhighlight(wikitext, item)
+            if results:
+                for result in results:
+                    if not result:
+                        continue
+                    data['data'].append({
+                        "@type": 'wiki/data/' + result[1],
+                        'data_raw': result[0]
+                    })
 
     return data
 
@@ -68,7 +72,8 @@ def wiki_as_base_from_infobox(
     template_key: str,
 ):
     data = {}
-    data['_allkeys'] = []
+    data['@type'] = 'wiki/infobox/' + template_key
+    # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.
 
@@ -94,7 +99,7 @@ def wiki_as_base_from_infobox(
             if raw_line_trimmed.startswith('|'):
                 key_tmp, value_tmp = raw_line_trimmed.split('=')
                 key = key_tmp.strip('|').strip()
-                data['_allkeys'].append(key)
+                # data['_allkeys'].append(key)
                 if len(raw_lines) >= index + 1:
                     if raw_lines[index + 1].strip() == '}}' or \
                             raw_lines[index + 1].strip().startswith('|'):

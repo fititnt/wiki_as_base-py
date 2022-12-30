@@ -20,7 +20,24 @@ def test_wiki_as_base_raw():
     assert content == content_raw
 
 
-def test_wiki_as_base__infobox():
+def test_wiki_as_base__all_test1():
+    with open(test_dir + '/data/multiple.wiki.txt', 'r') as content_file:
+        wikitext = content_file.read()
+
+    # Just to test if tox is working; not really useful
+    results = wiki_as_base.wiki_as_base_all(
+        wikitext, ['ValueDescription'], ['yaml', 'turtle'])
+    # print(results)
+    # assert False
+    assert results is not None
+    assert results is not False
+    assert len(results['data']) == 5
+    assert results['@type'] == 'wiki/wikiasbase'
+    # assert results[0][1] == 'yaml'  # 0 <syntaxhighlight lang="yaml">
+    # assert results[4][1] == 'text'  # 4 <syntaxhighlight lang="text">
+
+
+def test_wiki_as_base__infobox_test1():
     with open(test_dir + '/data/multiple.wiki.txt', 'r') as content_file:
         wikitext = content_file.read()
 
