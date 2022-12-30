@@ -20,8 +20,34 @@
 #       CREATED:  ---
 # ==============================================================================
 
+import os
 import re
 from typing import List, Union
+import requests
+
+_REFVER = '0.2.0'
+
+USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
+WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
+
+WIKI_INFOBOXES = os.getenv(
+    "WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
+
+WIKI_DATA_LANGS = os.getenv(
+    "WIKI_DATA_LANGS", "yaml\nturtle")
+# CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
+# CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
+
+# # @see https://requests-cache.readthedocs.io/en/stable/
+# requests_cache.install_cache(
+#     "osmapi_cache",
+#     # /tmp OpenFaaS allow /tmp be writtable even in read-only mode
+#     # However, is not granted that changes will persist or shared
+#     db_path="/tmp/osmwiki_cache.sqlite",
+#     backend=CACHE_DRIVER,
+#     expire_after=CACHE_TTL,
+#     allowable_codes=[200, 400, 404, 500],
+# )
 
 # @see https://docs.python.org/pt-br/3/library/re.html#re-objects
 # @see https://github.com/earwig/mwparserfromhell
@@ -44,6 +70,10 @@ def wiki_as_base_all(
         "data": []
     }
 
+    # set template_keys = False to ignore WIKI_INFOBOXES
+    if template_keys is None and len(WIKI_INFOBOXES) > 0:
+        template_keys = WIKI_INFOBOXES.splitlines()
+
     if template_keys is not None and len(template_keys) > 0:
         for item in template_keys:
             result = wiki_as_base_from_infobox(wikitext, item)
@@ -51,6 +81,10 @@ def wiki_as_base_all(
                 data['data'].append(
                     result
                 )
+
+    # set syntaxhighlight_langs = False to ignore WIKI_DATA_LANGS
+    if syntaxhighlight_langs is None and len(WIKI_DATA_LANGS) > 0:
+        syntaxhighlight_langs = WIKI_DATA_LANGS.splitlines()
 
     if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
         for item in syntaxhighlight_langs:
@@ -71,6 +105,8 @@ def wiki_as_base_from_infobox(
     wikitext: str,
     template_key: str,
 ):
+    """wiki_as_base_from_infobox Parse typical Infobox
+    """
     data = {}
     data['@type'] = 'wiki/infobox/' + template_key
     # data['_allkeys'] = []
@@ -175,6 +211,34 @@ def wiki_as_base_from_syntaxhighlight(
 
 def wiki_as_base_meta(wikitext: str) -> dict:
     return {}
+
+
+def wiki_as_base_request(
+    title: str,
+    # template_key: str,
+):
+    # Inspired on https://github.com/earwig/mwparserfromhell example
+    params = {
+        "action": "query",
+        "prop": "revisions",
+        "rvprop": "content",
+        "rvslots": "main",
+        "rvlimit": 1,
+        "titles": title,
+        "format": "json",
+        "formatversion": "2",
+    }
+
+    try:
+        headers = {"User-Agent": USER_AGENT}
+        req = requests.get(WIKI_API, headers=headers, params=params)
+        res = req.json()
+        revision = res["query"]["pages"][0]["revisions"][0]
+        text = revision["slots"]["main"]["content"]
+    except ValueError:
+        return None
+
+    return text
 
 
 def wiki_as_base_raw(wikitext: str) -> dict:
