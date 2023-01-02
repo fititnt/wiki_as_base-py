@@ -43,6 +43,12 @@ export WIKI_DATA_LANGS="yaml\nturtle\ntext"
 wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' | jq .data[0]
 
 wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' --output-raw
+
+wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por'
+
+cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --output-raw
+
+cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-dir tests/temp/
 -->
 
 ### Library

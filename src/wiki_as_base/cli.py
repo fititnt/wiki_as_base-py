@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 import wiki_as_base
 
@@ -48,6 +49,20 @@ def main():
         "--output-raw", action="store_true", help="Output RAW, unedited Wiki markup"
     )
 
+    parser.add_argument(
+        "--output-dir",
+        help="Output inferred files to a directory. "
+        "With --verbose will save input text and JSON-LD metadata",
+    )
+
+    parser.add_argument(
+        "--output-zip",
+        help="Output inferred files to a zip file. "
+        "With --verbose will save input text and JSON-LD metadata",
+    )
+
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
+
     args = parser.parse_args()
 
     # print(args)
@@ -74,6 +89,11 @@ def main():
         print("--page-title ?")
         print("--input-stdin ?")
         return EXIT_ERROR
+
+    if args.output_dir and (
+        not os.path.exists(args.output_dir) or not os.path.isdir(args.output_dir)
+    ):
+        raise SyntaxError(f"--output-dir error [{args.output_dir}]")
 
     if result:
 

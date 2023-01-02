@@ -25,20 +25,30 @@ import re
 from typing import List, Union
 import requests
 
-_REFVER = '0.2.0'
+_REFVER = "0.3.0"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 
-WIKI_INFOBOXES = os.getenv(
-    "WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
+WIKI_INFOBOXES = os.getenv("WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
 
 # @TODO WIKI_INFOBOXES_IDS
-WIKI_INFOBOXES_IDS = os.getenv(
-    "WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
+WIKI_INFOBOXES_IDS = os.getenv("WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
 
-WIKI_DATA_LANGS = os.getenv(
-    "WIKI_DATA_LANGS", "yaml\nturtle")
+
+# @TODO add other common formats on <syntaxhighlight lang="">
+_default_langs = [
+    "yaml",
+    "turtle",
+    "json",
+    "cpp",
+    "text",
+    "sql",
+    "sparql",
+]
+
+# WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "yaml\nturtle\ntext\ncpp\nsparql\nsql")
+WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs))
 # CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
 # CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
 
@@ -60,8 +70,9 @@ WIKI_DATA_LANGS = os.getenv(
 # @see https://regex101.com/r/rwCoVw/1
 # REG = re.compile('<syntaxhighlight lang=\"([a-z0-9]{2,20})\">(.*?)</syntaxhighlight>', flags='gmus')
 REG_SH_GENERIC = re.compile(
-    '<syntaxhighlight lang=\"(?P<lang>[a-z0-9]{2,20})\">(?P<data>.*?)</syntaxhighlight>',
-    flags=re.M | re.S | re.U)
+    '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
+    flags=re.M | re.S | re.U,
+)
 
 
 def wiki_as_base_all(
@@ -73,14 +84,12 @@ def wiki_as_base_all(
     #   "@context": "https://urn.etica.ai/urn:resolver:context:api:base",
     data = {
         # TODO: make a permanent URL
-        "@context": 'https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld',
-        "$schema": 'https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json',
-
+        "@context": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld",
+        "$schema": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json",
         # Maybe move @type out here
-        "@type": 'wiki/wikiasbase',
-
+        "@type": "wiki/wikiasbase",
         # @TODO implement errors
-        "data": []
+        "data": [],
     }
 
     # set template_keys = False to ignore WIKI_INFOBOXES
@@ -91,9 +100,7 @@ def wiki_as_base_all(
         for item in template_keys:
             result = wiki_as_base_from_infobox(wikitext, item)
             if result:
-                data['data'].append(
-                    result
-                )
+                data["data"].append(result)
 
     # set syntaxhighlight_langs = False to ignore WIKI_DATA_LANGS
     if syntaxhighlight_langs is None and len(WIKI_DATA_LANGS) > 0:
@@ -102,55 +109,57 @@ def wiki_as_base_all(
     if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
         for item in syntaxhighlight_langs:
             results = wiki_as_base_from_syntaxhighlight(wikitext, item)
+            # results = wiki_as_base_from_syntaxhighlight(wikitext)
             if results:
                 for result in results:
                     if not result:
                         continue
                     if result[2]:
-                        data['data'].append({
-                            "@type": 'wiki/data/' + result[1],
-                            "@id": result[2],
-                            'data_raw': result[0]
-                        })
+                        data["data"].append(
+                            {
+                                "@type": "wiki/data/" + result[1],
+                                "@id": result[2],
+                                "data_raw": result[0],
+                            }
+                        )
                     else:
-                        data['data'].append({
-                            "@type": 'wiki/data/' + result[1],
-                            # "@id": result[2],
-                            'data_raw': result[0]
-                        })
+                        data["data"].append(
+                            {
+                                "@type": "wiki/data/" + result[1],
+                                # "@id": result[2],
+                                "data_raw": result[0],
+                            }
+                        )
     return data
 
 
 def wiki_as_base_from_infobox(
-    wikitext: str,
-    template_key: str,
-    id_from: List[str] = None
+    wikitext: str, template_key: str, id_from: List[str] = None
 ):
-    """wiki_as_base_from_infobox Parse typical Infobox
-    """
+    """wiki_as_base_from_infobox Parse typical Infobox"""
     data = {}
-    data['@type'] = 'wiki/infobox/' + template_key
-    data['@id'] = None
+    data["@type"] = "wiki/infobox/" + template_key
+    data["@id"] = None
     # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.
 
     if id_from is None:
         id_from = [
-            ('key', '=', 'value'),
-            ('key'),
+            ("key", "=", "value"),
+            ("key"),
         ]
 
-    if wikitext.find('{{' + template_key) == -1:
+    if wikitext.find("{{" + template_key) == -1:
         return None
 
     # @TODO better error handling
-    if wikitext.count('{{' + template_key) > 1:
+    if wikitext.count("{{" + template_key) > 1:
         return False
 
     # if True:
     try:
-        start_template = wikitext.split('{{' + template_key)[1]
+        start_template = wikitext.split("{{" + template_key)[1]
         raw_lines = start_template.splitlines()
         counter_tag = 1
         index = -1
@@ -161,18 +170,19 @@ def wiki_as_base_from_infobox(
             if counter_tag == 0:
                 break
             raw_line_trimmed = raw_line.strip()
-            if raw_line_trimmed.startswith('|'):
+            if raw_line_trimmed.startswith("|"):
                 # parts = raw_line_trimmed.split('=')
-                if raw_line_trimmed.find('=') > -1:
-                    key_tmp, value_tmp = raw_line_trimmed.split('=')
-                    key = key_tmp.strip('|').strip()
+                if raw_line_trimmed.find("=") > -1:
+                    key_tmp, value_tmp = raw_line_trimmed.split("=")
+                    key = key_tmp.strip("|").strip()
                 else:
                     continue
                     # key = raw_line_trimmed
                 # data['_allkeys'].append(key)
                 if len(raw_lines) >= index + 1:
-                    if raw_lines[index + 1].strip() == '}}' or \
-                            raw_lines[index + 1].strip().startswith('|'):
+                    if raw_lines[index + 1].strip() == "}}" or raw_lines[
+                        index + 1
+                    ].strip().startswith("|"):
                         # closed
                         data[key] = value_tmp.strip()
                         # pass
@@ -185,22 +195,20 @@ def wiki_as_base_from_infobox(
     if id_from is not None and len(id_from):
         for attemps in id_from:
             if len(attemps) == 1 and attemps[0] in data and len(data[attemps[0]]) > 0:
-                data['@id'] = data[attemps[0]]
+                data["@id"] = data[attemps[0]]
                 break
             if len(attemps) == 3 and attemps[0] in data and attemps[2] in data:
-                data['@id'] = data[attemps[0]] + attemps[1] + data[attemps[2]]
+                data["@id"] = data[attemps[0]] + attemps[1] + data[attemps[2]]
                 break
 
-    if data['@id'] is None:
-        del data['@id']
+    if data["@id"] is None:
+        del data["@id"]
 
     return data
 
 
 def wiki_as_base_from_syntaxhighlight(
-        wikitext: str, lang: str = None,
-        has_text: str = None,
-        match_regex: str = None
+    wikitext: str, lang: str = None, has_text: str = None, match_regex: str = None
 ) -> List[tuple]:
     """wiki_as_base_get_syntaxhighlight _summary_
 
@@ -222,16 +230,19 @@ def wiki_as_base_from_syntaxhighlight(
     result = []
     if lang is None:
         reg_sh = re.compile(
-            '<syntaxhighlight lang=\"(?P<lang>[a-z0-9]{2,20})\">(?P<data>.*?)</syntaxhighlight>',
-            flags=re.M | re.S | re.U)
+            '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
+            flags=re.M | re.S | re.U,
+        )
     else:
         reg_sh = re.compile(
-            f'<syntaxhighlight lang=\"(?P<lang>{lang})\">(?P<data>.*?)</syntaxhighlight>',
-            flags=re.M | re.S | re.U)
+            f'<syntaxhighlight lang="(?P<lang>{lang})">(?P<data>.*?)</syntaxhighlight>',
+            flags=re.M | re.S | re.U,
+        )
 
     # TODO make comments like <!-- work
     reg_filename = re.compile(
-        '[#|\/\/]\s?filename\s?=\s?(?P<filename>[\w\-\_\.]{3,255})', flags=re.U)
+        "[#|\/\/]\s?filename\s?=\s?(?P<filename>[\w\-\_\.]{3,255})", flags=re.U
+    )
 
     items = re.findall(reg_sh, wikitext)
 
