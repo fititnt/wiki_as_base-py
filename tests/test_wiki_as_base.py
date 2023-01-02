@@ -107,3 +107,17 @@ def test_wiki_as_base__syntaxhighlight_yaml_match_regex():
     assert len(results) == 2
     assert results[0][1] == 'yaml'  # 0 <syntaxhighlight lang="yaml">
     assert results[1][1] == 'yaml'  # 2 <syntaxhighlight lang="yaml">
+
+
+def test_wiki_as_base__chatbotpor_test1():
+    with open(test_dir + '/data/chatbot-por.wiki.txt', 'r') as content_file:
+        content = content_file.read()
+
+    # Just to test if tox is working; not really useful
+    results = wiki_as_base.wiki_as_base_from_syntaxhighlight(
+        content, 'text', match_regex='(.*)filename(.*)')
+    # print(results)
+    # assert False
+    assert len(results) == 2
+    assert results[0][1] == 'text'  # 0 <syntaxhighlight lang="text">
+    assert results[1][1] == 'text'  # 2 <syntaxhighlight lang="text">

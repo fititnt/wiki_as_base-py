@@ -1,0 +1,56 @@
+Página de rascunho com linguagem de scripts para criação de chatbots na língua portuguesa. Faz uso de [https://www.rivescript.com/ RiveScript], alternativa não XML ao [[w:Artificial Intelligence Markup Language]].
+
+Veja também [[User:EmericusPetro/sandbox/Wiki-as-base]] para saber os dados desta página são minerados e usados como fonte de conhecimento por chatbots experimentais.
+
+== Dados ==
+
+=== ola.rive ===
+<syntaxhighlight lang="text">
+// filename = ola.rive
+! version = 2.0
+
+// Substituições comuns
+! sub é = e
+! sub olá = ola
+! sub vc = voce
+! sub você = voce
+
+// Início
++ ola bot
+- Olá humano.
+
++ meu nome e *
+- <set nome=<formal>>Prazer em conhecer você, <get nome>.
+
++ (qual e meu nome|quem sou eu)
+- Você é <get nome>, certo?
+
++ (ajuda|help)
+- No momento este chatbot é muito simples e pouco documentado.
+^ Peça ajuda no telegram com @fititnt ou no @grupoumbraosm
+
++ *
+- Não sei o que responder.
+- Tente perguntar de forma diferente
+- Não entendi. Peça ajuda no Telegram com @fititnt ou no @grupoumbraosm
+</syntaxhighlight>
+
+=== person.rive ===
+Via https://github.com/aichaos/rsts/blob/master/tests/substitutions.yml
+
+<syntaxhighlight lang="text">
+// filename = person.rive
+! version = 2.0
+
++ diga *
+- <person>
+</syntaxhighlight>
+
+== Emuladores e editores  ==
+* Online
+** https://www.rivescript.com/try
+** https://play.rivescript.com/
+
+
+== Licença ==
+Domínio publico

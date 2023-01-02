@@ -17,11 +17,13 @@ EXIT_SYNTAX = 2  # pylint: disable=invalid-name
 #   wiki_as_base --input-stdin < tests/data/multiple.wiki.txt | jq .data[1].data_raw
 #   cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin | jq .data[1].data_raw
 
+
 def main():
 
     parser = argparse.ArgumentParser(
-        prog='wiki_as_base',
-        description='Use MediaWiki Wiki page content as read-only database')
+        prog="wiki_as_base",
+        description="Use MediaWiki Wiki page content as read-only database",
+    )
 
     # parser.add_argument(
     #     'integers', metavar='N', type=int, nargs='+',
@@ -35,11 +37,16 @@ def main():
     #     const=sum, default=max,
     #     help='sum the integers (default: find the max)')
 
-    parser.add_argument('--page-title', help="Page title of input")
+    parser.add_argument("--page-title", help="Page title of input")
     parser.add_argument(
-        '--input-stdin', action='store_true',
-        help="Use STDIN (data piped from other tools)"
-        "instead of remote API")
+        "--input-stdin",
+        action="store_true",
+        help="Use STDIN (data piped from other tools)" "instead of remote API",
+    )
+
+    parser.add_argument(
+        "--output-raw", action="store_true", help="Output RAW, unedited Wiki markup"
+    )
 
     args = parser.parse_args()
 
@@ -64,13 +71,19 @@ def main():
     #         print("The Computation Done is Summation")
     #     print("And Here's your result:", end=" ")
     else:
-        print('--page-title ?')
-        print('--input-stdin ?')
+        print("--page-title ?")
+        print("--input-stdin ?")
         return EXIT_ERROR
 
     if result:
+
+        if args.output_raw:
+            print(result)
+            return EXIT_OK
+
         data = wiki_as_base.wiki_as_base_all(result)
         if data:
+
             print(json.dumps(data, ensure_ascii=False, indent=2))
             return EXIT_OK
         else:

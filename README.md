@@ -38,6 +38,13 @@ cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
 
 ```
 
+<!--
+export WIKI_DATA_LANGS="yaml\nturtle\ntext"
+wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' | jq .data[0]
+
+wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' --output-raw
+-->
+
 ### Library
 
 - See [examples/](examples/)
