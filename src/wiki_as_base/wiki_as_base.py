@@ -20,9 +20,11 @@
 #       CREATED:  ---
 # ==============================================================================
 
+import io
 import os
 import re
 from typing import List, Union
+import zipfile
 import requests
 
 _REFVER = "0.3.0"
@@ -313,3 +315,25 @@ def wiki_as_base_request(
 
 def wiki_as_base_raw(wikitext: str) -> dict:
     return wikitext
+
+
+class WikiAsBase2Zip:
+    file_and_data: dict
+
+    def __init__(self, dir: str = None) -> None:
+
+        self.file_and_data["teste.txt"] = "# filename = teste.txt"
+        self.file_and_data["teste.csv"] = "# filename = teste.csv"
+        pass
+
+    def add_file(self, path: str, content: str):
+        pass
+
+    def output(self):
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+            for file_name, file_data in self.file_and_data.items():
+                zip_file.writestr(file_name, file_data)
+
+        zip_buffer.seek(0)
+        return zip_buffer.getvalue()
