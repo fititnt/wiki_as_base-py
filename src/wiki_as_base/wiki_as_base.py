@@ -21,6 +21,7 @@
 # ==============================================================================
 
 import io
+import json
 import os
 import re
 from typing import List, Union
@@ -318,22 +319,51 @@ def wiki_as_base_raw(wikitext: str) -> dict:
 
 
 class WikiAsBase2Zip:
-    file_and_data: dict
+    wab_jsonld: dict = {}
+    file_and_data: dict = {}
 
-    def __init__(self, dir: str = None) -> None:
+    def __init__(self, wab_jsonld: dict, verbose: bool = False) -> None:
+        self.wab_jsonld = wab_jsonld
+        if verbose:
+            self.file_and_data["wikiasbase.jsonld"] = json.dumps(
+                wab_jsonld, ensure_ascii=False, indent=2
+            )
+        # self.file_and_data["teste.txt"] = "# filename = teste.txt"
+        # self.file_and_data["teste.csv"] = "# filename = teste.csv"
 
-        self.file_and_data["teste.txt"] = "# filename = teste.txt"
-        self.file_and_data["teste.csv"] = "# filename = teste.csv"
-        pass
+        for item in self.wab_jsonld["data"]:
+            filename = None
+            content = None
+            # @TODO improve this check to determine in file format
+            if "@id" in item and item["@id"].find(".") > -1:
+                filename = item["@id"]
+                if "data_raw" in item:
+                    content = item["data_raw"]
 
-    def add_file(self, path: str, content: str):
-        pass
+            if filename is not None and content is not None:
+                self.file_and_data[filename] = content
 
-    def output(self):
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-            for file_name, file_data in self.file_and_data.items():
-                zip_file.writestr(file_name, file_data)
+    def output(self, zip_path: str = None):
+        if zip_path:
 
-        zip_buffer.seek(0)
-        return zip_buffer.getvalue()
+            if os.path.isfile(zip_path):
+                os.remove(zip_path)
+
+            with zipfile.ZipFile(
+                zip_path, "a", zipfile.ZIP_DEFLATED, False
+            ) as zip_file:
+                for file_name, file_data in self.file_and_data.items():
+                    zip_file.writestr(file_name, file_data)
+
+            return zip_path
+        else:
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(
+                zip_buffer, "a", zipfile.ZIP_DEFLATED, False
+            ) as zip_file:
+                for file_name, file_data in self.file_and_data.items():
+                    zip_file.writestr(file_name, file_data)
+
+            zip_buffer.seek(0)
+            return zip_buffer.getvalue()
+            # return str(zip_buffer.getvalue())

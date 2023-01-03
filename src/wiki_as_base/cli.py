@@ -4,6 +4,8 @@ import os
 import sys
 import wiki_as_base
 
+# from wiki_as_base.wiki_as_base import WikiAsBase2Zip
+
 EXIT_OK = 0  # pylint: disable=invalid-name
 EXIT_ERROR = 1  # pylint: disable=invalid-name
 EXIT_SYNTAX = 2  # pylint: disable=invalid-name
@@ -49,15 +51,23 @@ def main():
         "--output-raw", action="store_true", help="Output RAW, unedited Wiki markup"
     )
 
+    # parser.add_argument(
+    #     "--output-dir",
+    #     help="Output inferred files to a directory. "
+    #     "With --verbose will save input text and JSON-LD metadata",
+    # )
+
     parser.add_argument(
-        "--output-dir",
-        help="Output inferred files to a directory. "
+        "--output-zip-stdout",
+        action="store_true",
+        help="Output inferred files to a zip (stdout)"
         "With --verbose will save input text and JSON-LD metadata",
     )
 
     parser.add_argument(
-        "--output-zip",
-        help="Output inferred files to a zip file. "
+        "--output-zip-file",
+        # action="store_true",
+        help="Output inferred files to a zip (file)"
         "With --verbose will save input text and JSON-LD metadata",
     )
 
@@ -67,16 +77,16 @@ def main():
 
     # print(args)
 
-    result = None
+    wikimarkup_raw = None
 
     if args.page_title:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
-        result = wiki_as_base.wiki_as_base_request(args.page_title)
+        wikimarkup_raw = wiki_as_base.wiki_as_base_request(args.page_title)
     elif args.input_stdin:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
-        result = sys.stdin.read()
+        wikimarkup_raw = sys.stdin.read()
 
         # return EXIT_ERROR
         # print(data)
@@ -90,26 +100,39 @@ def main():
         print("--input-stdin ?")
         return EXIT_ERROR
 
-    if args.output_dir and (
-        not os.path.exists(args.output_dir) or not os.path.isdir(args.output_dir)
-    ):
-        raise SyntaxError(f"--output-dir error [{args.output_dir}]")
+    # if args.output_dir and (
+    #     not os.path.exists(args.output_dir) or not os.path.isdir(args.output_dir)
+    # ):
+    #     raise SyntaxError(f"--output-dir error [{args.output_dir}]")
 
-    if result:
+    if not wikimarkup_raw:
+        print('{"error": "no result from request"}')
+        return EXIT_ERROR
 
-        if args.output_raw:
-            print(result)
-            return EXIT_OK
+    if args.output_raw:
+        print(wikimarkup_raw)
+        return EXIT_OK
 
-        data = wiki_as_base.wiki_as_base_all(result)
-        if data:
+    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
 
-            print(json.dumps(data, ensure_ascii=False, indent=2))
+    if not wikiasbase_jsonld:
+        print('{"error": "no data from request"}')
+        return EXIT_ERROR
+
+    if args.output_zip_stdout:
+        wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, bool(args.verbose))
+        print(wabzip.output())
+        return EXIT_OK
+
+    elif args.output_zip_file:
+        wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, bool(args.verbose))
+        if wabzip.output(args.output_zip_file):
             return EXIT_OK
         else:
-            print('{"error": "no data from request"}')
+            return EXIT_ERROR
     else:
-        print('{"error": "no result from request"}')
+        print(json.dumps(wikiasbase_jsonld, ensure_ascii=False, indent=2))
+        return EXIT_OK
 
     return EXIT_ERROR
 

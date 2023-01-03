@@ -36,6 +36,9 @@ wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[0
 ## Example of, instead of use WIKI_API, parse Wiki markup directly. Output JSON- LD
 cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
 
+
+## Output zip file instead of JSON-LD. --verbose also adds wikiasbase.jsonld to file
+cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-file tests/temp/chatbot-por.zip
 ```
 
 <!--
@@ -48,7 +51,11 @@ wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por'
 
 cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --output-raw
 
-cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-dir tests/temp/
+cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-file tests/temp/teste2.zip
+cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-stdout > tests/temp/teste2-stdout.zip
+
+hexcurse tests/temp/teste2.zip
+hexcurse tests/temp/teste2-stdout.zip
 -->
 
 ### Library
