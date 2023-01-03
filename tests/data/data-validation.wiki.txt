@@ -1,0 +1,95 @@
+For examplation of Wiki-as-base, see [[User:EmericusPetro/sandbox/Wiki-as-base]]
+
+{{Info|This page is mostly for test software. In more realistic usage, schemas/validation rules (such as SHACL shapes, or JOSM validation rules) and the data would not be on the exact same page (maybe not even on the Wiki), but from multiple sources. }}
+
+== Shapes ==
+
+=== R001_wikidata.shacl.ttl ===
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata.shacl.ttl
+
+PREFIX osmm: <https://example.org/todo-meta/>
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+PREFIX osmx: <https://example.org/todo-xref/>
+PREFIX osmvsh: <https://www.openstreetmap.org/validation/shacl/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <https://example.org/>
+
+# "wikipedia/wikidata type tag that is incorrect according to not:* tag" via @matkoniecz
+osmvsh:R001_wikidata
+    a sh:NodeShape ;
+    sh:targetClass osmw:Node, osmw:Way, osmw:Relation ;
+    sh:property [
+        sh:path osmt:brand:wikidata ;
+        sh:disjoint osmt:not:brand:wikidata ;
+        sh:message "Impossible to be, and not to be, at the same time something"@en ;
+        sh:message "Impossível ser, e não ser, ao mesmo tempo algo"@pt ;
+    ]
+.
+</syntaxhighlight>
+
+== Data ==
+
+=== Valid data ===
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata-valid.tdata.ttl
+
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+
+osmway:220660292
+    a osmw:Way ;
+    osmt:brand:wikidata "Q1" ;
+    osmt:not:brand:wikidata "Q2" ;
+.
+</syntaxhighlight>
+
+
+=== Invalid data ===
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata-invalid.tdata.ttl
+
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+
+osmway:220660292
+    a osmw:Way ;
+    osmt:brand:wikidata "Q701338" ;
+    osmt:not:brand:wikidata "Q701338" ;
+.
+</syntaxhighlight>
+
+== Executables ==
+
+=== run-tests.sh ===
+
+<syntaxhighlight lang="bash">
+#!/bin/bash
+# filename = run-tests.sh
+#  Run with:
+#    ./run-tests.sh
+# @TODO generalize this file based only on file suffixes
+
+# "shacl" Requires Apache Jena CLI installed,
+# @see https://jena.apache.org/documentation/shacl/index.html
+
+set -x
+
+shacl validate --shapes=shapes/R001_wikidata.shacl.ttl --data=data/R001_wikidata-invalid.tdata.ttl
+
+shacl validate --shapes=shapes/R001_wikidata.shacl.ttl --data=data/R001_wikidata-valid.tdata.ttl
+
+set +x
+</syntaxhighlight>

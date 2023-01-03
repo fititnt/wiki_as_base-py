@@ -346,7 +346,7 @@ class WikiAsBase2Zip:
     def output(self, zip_path: str = None):
         if zip_path:
 
-            if os.path.isfile(zip_path):
+            if isinstance(zip_path, str) and os.path.isfile(zip_path):
                 os.remove(zip_path)
 
             with zipfile.ZipFile(

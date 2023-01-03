@@ -1,6 +1,14 @@
-* See https://github.com/fititnt/wiki_as_base-py for command line tool
-* See https://github.com/fititnt/openstreetmap-serverless-functions for proof of concept (Telegram Bot + FaaS endpoint)
-
+{{info|This page is an example test page for Wiki-as-base, strategy that make Media Wiki pages become an [[w:Storage_virtualization]] beyond the already data mined infoboxes used by Taginfo et al (see [[Taginfo/Parsing_the_Wiki]]). Current proof of concepts are [https://github.com/fititnt/wiki_as_base-py python package wiki_as_base] and [https://github.com/fititnt/openstreetmap-serverless-functions serverless / function as service with OpenFaaS]. Sorry for lack of better detailed documentation, but as 2023-01-03, '''the parsing strategies by Wiki-as-base are is work in progress.'''
+<br>
+* Server side (TL;DR [https://osm-faas.etica.ai/munin/ do not consume more than 50% of server resources])
+** JSON-LD: https://osm-faas.etica.ai/wiki-as-base/User:EmericusPetro/sandbox/Wiki-as-base
+** Zip: https://osm-faas.etica.ai/wiki-as-base/User:EmericusPetro/sandbox/Wiki-as-base.zip
+* With command line (required <code>pip install wiki_as_base --upgrade</code>)
+** JSON-LD: <code>wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'</code>
+** Zip <code>wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' --output-zip-file /tmp/wiki-as-base.zip</code>
+<br>
+Tip: change the page-titles for other OpenStreetMap pages to check preview results (mostly likely will return empty)
+}}
 
 == Data ==
 
