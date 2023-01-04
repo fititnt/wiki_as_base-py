@@ -28,7 +28,7 @@ from typing import List, Union
 import zipfile
 import requests
 
-_REFVER = "0.3.0"
+_REFVER = "0.5.0"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -133,6 +133,17 @@ def wiki_as_base_all(
                                 "data_raw": result[0],
                             }
                         )
+
+    wmt = WikiMarkupTableAST(wikitext)
+    tables = wmt.get_tables()
+    if tables and len(tables) > 0:
+        index = 1
+        for table in tables:
+            _tbl = {"@type": "wiki/data/table", "@id": f"t{index}"}
+            # table["@type"] = "wiki/data/table"
+            # table["@id"] = f"t{index}"
+            _tbl.update(table)
+            data["data"].append(_tbl)
     return data
 
 
@@ -385,6 +396,7 @@ class WikiMarkupTableAST:
     |	Attribute separator
     |}	Table end
 
+    @TODO maybe implement syntax of CSVW? https://w3c.github.io/csvw/syntax/
     """
 
     wikimarkup: str
@@ -398,7 +410,9 @@ class WikiMarkupTableAST:
 
     def _init_potential_tables(self):
         reg_filename = re.compile(
-            '\{\| class="wikitable[^\}]+\|\}', flags=re.M | re.S | re.U
+            # '\{\| class="wikitable[^\}]+\|\}', flags=re.M | re.S | re.U
+            "\{\| class=[\"'](?:[\w][^'\"]*\s)?wikitable[^\}]+\|\}",
+            flags=re.M | re.S | re.U,
         )
 
         items = re.findall(reg_filename, self.wikimarkup)
@@ -424,7 +438,7 @@ class WikiMarkupTableAST:
         lines.pop()
 
         # for line in lines:
-        is_row = True
+        # is_row = True
         while len(lines):
             line = lines.pop(0).strip()
 
@@ -437,15 +451,19 @@ class WikiMarkupTableAST:
                 continue
 
             # Header
-            if line.startswith("! ") and line.find("!!") > 2:
-                meta["header"] = list(
-                    # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
-                    map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
-                )
-            if line.startswith("! ") and line.find("!!") == -1:
+            # @TODO fix this part because sometimes can start without space
+            #       however it must not start with |- |} |+
+            if line.startswith("! "):
+                if line.find("!!") > 2:
+                    meta["header"] = list(
+                        # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
+                        map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
+                    )
+            # if line.startswith("! ") and line.find("!!") == -1:
+            else:
                 _header = []
 
-                while line and line != "|-":
+                while line and not line.startswith("|-"):
                     _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
                     line = lines.pop(0).strip() if len(lines) > 0 else None
 
@@ -453,19 +471,29 @@ class WikiMarkupTableAST:
                 continue
 
             # Row data
-            if line.startswith("| ") and line.find("||") > 2:
-                meta["data"].append(
-                    list(map(self.parse_table_cellvalue, line.lstrip("| ").split("||")))
-                )
-            if line.startswith("| ") and line.find("||") == -1:
-                _row = []
+            # @TODO fix this part because sometimes can start without space
+            #       however it must not start with |- |} |+
+            # if line.startswith("| "):
+            if line.startswith("|") and not line.startswith(("|+", "|-", "|}")):
+                if line.find("||") > 2:
+                    meta["data"].append(
+                        list(
+                            map(
+                                self.parse_table_cellvalue,
+                                line.lstrip("| ").split("||"),
+                            )
+                        )
+                    )
+                # if line.startswith("| ") and line.find("||") == -1:
+                else:
+                    _row = []
 
-                while line and line != "|-":
-                    _row.append(self.parse_table_cellvalue(line.lstrip("| ")))
-                    line = lines.pop(0).strip() if len(lines) > 0 else None
+                    while line and not line.startswith("|-"):
+                        _row.append(self.parse_table_cellvalue(line.lstrip("| ")))
+                        line = lines.pop(0).strip() if len(lines) > 0 else None
 
-                meta["data"].append(_row)
-                continue
+                    meta["data"].append(_row)
+                    continue
 
             # break
 
@@ -495,3 +523,16 @@ class WikiMarkupTableAST:
     def get_debug(self):
         debug = {"tables_potential": self.tables_potential, "tables": self.tables}
         return debug
+
+    def get_tables(self, strict: bool = False) -> list:
+        tables = []
+
+        # @TODO enable strict=True by default
+
+        for item in self.tables:
+            if not strict or (
+                len(item["_errors"]) == 0 and item["_is_complete"] == True
+            ):
+                tables.append(item)
+
+        return tables

@@ -1,0 +1,39 @@
+
+==== Elements ====
+
+From https://wiki.openstreetmap.org/wiki/Elements
+
+{| class="wikitable"
+|-
+! scope="col" |Name
+! scope="col" |Value
+! scope="col" | Description
+|- id="id"
+|<tt>id</tt>
+|integer ([[{{LL|64-bit Identifiers}}|64-bit]]) 
+|Used for identifying the element. Element types have their own ID space, so there could be a node with id=100 and a way with id=100, which are unlikely to be related or geographically near to each other.<br /> Positive (>0) values are used for all existing elements (and will remain assigned when they are modified or deleted); negative values (<0) are reserved (their scope limited to the current changeset and never stored in the database) and only used when sending data to the OSM database for identifying new objects to create and reference them in other created or modified objects (the server will replace these temporary identifiers sent by the editing application, by assigning an actual positive identifier for each created object, and will return a mapping from the negative identifiers used to their assigned positive identifiers).
+|-
+|<tt>user</tt>
+|character string
+|The display name of the user who last modified the object (informative only and may be empty). A user can change their display name at any time (existing elements will reflect the new user name without needing any version change).
+|-
+|<tt>uid</tt>
+|integer
+|The numeric identifier of the user who last modified the object. An user identifier never changes.
+|-
+|<tt>timestamp</tt>
+|[https://www.w3.org/TR/NOTE-datetime W3C standard date and time formats]. 
+|Time of the last modification (e.g. "2016-12-31T23:59:59.999Z").
+|-
+|<tt>visible</tt>
+|"<tt>true</tt>" or "<tt>false</tt>"
+|Whether the object is deleted or not in the database, if visible="false" then the object should only be returned by history calls.
+|-
+|<tt>version</tt>
+|integer
+| The edit version of the object. Newly created objects start at version 1 and the value is incremented by the server when a client uploads a new version of the object. The server will reject a new version of an object if the version sent by the client does not match the current version of the object in the database. 
+|-
+|<tt>changeset</tt>
+|integer
+|The [[changeset]] number in which the object was created or updated (supporting [[{{LL|64-bit Identifiers}}|64-bit]] is recommended in applications for compatibility with long term evolution of the OSM database, but applications that only query data without updating them may ignore this informative attribute).
+|}

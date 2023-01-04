@@ -35,10 +35,10 @@ def test_wiki_as_base__all_test1():
     assert results is not None
     assert results is not False
     # assert len(results['data']) == 5
-    assert len(results["data"]) == 8
+    # assert len(results["data"]) == 8
+    # assert len(results["data"]) == 10
+    assert len(results["data"]) == 11
     assert results["@type"] == "wiki/wikiasbase"
-    # assert results[0][1] == 'yaml'  # 0 <syntaxhighlight lang="yaml">
-    # assert results[4][1] == 'text'  # 4 <syntaxhighlight lang="text">
 
 
 def test_wiki_as_base__infobox_test1():

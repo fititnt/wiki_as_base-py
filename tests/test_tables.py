@@ -62,18 +62,10 @@ def test_wiki_as_base_raw():
     # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_DOUBLEMARKS)
     wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_STYLE)
 
-    print(wmt.get_debug())
-    # raise ValueError(wmt.get_debug())
-    assert False
-    # assert True
+    tables = wmt.get_tables()
 
-    # raise ValueError(wmt)
+    print(wmt.get_tables())
+    # assert False
 
-    # with open(test_dir + "/data/multiple.wiki.txt", "r") as content_file:
-    #     content = content_file.read()
-
-    # # Just to test if tox is working; not really useful
-    # content_raw = wiki_as_base.wiki_as_base_raw(content)
-    # # print(content_raw)
-    # # assert False
-    # assert content == content_raw
+    assert len(tables) == 1
+    # assert False

@@ -56,6 +56,8 @@ cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --out
 
 hexcurse tests/temp/teste2.zip
 hexcurse tests/temp/teste2-stdout.zip
+
+cat tests/data/edge-case.wiki.txt | wiki_as_base --input-stdin
 -->
 
 ### Library
