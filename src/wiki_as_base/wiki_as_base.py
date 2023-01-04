@@ -373,13 +373,58 @@ class WikiMarkupTableAST:
     """Abstract Syntax Tree of Wiki Markup table
 
     See https://en.wikipedia.org/wiki/Help:Basic_table_markup
+
+    Markup	Name
+    {|	Table start
+    |+	Table caption
+    |-	Table row
+    !	Header cell
+    !!	Header cell (on the same line)
+    |	Data cell
+    ||	Data cell (on the same line)
+    |	Attribute separator
+    |}	Table end
+
     """
 
     wikimarkup: str
 
+    tables_potential: list = []
+    tables: list = []
+
     def __init__(self, wikimarkup: str) -> None:
         self.wikimarkup = wikimarkup
-        pass
+        self._init_potential_tables()
+
+    def _init_potential_tables(self):
+        reg_filename = re.compile(
+            '\{\| class="wikitable[^\}]+\|\}', flags=re.M | re.S | re.U
+        )
+
+        items = re.findall(reg_filename, self.wikimarkup)
+        self.tables_potential = items
+        for item in self.tables_potential:
+            parsed = self.parse_table(item)
+            if parsed is not None and len(parsed["_errors"]) == 0:
+                self.tables.append(parsed)
+
+    def parse_table(self, wikimarkup_table: str) -> dict:
+        meta = {"caption": None, "header": [], "data": [], "_errors": []}
+
+        lines = wikimarkup_table.splitlines()
+        for line in lines:
+            if line.startswith("{|"):
+                continue
+            if line.startswith("|+"):
+                _regresult = re.search("\|\+\s?(?P<caption>.*)", line)
+                if _regresult:
+                    meta["caption"] = _regresult.group("caption")
+                else:
+                    meta["_errors"].append("caption")
+                continue
+
+        return meta
 
     def get_debug(self):
-        pass
+        debug = {"tables_potential": self.tables_potential, "tables": self.tables}
+        return debug

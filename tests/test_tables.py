@@ -32,6 +32,9 @@ def test_wiki_as_base_raw():
 
     wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE)
 
+    # print(wmt.get_debug())
+    # raise ValueError(wmt.get_debug())
+    # assert False
     assert True
 
     # raise ValueError(wmt)
