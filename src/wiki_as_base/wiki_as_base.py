@@ -412,9 +412,16 @@ class WikiMarkupTableAST:
         meta = {"caption": None, "header": [], "data": [], "_errors": []}
 
         lines = wikimarkup_table.splitlines()
-        for line in lines:
-            if line.startswith("{|"):
-                continue
+        if not lines[0].startswith("{|") or not lines[-1].startswith("|}"):
+            return None
+        lines.pop(0)
+        lines.pop()
+
+        # for line in lines:
+        is_row = True
+        while len(lines):
+            line = lines.pop(0).strip()
+
             if line.startswith("|+"):
                 _regresult = re.search("\|\+\s?(?P<caption>.*)", line)
                 if _regresult:
@@ -423,7 +430,19 @@ class WikiMarkupTableAST:
                     meta["_errors"].append("caption")
                 continue
 
+            while line != "|-":
+                if line.startswith("! ") and line.find("!!") > 2:
+                    meta["header"] = line.lstrip("! ").split("!!")
+                if line.startswith("| ") and line.find("||") > 2:
+                    meta["data"].append(line.lstrip("| ").split("||"))
+                break
+
+            # break
+
         return meta
+
+    def parse_table_row(self, tablerow: list):
+        pass
 
     def get_debug(self):
         debug = {"tables_potential": self.tables_potential, "tables": self.tables}

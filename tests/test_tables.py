@@ -27,12 +27,41 @@ PERFECT_TABLE = """{| class="wikitable"
 |}
 """
 
+PERFECT_TABLE_DOUBLEMARKS = """{| class="wikitable"
+|+ Caption: example table
+|-
+! header1 !! header2 !! header3
+|-
+| row1cell1 || row1cell2 || row1cell3
+|-
+| row2cell1 || row2cell2 || row2cell3
+|}
+"""
+
+PERFECT_TABLE_STYLE = """{| class="wikitable"
+|+ Caption: some cells red text.
+|-
+! header1
+! header2
+! header3
+|-
+| style="color: red" | row1cell1
+| row1cell2
+| style="color: red" | row1cell3
+|-
+| row2cell1
+| style="color: red" | row2cell2
+| row2cell3
+|}
+"""
+
 
 def test_wiki_as_base_raw():
 
-    wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE)
+    # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE)
+    wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_DOUBLEMARKS)
 
-    # print(wmt.get_debug())
+    print(wmt.get_debug())
     # raise ValueError(wmt.get_debug())
     # assert False
     assert True
