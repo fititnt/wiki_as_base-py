@@ -367,3 +367,19 @@ class WikiAsBase2Zip:
             zip_buffer.seek(0)
             return zip_buffer.getvalue()
             # return str(zip_buffer.getvalue())
+
+
+class WikiMarkupTableAST:
+    """Abstract Syntax Tree of Wiki Markup table
+
+    See https://en.wikipedia.org/wiki/Help:Basic_table_markup
+    """
+
+    wikimarkup: str
+
+    def __init__(self, wikimarkup: str) -> None:
+        self.wikimarkup = wikimarkup
+        pass
+
+    def get_debug(self):
+        pass

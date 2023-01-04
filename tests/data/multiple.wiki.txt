@@ -136,7 +136,8 @@ See https://en.wikipedia.org/wiki/Help:Table
 | Example || Example || Example
 |}
 
-==== Style 2 ====
+==== Style 1 ====
+
 
 {| class='wikitable sortable' style='width:100%'
 ! keyaaa
@@ -158,6 +159,133 @@ See https://en.wikipedia.org/wiki/Help:Table
 | value 3 bbb
 | value 3 ccc
 | value 3 ddd
+|}
+
+==== Database Schemas ====
+
+Table from https://wiki.openstreetmap.org/wiki/Databases_and_data_access_APIs
+
+{| class="sortable wikitable"
+|-
+! Schema name
+! Created with
+! Used by
+! Primary use case
+! Updatable
+! Geometries ([[PostGIS]])
+! Lossless
+! [[hstore]] columns
+! Database
+|-
+| [[#osm2pgsql|osm2pgsql]]
+| [[osm2pgsql]]
+| [[Mapnik]], [[Kothic JS]]   
+| Rendering
+| {{yes}}
+| {{yes}}
+| {{no}}
+| {{Yes|optional}}
+| PostgreSQL
+|-
+| [[#apidb|apidb]]
+| [[osmosis]]
+| [[API]] 
+| Mirroring
+| {{yes}}
+| {{no}}
+| {{yes}}
+| {{no}}
+| PostgreSQL, MySQL
+|-
+| [[#pgsnapshot|pgsnapshot]]
+| [[osmosis]]
+| [[Xapi#jXAPI| jXAPI]]
+| Analysis
+| {{yes}}
+| {{yes|optional}}
+| {{yes}}
+| {{yes}}
+| PostgreSQL
+|-
+| [[#imposm|imposm]]
+| [[Imposm]]
+| 
+| Rendering
+| {{no}}
+| {{yes}}
+| {{no}}
+| Imposm2: no, Imposm3: yes
+| PostgreSQL
+|-
+| [[#nominatim|nominatim]]
+| [[osm2pgsql]]
+| [[Nominatim]]
+| Search, Geocoding
+| {{yes}}
+| {{yes}}
+| {{yes}}
+| ?
+| PostgreSQL
+|-
+| [[#ogr2ogr|ogr2ogr]]
+| [[ogr2ogr]]
+| 
+| Analysis
+| {{no}}
+| {{yes}}
+| {{no}}
+| {{yes|optional}}
+| ''various''
+|-
+| [[#osmsharp|osmsharp]]
+| [[OsmSharp]]
+|
+| Routing
+| {{yes}}
+| {{no}}
+| ?
+| ?
+| Oracle
+|-
+| [[#overpass|overpass]]
+| [[Overpass API]]
+|
+| Analysis
+| {{yes}}
+| ?
+| {{yes}}
+| ?
+| ''custom''
+|-
+| [[#mongosm|mongosm]]
+| [https://github.com/iandees/mongosm MongOSM]
+|
+| Analysis
+| maybe
+| ?
+| ?
+| ?
+| MongoDB
+|-
+| [[#node-mongosm|node-mongosm]]
+| [http://mongoosejs.com/ Mongoosejs]
+|
+| Analysis
+| {{Yes}}
+| {{Yes}}
+| {{Yes}}
+| NA
+| MongoDB
+|-
+| [[#osmium|osmium]]
+| [[Osmium]]
+| 
+| Analysis
+| {{No}}
+| {{Yes}}
+| {{No}}
+| {{Yes}}
+| PostgreSQL
 |}
 
 == Data validation ==
