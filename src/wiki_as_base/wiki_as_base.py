@@ -20,6 +20,8 @@
 #       CREATED:  ---
 # ==============================================================================
 
+# import copy
+import csv
 import io
 import json
 import os
@@ -40,18 +42,39 @@ WIKI_INFOBOXES_IDS = os.getenv("WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
 
 
 # @TODO add other common formats on <syntaxhighlight lang="">
-_default_langs = [
-    "yaml",
-    "turtle",
-    "json",
-    "cpp",
-    "text",
-    "sql",
-    "sparql",
-]
+#       see https://pygments.org/docs/formatters/
+#       see https://pygments.org/docs/lexers/
+#           - Stopped on 'Lexers for .net languages'; needs check others
+_default_langs = {
+    "c": "c",  # what about .h?
+    "css": "css",
+    "c\+\+": "cpp",
+    "cpp": "cpp",
+    "dpatch": "dpatch",
+    "diff": "diff",
+    "udiff": "diff",
+    "html": "html",
+    "latex": "tex",
+    "tex": "tex",
+    "json": "json",
+    "python": "py",
+    # "raw": "raw",
+    # "tokens": "raw",
+    "sparql": "rq",
+    "sql": "sql",
+    "svg": "svg",
+    "text": "txt",
+    "turtle": "ttl",
+    "toml": "toml",
+    "terraform": "tf",
+    "tf": "tf",
+    "xml": "xml",
+    "yaml": "yml",
+}
 
 # WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "yaml\nturtle\ntext\ncpp\nsparql\nsql")
-WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs))
+WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs.keys()))
+# raise ValueError(WIKI_DATA_LANGS)
 # CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
 # CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
 
@@ -72,10 +95,10 @@ WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs))
 
 # @see https://regex101.com/r/rwCoVw/1
 # REG = re.compile('<syntaxhighlight lang=\"([a-z0-9]{2,20})\">(.*?)</syntaxhighlight>', flags='gmus')
-REG_SH_GENERIC = re.compile(
-    '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
-    flags=re.M | re.S | re.U,
-)
+# REG_SH_GENERIC = re.compile(
+#     '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
+#     flags=re.M | re.S | re.U,
+# )
 
 
 def wiki_as_base_all(
@@ -144,7 +167,10 @@ def wiki_as_base_all(
             # table["@id"] = f"t{index}"
             _tbl.update(table)
             data["data"].append(_tbl)
+            index += 1
+
     return data
+    # return copy.deepcopy(data)
 
 
 def wiki_as_base_from_infobox(
@@ -247,9 +273,18 @@ def wiki_as_base_from_syntaxhighlight(
             '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
             flags=re.M | re.S | re.U,
         )
+        # example https://wiki.openstreetmap.org/wiki/OSM_XML
+        reg_sh_old = re.compile(
+            '<source lang="?(?P<lang>[a-z0-9]{2,20})"?>(?P<data>.*?)</source>',
+            flags=re.M | re.S | re.U,
+        )
     else:
         reg_sh = re.compile(
             f'<syntaxhighlight lang="(?P<lang>{lang})">(?P<data>.*?)</syntaxhighlight>',
+            flags=re.M | re.S | re.U,
+        )
+        reg_sh_old = re.compile(
+            f'<source lang="?(?P<lang>{lang})"?>(?P<data>.*?)</source>',
             flags=re.M | re.S | re.U,
         )
 
@@ -258,7 +293,10 @@ def wiki_as_base_from_syntaxhighlight(
         "[#|\/\/]\s?filename\s?=\s?(?P<filename>[\w\-\_\.]{3,255})", flags=re.U
     )
 
-    items = re.findall(reg_sh, wikitext)
+    items_a = re.findall(reg_sh, wikitext)
+    items_b = re.findall(reg_sh_old, wikitext)
+
+    items = [*items_a, *items_b]
 
     if len(items) > 0 and has_text is not None:
         original = items
@@ -350,6 +388,20 @@ class WikiAsBase2Zip:
                 filename = item["@id"]
                 if "data_raw" in item:
                     content = item["data_raw"]
+
+            elif "@id" in item and item["@type"] == "wiki/data/table":
+                if "_errors" in item and len(item["_errors"]):
+                    continue
+                filename = item["@id"] + ".csv"
+
+                output = io.StringIO()
+                writer = csv.writer(output)
+
+                writer.writerow(item["header"])
+                for line in item["data"]:
+                    writer.writerow(line)
+
+                content = output.getvalue()
 
             if filename is not None and content is not None:
                 self.file_and_data[filename] = content
@@ -453,21 +505,22 @@ class WikiMarkupTableAST:
             # Header
             # @TODO fix this part because sometimes can start without space
             #       however it must not start with |- |} |+
-            if line.startswith("! "):
+            # if line.startswith("! "):
+            if line.startswith("!"):
                 if line.find("!!") > 2:
                     meta["header"] = list(
                         # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
                         map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
                     )
-            # if line.startswith("! ") and line.find("!!") == -1:
-            else:
-                _header = []
+                # if line.startswith("! ") and line.find("!!") == -1:
+                else:
+                    _header = []
 
-                while line and not line.startswith("|-"):
-                    _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
-                    line = lines.pop(0).strip() if len(lines) > 0 else None
+                    while line and not line.startswith("|-"):
+                        _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
+                        line = lines.pop(0).strip() if len(lines) > 0 else None
 
-                meta["header"] = _header
+                    meta["header"] = _header
                 continue
 
             # Row data
@@ -493,7 +546,7 @@ class WikiMarkupTableAST:
                         line = lines.pop(0).strip() if len(lines) > 0 else None
 
                     meta["data"].append(_row)
-                    continue
+                continue
 
             # break
 
@@ -507,6 +560,8 @@ class WikiMarkupTableAST:
                     break
         if row_len_mismatch is False and row_len > 0 and row_len == header_len:
             meta["_is_complete"] = True
+        else:
+            meta["_errors"].append("incomplete table")
 
         return meta
 
