@@ -59,12 +59,13 @@ PERFECT_TABLE_STYLE = """{| class="wikitable"
 def test_wiki_as_base_raw():
 
     # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE)
-    wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_DOUBLEMARKS)
+    # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_DOUBLEMARKS)
+    wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_STYLE)
 
     print(wmt.get_debug())
     # raise ValueError(wmt.get_debug())
-    # assert False
-    assert True
+    assert False
+    # assert True
 
     # raise ValueError(wmt)
 

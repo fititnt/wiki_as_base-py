@@ -409,7 +409,13 @@ class WikiMarkupTableAST:
                 self.tables.append(parsed)
 
     def parse_table(self, wikimarkup_table: str) -> dict:
-        meta = {"caption": None, "header": [], "data": [], "_errors": []}
+        meta = {
+            "caption": None,
+            "header": [],
+            "data": [],
+            "_is_complete": False,  # Header and Rows have same length?
+            "_errors": [],
+        }
 
         lines = wikimarkup_table.splitlines()
         if not lines[0].startswith("{|") or not lines[-1].startswith("|}"):
@@ -430,19 +436,61 @@ class WikiMarkupTableAST:
                     meta["_errors"].append("caption")
                 continue
 
-            while line != "|-":
-                if line.startswith("! ") and line.find("!!") > 2:
-                    meta["header"] = line.lstrip("! ").split("!!")
-                if line.startswith("| ") and line.find("||") > 2:
-                    meta["data"].append(line.lstrip("| ").split("||"))
-                break
+            # Header
+            if line.startswith("! ") and line.find("!!") > 2:
+                meta["header"] = list(
+                    # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
+                    map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
+                )
+            if line.startswith("! ") and line.find("!!") == -1:
+                _header = []
+
+                while line and line != "|-":
+                    _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
+                    line = lines.pop(0).strip() if len(lines) > 0 else None
+
+                meta["header"] = _header
+                continue
+
+            # Row data
+            if line.startswith("| ") and line.find("||") > 2:
+                meta["data"].append(
+                    list(map(self.parse_table_cellvalue, line.lstrip("| ").split("||")))
+                )
+            if line.startswith("| ") and line.find("||") == -1:
+                _row = []
+
+                while line and line != "|-":
+                    _row.append(self.parse_table_cellvalue(line.lstrip("| ")))
+                    line = lines.pop(0).strip() if len(lines) > 0 else None
+
+                meta["data"].append(_row)
+                continue
 
             # break
 
+        header_len = len(meta["header"])
+        row_len = len(meta["data"][0]) if len(meta["data"]) > 0 else -1
+        row_len_mismatch = False
+        if len(meta["data"]) > 0:
+            for row in meta["data"]:
+                if len(row) != row_len:
+                    row_len_mismatch = True
+                    break
+        if row_len_mismatch is False and row_len > 0 and row_len == header_len:
+            meta["_is_complete"] = True
+
         return meta
 
-    def parse_table_row(self, tablerow: list):
-        pass
+    def parse_table_cellvalue(self, formatted_value: str):
+        val = formatted_value
+
+        # style="color: red" | row1cell1
+        if val.find(" | ") > -1:
+            parts = val.split(" | ")
+            val = parts[1]
+
+        return val.strip()
 
     def get_debug(self):
         debug = {"tables_potential": self.tables_potential, "tables": self.tables}
