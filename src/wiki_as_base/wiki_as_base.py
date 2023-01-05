@@ -30,7 +30,7 @@ from typing import List, Union
 import zipfile
 import requests
 
-_REFVER = "0.5.2"
+_REFVER = "0.5.3"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -105,7 +105,9 @@ def wiki_as_base_all(
     wikitext: str,
     template_keys: List[str] = None,
     syntaxhighlight_langs: List[str] = None,
+    meta: dict = None,
 ) -> dict:
+
     #   "$schema": "https://urn.etica.ai/urn:resolver:schema:api:base",
     #   "@context": "https://urn.etica.ai/urn:resolver:context:api:base",
     data = {
@@ -116,7 +118,15 @@ def wiki_as_base_all(
         "@type": "wiki/wikiasbase",
         # @TODO implement errors
         "data": [],
+        # "meta": {
+        #     '_source': None
+        # }
     }
+
+    if meta is None:
+        meta = {"_source": None}
+    if meta is not False:
+        data["meta"] = meta
 
     # set template_keys = False to ignore WIKI_INFOBOXES
     if template_keys is None and len(WIKI_INFOBOXES) > 0:

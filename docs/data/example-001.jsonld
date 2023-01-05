@@ -1,0 +1,135 @@
+{
+  "$schema": "https://wikitextdata.etica.ai/schema.json",
+  "@context": "https://wikitextdata.etica.ai/context.jsonld",
+  "@type": "wiki/wikiasbase",
+  "data": [
+    {
+      "@id": "t1",
+      "@type": "wiki/data/table",
+      "_errors": [],
+      "_is_complete": true,
+      "caption": "Caption text",
+      "data": [
+        [
+          "Example",
+          "Example",
+          "Example"
+        ],
+        [
+          "Example",
+          "Example",
+          "Example"
+        ],
+        [
+          "Example",
+          "Example",
+          "Example"
+        ]
+      ],
+      "header": [
+        "Header text",
+        "Header text",
+        "Header text"
+      ]
+    },
+    {
+      "@id": "t2",
+      "@type": "wiki/data/table",
+      "_errors": [],
+      "_is_complete": true,
+      "caption": null,
+      "data": [
+        [
+          "1",
+          "value 1 bbb",
+          "",
+          "value 2 ddd"
+        ],
+        [
+          "2",
+          "value 2 bbb",
+          "value 2 ccc",
+          "value 3 ddd"
+        ],
+        [
+          "3",
+          "value 3 bbb",
+          "value 3 ccc",
+          "value 3 ddd"
+        ]
+      ],
+      "header": [
+        "keyaaa",
+        "keybbb",
+        "keyccc",
+        "keyddd"
+      ]
+    },
+    {
+      "@id": "t3",
+      "@type": "wiki/data/table",
+      "_errors": [],
+      "_is_complete": true,
+      "caption": "Caption text",
+      "data": [
+        [
+          "Example",
+          "Example",
+          "Example"
+        ],
+        [
+          "Example",
+          "Example",
+          "Example"
+        ],
+        [
+          "Example",
+          "Example",
+          "Example"
+        ]
+      ],
+      "header": [
+        "Header text",
+        "Header text",
+        "Header text"
+      ]
+    },
+    {
+      "@id": "t4",
+      "@type": "wiki/data/table",
+      "_errors": [],
+      "_is_complete": true,
+      "caption": null,
+      "data": [
+        [
+          "1",
+          "value 1 bbb",
+          "",
+          "value 2 ddd"
+        ],
+        [
+          "2",
+          "value 2 bbb",
+          "value 2 ccc",
+          "value 3 ddd"
+        ],
+        [
+          "3",
+          "value 3 bbb",
+          "value 3 ccc",
+          "value 3 ddd"
+        ]
+      ],
+      "header": [
+        "keyaaa",
+        "keybbb",
+        "keyccc",
+        "keyddd"
+      ]
+    }
+  ],
+  "meta": {
+    "pagetitle": "User:EmericusPetro/sandbox/Wiki-as-base",
+    "source": "https://wiki.openstreetmap.org/w/api.php"
+  }
+}

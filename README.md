@@ -18,9 +18,12 @@ Customize for your needs. They're shared between command line and the library.
 
 ```bash
 export WIKI_API='https://wiki.openstreetmap.org/w/api.php'
+```
+
+<!--
 export WIKI_INFOBOXES='ValueDescription\nKeyDescription'
 export WIKI_DATA_LANGS='yaml\nturtle'
-```
+-->
 
 ### Command line
 
@@ -70,6 +73,17 @@ wiki_as_base --page-title 'Node'
 - See [examples/](examples/)
 - See [tests/](tests/)
 
+> **WARNING**: as 2023-12-05 while the command line is less likely to change,
+> the internal calls of this library, names of functions,
+> etc are granted to not be stable.
+
+You can import as a pip package, however set the exact version in special if it is unnatended deployment (e.g. GitHub actions, etc).
+
+```txt
+# requirements.txt
+wiki_as_base==0.5.2
+```
+
 <!--
 
 > @TODO add links as URN on https://github.com/EticaAI/urn-resolver/tree/main/resolvers
@@ -83,6 +97,9 @@ wiki_as_base --page-title 'Node'
 
 -->
 
+## The Specification
+
+The temporary docs page is at https://fititnt.github.io/wiki_as_base-py/
 
 ## Disclaimer / Trivia
 

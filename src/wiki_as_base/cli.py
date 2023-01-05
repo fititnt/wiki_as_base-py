@@ -79,14 +79,22 @@ def main():
 
     wikimarkup_raw = None
 
+    meta = {}
+
     if args.page_title:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
         wikimarkup_raw = wiki_as_base.wiki_as_base_request(args.page_title)
+        meta["pagetitle"] = args.page_title
+
+        WIKI_API = os.getenv("WIKI_API", wiki_as_base.WIKI_API)
+        meta["source"] = WIKI_API
+
     elif args.input_stdin:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
         wikimarkup_raw = sys.stdin.read()
+        meta["source"] = "stdin"
 
         # return EXIT_ERROR
         # print(data)
@@ -113,7 +121,7 @@ def main():
         print(wikimarkup_raw)
         return EXIT_OK
 
-    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
+    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw, meta=meta)
 
     if not wikiasbase_jsonld:
         print('{"error": "no data from request"}')
