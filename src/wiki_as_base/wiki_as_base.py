@@ -30,7 +30,7 @@ from typing import List, Union
 import zipfile
 import requests
 
-_REFVER = "0.5.0"
+_REFVER = "0.5.2"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -176,7 +176,11 @@ def wiki_as_base_all(
 def wiki_as_base_from_infobox(
     wikitext: str, template_key: str, id_from: List[str] = None
 ):
-    """wiki_as_base_from_infobox Parse typical Infobox"""
+    """wiki_as_base_from_infobox Parse typical Infobox
+
+    @see https://en.wikipedia.org/wiki/Help:Infobox
+
+    """
     data = {}
     data["@type"] = "wiki/infobox/" + template_key
     data["@id"] = None
@@ -210,6 +214,9 @@ def wiki_as_base_from_infobox(
             if counter_tag == 0:
                 break
             raw_line_trimmed = raw_line.strip()
+            if raw_line_trimmed == "}}":
+                # Abort early to avoid process further down the page
+                break
             if raw_line_trimmed.startswith("|"):
                 # parts = raw_line_trimmed.split('=')
                 if raw_line_trimmed.find("=") > -1:
