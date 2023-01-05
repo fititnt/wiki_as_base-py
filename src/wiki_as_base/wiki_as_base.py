@@ -352,15 +352,24 @@ def wiki_as_base_meta(wikitext: str) -> dict:
     return {}
 
 
+def wiki_as_base_meta_from_api(api_response: dict) -> dict:
+    meta = {}
+
+    return meta
+
+
 def wiki_as_base_request(
     title: str,
     # template_key: str,
-):
+) -> tuple:
     # Inspired on https://github.com/earwig/mwparserfromhell example
+    # Demo https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=query&format=json&prop=revisions&list=&titles=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base&formatversion=2&rvprop=ids%7Ctimestamp%7Cflags%7Ccomment%7Cuser%7Ccontent&rvslots=main&rvlimit=1
     params = {
         "action": "query",
-        "prop": "revisions",
-        "rvprop": "content",
+        # "prop": "revisions",
+        "prop": "revisions|categories|templates",
+        # "rvprop": "content",
+        "rvprop": "content|timestamp",
         "rvslots": "main",
         "rvlimit": 1,
         "titles": title,
@@ -371,13 +380,15 @@ def wiki_as_base_request(
     try:
         headers = {"User-Agent": USER_AGENT}
         req = requests.get(WIKI_API, headers=headers, params=params)
+
         res = req.json()
         revision = res["query"]["pages"][0]["revisions"][0]
-        text = revision["slots"]["main"]["content"]
-    except ValueError:
-        return None
+        wikiapi_meta = res["query"]["pages"][0]
+        wikitext = revision["slots"]["main"]["content"]
+    except (ValueError, KeyError):
+        return (None, None)
 
-    return text
+    return (wikitext, wikiapi_meta)
 
 
 def wiki_as_base_raw(wikitext: str) -> dict:

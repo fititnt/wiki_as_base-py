@@ -66,6 +66,8 @@ cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin --verbose --output
 wiki_as_base --page-title 'Node'
 
 # @TODO test https://wiki.openstreetmap.org/wiki/OSM_XML
+
+https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=parse&format=json&title=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base
 -->
 
 ### Library

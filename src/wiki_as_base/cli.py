@@ -77,23 +77,25 @@ def main():
 
     # print(args)
 
-    wikimarkup_raw = None
+    wikitext = None
+    wikiapi_meta = None
 
     meta = {}
 
     if args.page_title:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
-        wikimarkup_raw = wiki_as_base.wiki_as_base_request(args.page_title)
+        wikitext, wikiapi_meta = wiki_as_base.wiki_as_base_request(args.page_title)
         meta["pagetitle"] = args.page_title
 
         WIKI_API = os.getenv("WIKI_API", wiki_as_base.WIKI_API)
         meta["source"] = WIKI_API
+        meta["_"] = wikiapi_meta
 
     elif args.input_stdin:
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
-        wikimarkup_raw = sys.stdin.read()
+        wikitext = sys.stdin.read()
         meta["source"] = "stdin"
 
         # return EXIT_ERROR
@@ -113,15 +115,15 @@ def main():
     # ):
     #     raise SyntaxError(f"--output-dir error [{args.output_dir}]")
 
-    if not wikimarkup_raw:
+    if not wikitext:
         print('{"error": "no result from request"}')
         return EXIT_ERROR
 
     if args.output_raw:
-        print(wikimarkup_raw)
+        print(wikitext)
         return EXIT_OK
 
-    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw, meta=meta)
+    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikitext, meta=meta)
 
     if not wikiasbase_jsonld:
         print('{"error": "no data from request"}')
