@@ -86,6 +86,37 @@ def main():
     meta = {}
 
     args.page_title = args.titles
+    # print(args.page_title)
+
+    if not args.page_title and not args.input_stdin:
+        print("Missing --titles or --input-stdin")
+        return EXIT_ERROR
+
+    if args.input_stdin:
+        wikitext = sys.stdin.read()
+        wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
+    elif args.page_title:
+        wtdata = wiki_as_base.WikitextAsData().set_titles(args.page_title)
+
+    wtdata.prepare()
+
+    if args.output_raw:
+        # If multiple pages, behavior may be undefined
+        print(wtdata.get("wikitext"))
+        return EXIT_OK
+
+    elif args.output_zip_file:
+        result = wtdata.output_zip(args.output_zip_file)
+        if result:
+            return EXIT_OK
+        else:
+            return EXIT_ERROR
+    else:
+        print(json.dumps(wtdata.output_jsonld(), ensure_ascii=False, indent=2))
+        return EXIT_OK
+
+    return EXIT_ERROR
+    # @TODO remove after here
 
     if args.page_title:
         # print("Welcome to GeeksforGeeks !")

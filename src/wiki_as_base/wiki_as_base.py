@@ -142,6 +142,11 @@ def wiki_as_base_all(
     if meta is not False:
         data["meta"] = meta
 
+    if _next_release:
+        data_raw_key = "data"
+    else:
+        data_raw_key = "data_raw"
+
     wth = WikitextHeading(wikitext)
     outline = wth.get_headings()
     if outline:
@@ -149,7 +154,8 @@ def wiki_as_base_all(
             {
                 "@type": "wiki/outline",
                 "@id": "heading-outline.html",
-                "data_raw": outline,
+                # 'data_raw': outline,
+                data_raw_key: outline,
             }
         )
 
@@ -166,11 +172,6 @@ def wiki_as_base_all(
     # set syntaxhighlight_langs = False to ignore WIKI_DATA_LANGS
     if syntaxhighlight_langs is None and len(WIKI_DATA_LANGS) > 0:
         syntaxhighlight_langs = WIKI_DATA_LANGS.splitlines()
-
-    if _next_release:
-        data_raw_key = "data"
-    else:
-        data_raw_key = "data_raw"
 
     if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
         for item in syntaxhighlight_langs:
@@ -443,7 +444,9 @@ class WikiAsBase2Zip:
     wab_jsonld: dict = {}
     file_and_data: dict = {}
 
-    def __init__(self, wab_jsonld: dict, verbose: bool = False) -> None:
+    def __init__(
+        self, wab_jsonld: dict, verbose: bool = False, _next_release: bool = False
+    ) -> None:
         self.wab_jsonld = wab_jsonld
         if verbose:
             self.file_and_data["wikiasbase.jsonld"] = json.dumps(
@@ -452,14 +455,21 @@ class WikiAsBase2Zip:
         # self.file_and_data["teste.txt"] = "# filename = teste.txt"
         # self.file_and_data["teste.csv"] = "# filename = teste.csv"
 
+        if _next_release:
+            data_raw_key = "data"
+        else:
+            data_raw_key = "data_raw"
+
         for item in self.wab_jsonld["data"]:
             filename = None
             content = None
             # @TODO improve this check to determine in file format
             if "@id" in item and item["@id"].find(".") > -1:
                 filename = item["@id"]
-                if "data_raw" in item:
-                    content = item["data_raw"]
+                # if "data_raw" in item:
+                #     content = item["data_raw"]
+                if data_raw_key in item:
+                    content = item[data_raw_key]
 
             elif "@id" in item and item["@type"] == "wiki/data/table":
                 if "_errors" in item and len(item["_errors"]):
@@ -722,8 +732,9 @@ class WikitextAsData:
 
             self.wikitext = wikitext
             self._wikiapi_meta = wikiapi_meta
-        except (ValueError, KeyError):
+        except (ValueError, KeyError) as err:
             # return (None, None)
+            # print(err)
             pass
 
         # return (wikitext, wikiapi_meta)
@@ -782,7 +793,7 @@ class WikitextAsData:
             str: Either the raw zip data (if zip_path is None) or the
                  path itself
         """
-        wabzip = WikiAsBase2Zip(self.output_jsonld(), verbose=True)
+        wabzip = WikiAsBase2Zip(self.output_jsonld(), verbose=True, _next_release=True)
         result = wabzip.output(zip_path)
         return result
 
