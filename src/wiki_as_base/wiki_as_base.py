@@ -133,13 +133,24 @@ def wiki_as_base_all(
         #     '_source': None
         # }
     }
-    
-    data['data'] = []
+
+    data["data"] = []
 
     if meta is None:
         meta = {"_source": None}
     if meta is not False:
         data["meta"] = meta
+
+    wth = WikitextHeading(wikitext)
+    outline = wth.get_headings()
+    if outline:
+        data["data"].append(
+            {
+                "@type": "wiki/outline",
+                "@id": "heading-outline.html",
+                "data_raw": outline,
+            }
+        )
 
     # set template_keys = False to ignore WIKI_INFOBOXES
     if template_keys is None and len(WIKI_INFOBOXES) > 0:
@@ -646,3 +657,87 @@ class WikiMarkupTableAST:
                 tables.append(item)
 
         return tables
+
+
+class WikitextHeading:
+    """WikitextHeading
+
+    @see https://en.wikipedia.org/wiki/Help:Wikitext#Sections
+    @see https://html.spec.whatwg.org/multipage/dom.html#heading-content
+
+    @example
+    = Heading 1 =
+    == Heading 2 ==
+    === Heading 3 ===
+    ==== Heading 4 ====
+    ===== Heading 5 =====
+    ====== Heading 6 ======
+    """
+
+    wikimarkup: str
+
+    def __init__(self, wikitext: str) -> None:
+        self.wikimarkup = wikitext
+
+    def get_headings(self) -> str:
+        result = []
+        lines = self.wikimarkup.splitlines()
+        for line in lines:
+            _line = line.strip()
+
+            if not _line.startswith("=") or not _line.endswith("="):
+                continue
+
+            test_h1 = re.match("^=\s?(?P<heading>(?:[^=].)*)\s?=$", _line)
+            if test_h1:
+                result.append("<h1>" + test_h1.group("heading").strip() + "<h1>")
+                continue
+
+            test_h2 = re.match("^==\s?(?P<heading>(?:[^=].)*)\s?==$", _line)
+            if test_h2:
+                result.append("<h2>" + test_h2.group("heading").strip() + "<h2>")
+                continue
+
+            test_h3 = re.match("^===\s?(?P<heading>(?:[^=].)*)\s?===$", _line)
+            if test_h3:
+                result.append("<h3>" + test_h3.group("heading").strip() + "<h3>")
+                continue
+
+            test_h4 = re.match("^====\s?(?P<heading>(?:[^=].)*)\s?====$", _line)
+            if test_h4:
+                result.append("<h4>" + test_h4.group("heading").strip() + "<h4>")
+                continue
+
+            test_h5 = re.match("^=====\s?(?P<heading>(?:[^=].)*)\s?=====$", _line)
+            if test_h5:
+                result.append("<h5>" + test_h5.group("heading").strip() + "<h5>")
+                continue
+
+            test_h6 = re.match("^======\s?(?P<heading>(?:[^=].)*)\s?======$", _line)
+            if test_h6:
+                result.append("<h6>" + test_h6.group("heading").strip() + "<h6>")
+                # continue
+
+        return "\n".join(result)
+
+# @TODO implement WikitextDescriptionList
+class WikitextDescriptionList:
+    """WikitextDescriptionList
+
+    @see https://en.wikipedia.org/wiki/Help:Wikitext#Lists
+    @see https://html.spec.whatwg.org/multipage/grouping-content.html#the-dl-element
+
+
+    @example
+    = Heading 1 =
+    == Heading 2 ==
+    === Heading 3 ===
+    ==== Heading 4 ====
+    ===== Heading 5 =====
+    ====== Heading 6 ======
+    """
+
+    wikimarkup: str
+
+    def __init__(self, wikitext: str) -> None:
+        self.wikimarkup = wikitext

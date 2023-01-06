@@ -375,3 +375,35 @@ osmway:220660292
     osmt:not:brand:wikidata "Q701338" ;
 .
 </syntaxhighlight>
+
+
+= Heading 1 =
+
+See https://en.wikipedia.org/wiki/Help:Wikitext#Sections
+
+== Heading 2 ==
+=== Heading 3 ===
+==== Heading 4 ====
+===== Heading 5 =====
+====== Heading 6 ======
+=Heading 1=
+==Heading 2==
+===Heading 3===
+====Heading 4====
+=====Heading 5=====
+======Heading 6======
+
+== Description lists ==
+See https://en.wikipedia.org/wiki/Help:Wikitext#Lists
+
+=== Same line ===
+
+; Term : Definition1
+
+=== Line by line ===
+
+; Term
+: Definition1
+: Definition2
+: Definition3
+: Definition4
