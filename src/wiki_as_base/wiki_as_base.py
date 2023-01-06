@@ -30,7 +30,7 @@ from typing import List, Union
 import zipfile
 import requests
 
-_REFVER = "0.5.3"
+_REFVER = "0.5.4"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -39,6 +39,14 @@ WIKI_INFOBOXES = os.getenv("WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
 
 # @TODO WIKI_INFOBOXES_IDS
 WIKI_INFOBOXES_IDS = os.getenv("WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
+_JSONLD_CONTEXT = (
+    # "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld"
+    "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/docs/context.jsonld"
+)
+_JSONSCHEMA = (
+    # "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json"
+    "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/docs/schema.json"
+)
 
 
 # @TODO add other common formats on <syntaxhighlight lang="">
@@ -46,6 +54,7 @@ WIKI_INFOBOXES_IDS = os.getenv("WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
 #       see https://pygments.org/docs/lexers/
 #           - Stopped on 'Lexers for .net languages'; needs check others
 _default_langs = {
+    "bash": "sh",
     "c": "c",  # what about .h?
     "css": "css",
     "c\+\+": "cpp",
@@ -112,16 +121,20 @@ def wiki_as_base_all(
     #   "@context": "https://urn.etica.ai/urn:resolver:context:api:base",
     data = {
         # TODO: make a permanent URL
-        "@context": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld",
-        "$schema": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json",
+        # "@context": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld",
+        "@context": _JSONLD_CONTEXT,
+        # "$schema": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json",
+        "$schema": _JSONSCHEMA,
         # Maybe move @type out here
         "@type": "wiki/wikiasbase",
         # @TODO implement errors
-        "data": [],
+        "data": None,
         # "meta": {
         #     '_source': None
         # }
     }
+    
+    data['data'] = []
 
     if meta is None:
         meta = {"_source": None}
@@ -352,8 +365,20 @@ def wiki_as_base_meta(wikitext: str) -> dict:
     return {}
 
 
-def wiki_as_base_meta_from_api(api_response: dict) -> dict:
+def wiki_as_base_meta_from_api(wikiapi_meta: dict) -> dict:
     meta = {}
+    if "pageid" in wikiapi_meta:
+        meta["pageid"] = wikiapi_meta["pageid"]
+    if "title" in wikiapi_meta:
+        meta["title"] = wikiapi_meta["title"]
+    if "revisions" in wikiapi_meta:
+        if "timestamp" in wikiapi_meta["revisions"][0]:
+            meta["timestamp"] = wikiapi_meta["revisions"][0]["timestamp"]
+        meta["_wikitext_bytes"] = len(
+            wikiapi_meta["revisions"][0]["slots"]["main"]["content"]
+        )
+
+    # @TODO maybe add categories
 
     return meta
 
@@ -481,11 +506,13 @@ class WikiMarkupTableAST:
 
     wikimarkup: str
 
-    tables_potential: list = []
-    tables: list = []
+    tables_potential: list = None
+    tables: list = None
 
     def __init__(self, wikimarkup: str) -> None:
         self.wikimarkup = wikimarkup
+        self.tables_potential = []
+        self.tables = []
         self._init_potential_tables()
 
     def _init_potential_tables(self):

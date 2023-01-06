@@ -83,7 +83,7 @@ You can import as a pip package, however set the exact version in special if it 
 
 ```txt
 # requirements.txt
-wiki_as_base==0.5.2
+wiki_as_base==0.5.3
 ```
 
 <!--

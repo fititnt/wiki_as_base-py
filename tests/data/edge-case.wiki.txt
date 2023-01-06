@@ -80,5 +80,138 @@ From https://wiki.openstreetmap.org/wiki/OSM_XML
 </osm>
 </source>
 
+=== Hello (OSM SPARQL) World ===
+
 See [[Elements]] for details of the object categories.<br>
 See [[Map features]] about how real world objects are modeled and categorized.
+
+From https://wiki.openstreetmap.org/wiki/Sophox
+
+{{SPARQL|query=# A sample query to list all OSM objects with a place tag.
+# The * will show all variables that are used in the WHERE clause
+select * where {
+  # The first expression matches the three columns of the Triple Store with:
+  #   "find any subject that has an OSM 'place' tag, and any value of that tag"
+  #
+  # Question mark represents a variable. ?osm becomes a URI for an OSM object, e.g.
+  #    <https://www.openstreetmap.org/node/2681940767>  (Everest)
+  # The same URI may also be written with a prefix - osmnode:2681940767
+  # All OSM tags use osmt: prefix. Using osmt:place constant only
+  # matches OSM object with a place tag. The ?place variable will
+  # become the value of the place tag. You can use a constant instead of a variable,
+  # e.g. substitute ?place with a constant string 'city'.
+
+  ?osm osmt:place ?place.
+
+  # osmm: prefix means "meta values", e.g. OSM object type, location (loc), version, ...
+  # Uncomment to limit to a specific type of an OSM object ('n', 'r', 'w').
+  #   ?osm osmm:type 'r'.
+
+  # osmm:loc is a centroid point for most OSM objects. If included, the results
+  # can be shown on a map by switching to the map view (right under the query)
+  #   ?osm osmm:loc ?coordinates.
+
+  # The FILTER expressions allow complex filtering beyond a simple "must match".
+  #   filter(?place = 'town' {{!}}{{!}} regex(?place, '[a-z][0-9]', 'i'))
+
+  # This will limit results to places which do not have a `name:en` tag.
+  #   filter not exists { ?osm osmt:name:en ?nameen. }
+
+  # For OSM objects with the wikidata tag, find the English name of that object in Wikidata
+  # if it exists.
+     ?osm osmt:wikidata ?wd.
+  # With that get from the Wikidata SPARQL endpoint service what type of the object it
+  # is (P31 is the property instance of in Wikidata), and the label for that type,
+  # also if exists in English. For labels and descriptions, you may instead use a
+  # service that picks first available language based on a list.
+  #   service <https://query.wikidata.org/sparql> {
+  #     ?wd wdt:P31 ?type.
+  #     optional { ?wd rdfs:label ?label. filter(lang(?label) = "en") }
+  #     optional { ?type rdfs:label ?typelabel. filter(lang(?typelabel) = "en") }
+  #  }
+}
+# Similar to SQL, queries can use aggregations, subqueries, and limit the results
+limit 10}}
+
+=== « n » adjacent ways ===
+
+Example from https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_API_by_Example
+
+Lorem ipsum.
+
+{{OverpassTurboExample|loc=56.07204;9.00398;12|query=
+(
+  way(111435507);
+  complete(4) {{(}}
+    way(around:0)[highway~"."][highway!~"path{{!}}track{{!}}cycleway{{!}}footway"];
+  {{)}};
+);  
+out geom;
+
+
+}}
+
+Dolor semet.
+
+=== Find house numbers without street ===
+
+Example from https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_API_by_Example
+
+<syntaxhighlight lang="bash">
+i=42103;
+while [[ $i -le 42119 ]];
+do {
+   wget -O false_$i.osm "http://overpass-api.de/api/interpreter?data=area[postal_code=\"$i\"]->.a;(node(51,7,51.5,7.5)(area.a)[\"addr:postcode\"][\"addr:postcode\"!=\"$i\"];way(51,7,51.5,7.5)(area.a)[\"addr:postcode\"][\"addr:postcode\"!=\"$i\"];>;);out meta;";
+   i=$(($i + 1));
+};
+done
+</syntaxhighlight>
+
+=== MapCSS/Examples ===
+
+Example from https://wiki.openstreetmap.org/wiki/MapCSS/Examples
+
+<code>
+  canvas {
+    background-color: #ffffea;
+    default-points: false;
+    default-lines: false;
+  }
+  relation[boundary=administrative][admin_level=7]:closed
+  {
+    width: 1;
+    color: black;
+    opacity: 1;
+    fill-color: orange;
+    fill-opacity: 0.3;
+    font-size: 16;
+    text-color: green;
+    text: admin_level;
+    text-position: center;
+  }
+  relation[boundary=administrative][admin_level=8]:closed
+  {
+    width: 1;
+    color: black;
+    opacity: 1;
+    fill-color: blue;
+    fill-opacity: 0.3;
+    font-size: 16;
+    text-color: red;
+    text: admin_level;
+    text-position: center;
+  }
+  relation[boundary=administrative][admin_level=6]:closed
+  {
+    width: 1;
+    color: black;
+    opacity: 1;
+    fill-color: brown;
+    fill-opacity: 0.3;
+    font-size: 16;
+    text-color: white;
+    text: admin_level;
+    text-position: center;
+  } 
+
+</code>

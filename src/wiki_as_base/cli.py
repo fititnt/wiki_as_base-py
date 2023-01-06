@@ -86,11 +86,16 @@ def main():
         # print("Welcome to GeeksforGeeks !")
         # print(args.page_title)
         wikitext, wikiapi_meta = wiki_as_base.wiki_as_base_request(args.page_title)
-        meta["pagetitle"] = args.page_title
+        meta["title"] = args.page_title
 
-        WIKI_API = os.getenv("WIKI_API", wiki_as_base.WIKI_API)
-        meta["source"] = WIKI_API
-        meta["_"] = wikiapi_meta
+        if wikiapi_meta:
+            meta = wiki_as_base.wiki_as_base_meta_from_api(wikiapi_meta)
+
+            # # next line allow some debug
+            # meta["_raw"] = wikiapi_meta
+
+            WIKI_API = os.getenv("WIKI_API", wiki_as_base.WIKI_API)
+            meta["source"] = WIKI_API
 
     elif args.input_stdin:
         # print("Welcome to GeeksforGeeks !")

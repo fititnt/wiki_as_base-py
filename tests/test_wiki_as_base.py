@@ -36,8 +36,8 @@ def test_wiki_as_base__all_test1():
     assert results is not False
     # assert len(results['data']) == 5
     # assert len(results["data"]) == 8
-    # assert len(results["data"]) == 10
-    assert len(results["data"]) == 11
+    assert len(results["data"]) == 10
+    # assert len(results["data"]) == 11
     assert results["@type"] == "wiki/wikiasbase"
 
 
@@ -131,7 +131,10 @@ def test_wiki_as_base__chatbotpor_test1():
 def test_wiki_as_base__chatbotpor_test2_zip():
     with open(test_dir + "/data/chatbot-por.wiki.txt", "r") as content_file3:
         wikimarkup_raw = content_file3.read()
+
     wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
+    # print(wikimarkup_raw)
+    # print(wikiasbase_jsonld)
 
     wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, verbose=True)
     wabzip.output(test_dir + "/temp/chatbotpor.zip")
@@ -142,8 +145,8 @@ def test_wiki_as_base__chatbotpor_test2_zip():
     # print(wikimarkup_raw)
     # print(wikiasbase_jsonld)
 
-    # assert len(names_in_zip) == 3
-    assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
+    assert len(names_in_zip) == 3
+    # assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
     assert "wikiasbase.jsonld" in names_in_zip
     assert "ola.rive" in names_in_zip
     assert "person.rive" in names_in_zip
