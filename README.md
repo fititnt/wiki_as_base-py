@@ -34,14 +34,16 @@ wiki_as_base --help
 wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
 
 # The output is JSON-LD. Feel free to further filter the data
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[0]
+wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[1]
 
 ## Example of, instead of use WIKI_API, parse Wiki markup directly. Output JSON- LD
 cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
 
-
 ## Output zip file instead of JSON-LD. --verbose also adds wikiasbase.jsonld to file
 cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-file tests/temp/chatbot-por.zip
+
+## Use different Wiki with ad-hoc change of the env WIKI_API
+WIKI_API=https://www.wikidata.org/w/api.php wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
 ```
 
 <!--

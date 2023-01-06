@@ -40,7 +40,10 @@ def main():
     #     const=sum, default=max,
     #     help='sum the integers (default: find the max)')
 
-    parser.add_argument("--page-title", help="Page title of input")
+    # added --titles as aliases existing --page-title
+    # parser.add_argument("--page-title", help="Page title of input")
+    parser.add_argument("--titles", "--page-title", help="Page title of input")
+
     parser.add_argument(
         "--input-stdin",
         action="store_true",
@@ -81,6 +84,8 @@ def main():
     wikiapi_meta = None
 
     meta = {}
+
+    args.page_title = args.titles
 
     if args.page_title:
         # print("Welcome to GeeksforGeeks !")

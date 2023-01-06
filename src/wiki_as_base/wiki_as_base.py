@@ -115,6 +115,7 @@ def wiki_as_base_all(
     template_keys: List[str] = None,
     syntaxhighlight_langs: List[str] = None,
     meta: dict = None,
+    _next_release: bool = False,
 ) -> dict:
 
     #   "$schema": "https://urn.etica.ai/urn:resolver:schema:api:base",
@@ -166,6 +167,11 @@ def wiki_as_base_all(
     if syntaxhighlight_langs is None and len(WIKI_DATA_LANGS) > 0:
         syntaxhighlight_langs = WIKI_DATA_LANGS.splitlines()
 
+    if _next_release:
+        data_raw_key = "data"
+    else:
+        data_raw_key = "data_raw"
+
     if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
         for item in syntaxhighlight_langs:
             results = wiki_as_base_from_syntaxhighlight(wikitext, item)
@@ -179,7 +185,8 @@ def wiki_as_base_all(
                             {
                                 "@type": "wiki/data/" + result[1],
                                 "@id": result[2],
-                                "data_raw": result[0],
+                                # "data_raw": result[0],
+                                data_raw_key: result[0],
                             }
                         )
                     else:
@@ -187,7 +194,8 @@ def wiki_as_base_all(
                             {
                                 "@type": "wiki/data/" + result[1],
                                 # "@id": result[2],
-                                "data_raw": result[0],
+                                # "data_raw": result[0],
+                                data_raw_key: result[0],
                             }
                         )
 
@@ -759,7 +767,7 @@ class WikitextAsData:
 
     def output_jsonld(self):
         # Use wiki_as_base_meta_from_api
-        data = wiki_as_base_all(self.wikitext)
+        data = wiki_as_base_all(self.wikitext, _next_release=True)
         return data
 
     def output_zip(self, zip_path: str = None) -> str:

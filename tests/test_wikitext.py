@@ -11,17 +11,29 @@ import wiki_as_base
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-# def test_wikitext_001():
-#     with open(test_dir + "/data/chatbot-por.wiki.txt", "r") as content_file3:
-#         wikitext = content_file3.read()
+def test_wikitext_001_jsonld():
+    source_wikitext = test_dir + "/data/multiple.wiki.txt"
+    # target_zipfile = test_dir + "/temp/chatbotpor.zip"
 
-#     wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
-#     # print(content_raw)
-#     # assert False
-#     assert wikitext == wtdata.get('wikitext')
+    with open(source_wikitext, "r") as _file:
+        wikitext = _file.read()
+
+    wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
+    jsonld = wtdata.output_jsonld()
+
+    print(jsonld)
+    # assert False
+    assert jsonld is not None
+    assert jsonld is not False
+    # assert len(results['data']) == 5
+    # assert len(results["data"]) == 8
+    # assert len(results["data"]) == 10
+    # assert len(jsonld["data"]) == 11
+    assert len(jsonld["data"]) == 13
+    assert jsonld["@type"] == "wiki/wikiasbase"
 
 
-def test_wikitext_002():
+def test_wikitext_002_zipfile():
 
     source_wikitext = test_dir + "/data/chatbot-por.wiki.txt"
     target_zipfile = test_dir + "/temp/chatbotpor.zip"
