@@ -659,6 +659,126 @@ class WikiMarkupTableAST:
         return tables
 
 
+class WikitextAsData:
+
+    wikitext: str = None
+    is_fetch_required = None
+    _wikiapi_meta: dict = None
+    _req_params: dict = None
+
+    def __init__(self, api_params: dict = None) -> None:
+        """Initialize
+
+        Instead of defining api_params, consider use set_wikitext() or
+        set_titles
+
+        Args:
+            api_params (dict, optional): (advanced use)customize default_params.
+                                         Defaults to None.
+        """
+
+        default_params = {
+            "action": "query",
+            # "prop": "revisions",
+            "prop": "revisions|categories|templates",
+            # "rvprop": "content",
+            "rvprop": "content|timestamp",
+            "rvslots": "main",
+            "rvlimit": 1,
+            # "titles": title,
+            "titles": None,
+            "format": "json",
+            "formatversion": "2",
+        }
+
+        if api_params is not None:
+            default_params.update(api_params)
+
+        self._req_params = default_params
+
+    def _request_api(self):
+
+        # Reset values
+        self.wikitext = None
+        self._wikiapi_meta = None
+
+        # @TODO refactor this part to allow fetch several pages at once
+        try:
+            headers = {"User-Agent": USER_AGENT}
+            req = requests.get(WIKI_API, headers=headers, params=self._req_params)
+
+            res = req.json()
+            revision = res["query"]["pages"][0]["revisions"][0]
+            wikiapi_meta = res["query"]["pages"][0]
+            wikitext = revision["slots"]["main"]["content"]
+
+            self.wikitext = wikitext
+            self._wikiapi_meta = wikiapi_meta
+        except (ValueError, KeyError):
+            # return (None, None)
+            pass
+
+        # return (wikitext, wikiapi_meta)
+
+    def get(self, key: str):
+        if key in self.__dict__:
+            return self.__dict__[key]
+        raise ValueError(f"WikitextAsData key [{key}]?")
+
+    def prepare(self):
+        """prepare prepare data and/or make expensive calls"""
+
+        if self.is_fetch_required is True or (
+            self.is_fetch_required is None and self._req_params["titles"] is not None
+        ):
+            self._request_api()
+
+        return self
+
+    def set_titles(self, titles: str):
+        self._req_params["titles"] = titles
+
+        # If user define titles directly, we assume wants remote call
+        self.is_fetch_required = True
+
+        return self
+
+    def set_wikitext(self, wikitext: str):
+        """set_wikitext set Wikitext directly instead of make API request
+
+        Potential use: for piped in content
+
+        Args:
+            wikitext (str): the Wikitext
+        """
+        self.wikitext = wikitext
+
+        # If user define wikitext directly, we assume no remote call is need
+        self.is_fetch_required = False
+        return self
+
+    def output_jsonld(self):
+        # Use wiki_as_base_meta_from_api
+        data = wiki_as_base_all(self.wikitext)
+        return data
+
+    def output_zip(self, zip_path: str = None) -> str:
+        """output_zip Output as zip (either raw data or path to output)
+
+        _extended_summary_
+
+        Args:
+            zip_path (str, optional): The path to save on disk. Defaults to None.
+
+        Returns:
+            str: Either the raw zip data (if zip_path is None) or the
+                 path itself
+        """
+        wabzip = WikiAsBase2Zip(self.output_jsonld(), verbose=True)
+        result = wabzip.output(zip_path)
+        return result
+
+
 class WikitextHeading:
     """WikitextHeading
 
@@ -719,6 +839,7 @@ class WikitextHeading:
                 # continue
 
         return "\n".join(result)
+
 
 # @TODO implement WikitextDescriptionList
 class WikitextDescriptionList:

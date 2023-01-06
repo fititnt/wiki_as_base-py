@@ -36,8 +36,8 @@ def test_wiki_as_base__all_test1():
     assert results is not False
     # assert len(results['data']) == 5
     # assert len(results["data"]) == 8
-    assert len(results["data"]) == 10
-    # assert len(results["data"]) == 11
+    # assert len(results["data"]) == 10
+    assert len(results["data"]) == 11
     assert results["@type"] == "wiki/wikiasbase"
 
 
@@ -145,7 +145,7 @@ def test_wiki_as_base__chatbotpor_test2_zip():
     # print(wikimarkup_raw)
     # print(wikiasbase_jsonld)
 
-    assert len(names_in_zip) == 3
+    assert len(names_in_zip) == 4
     # assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
     assert "wikiasbase.jsonld" in names_in_zip
     assert "ola.rive" in names_in_zip
