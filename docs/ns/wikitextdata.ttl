@@ -5,18 +5,74 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX csvw: <http://www.w3.org/ns/csvw#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 # @TODO maybe a PURL or W3ID prefix
-PREFIX wktxt: <http://www.w3.org/ns/shacl#>
+PREFIX wtxt: <http://www.w3.org/ns/shacl#>
 
-wktxt:
+# @see https://www.w3.org/ns/csvw
+# @see https://www.w3.org/TR/csv2rdf/
+
+wtxt:
     a owl:Ontology ;
     rdfs:label "JSON-LD simplistic representation of data on wiki markup language"@en ;
     # rdfs:comment "This vocabulary defines terms used in SHACL, the W3C Shapes Constraint Language."@en ;
     sh:declare [
-        sh:prefix "wktxt" ;
+        sh:prefix "wtxt" ;
         sh:namespace "http://www.w3.org/ns/shacl#" ;
     ] ;
     # sh:suggestedShapesGraph <http://www.w3.org/ns/shacl-shacl#>
+.
+
+wtxt:Table
+    a rdfs:Class ;
+    rdfs:label "Table"@en ;
+    rdfs:comment "Table element as represented in Wikitext/HTML table"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:Template
+    a rdfs:Class ;
+    rdfs:label "Template"@en ;
+    rdfs:comment "Template element in Wikitext"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+    rdfs:seeAlso <https://en.wikipedia.org/wiki/Help:Template> ;
+    # https://en.wikipedia.org/wiki/Help:Infobox
+    skos:altLabel "Infobox"@en ;
+.
+
+# @see https://stackoverflow.com/questions/4611591/code-vs-pre-vs-samp-for-inline-and-block-code-snippets
+# @see https://html.spec.whatwg.org/multipage/grouping-content.html#the-pre-element
+# To represent a block of computer code, the pre element can be used with a code element; to represent a block of computer output the pre element can be used with a samp element. Similarly, the kbd element can be used within a pre element to indicate text that the user is to enter.
+
+# wtxt:PreformattedText
+wtxt:PreCode
+    a rdfs:Class ;
+    rdfs:label "Preformatted text"@en ;
+    rdfs:comment "An equivalent of Wikitext of HTML <pre><code></code></pre>"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+# wtxt:lang
+wtxt:syntaxLang
+    a rdf:Property;
+    rdfs:label "syntax language of a PreformattedText"@en;
+    rdfs:comment """...todo description..."""@en;
+    # rdfs:domain csvw:NumericFormat;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:templateName
+    a rdf:Property;
+    rdfs:label "template name"@en;
+    rdfs:comment """Name of the Wikitext template"""@en;
+    # rdfs:domain csvw:NumericFormat;
+    rdfs:range xsd:string ;  # @TODO range here likely to be linguistic, not raw string
+    rdfs:isDefinedBy wtxt: ;
 .

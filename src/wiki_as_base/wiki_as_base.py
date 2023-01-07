@@ -187,6 +187,8 @@ def wiki_as_base_all(
                             {
                                 "@type": "wiki/data/" + result[1],
                                 "@id": result[2],
+                                "_type": "wtxt:PreCode",
+                                "wtxt:syntaxLang": result[1],
                                 # "data_raw": result[0],
                                 data_raw_key: result[0],
                             }
@@ -195,6 +197,8 @@ def wiki_as_base_all(
                         data["data"].append(
                             {
                                 "@type": "wiki/data/" + result[1],
+                                "_type": "wtxt:PreCode",
+                                "wtxt:syntaxLang": result[1],
                                 # "@id": result[2],
                                 # "data_raw": result[0],
                                 data_raw_key: result[0],
@@ -206,7 +210,11 @@ def wiki_as_base_all(
     if tables and len(tables) > 0:
         index = 1
         for table in tables:
-            _tbl = {"@type": "wiki/data/table", "@id": f"t{index}"}
+            _tbl = {
+                "@type": "wiki/data/table",
+                "@id": f"t{index}",
+                "_type": "wtxt:Table",
+            }
             # table["@type"] = "wiki/data/table"
             # table["@id"] = f"t{index}"
             _tbl.update(table)
@@ -228,6 +236,8 @@ def wiki_as_base_from_infobox(
     data = {}
     data["@type"] = "wiki/infobox/" + template_key
     data["@id"] = None
+    data["_type"] = "wtxt:Template"
+    data["wtxt:templateName"] = template_key
     # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.

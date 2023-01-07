@@ -99,6 +99,15 @@ wiki_as_base==0.5.3
 - See https://json-schema.org/specification.html
 - See https://github.com/json-api/json-api/blob/gh-pages/schema
 
+## Namespace
+> @TODO make URLS for the namespace
+
+# Returns HTML
+curl https://www.w3.org/ns/csvw
+
+# Returns turtle
+curl -I -H "Accept: text/turtle" https://www.w3.org/ns/csvw 
+
 -->
 
 ## The Specification

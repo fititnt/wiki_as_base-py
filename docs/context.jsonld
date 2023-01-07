@@ -3,6 +3,7 @@
     "hydra": "https://www.w3.org/ns/hydra/core#",
     "osmw": "https://wiki.openstreetmap.org/wiki/",
     "wikiasbase_temp": "https://github.com/fititnt/wiki_as_base-py#",
+    "wtxt": "https://fititnt.github.io/wiki_as_base-py/ns#",
     "data": {
       "@id": "hydra:Collection"
     },
