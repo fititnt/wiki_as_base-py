@@ -26,6 +26,7 @@ import io
 import json
 import os
 import re
+import sys
 from typing import Any, List, Union
 import zipfile
 import requests
@@ -685,6 +686,8 @@ class WikitextAsData:
     _wikiapi_meta: dict = None
     _req_params: dict = None
 
+    errors: list = None
+
     def __init__(self, api_params: dict = None) -> None:
         """Initialize
 
@@ -703,7 +706,7 @@ class WikitextAsData:
             # "rvprop": "content",
             "rvprop": "content|timestamp",
             "rvslots": "main",
-            "rvlimit": 1,
+            # "rvlimit": 1,
             # "titles": title,
             "titles": None,
             "format": "json",
@@ -717,6 +720,7 @@ class WikitextAsData:
 
         self.wikitext = None
         self.api_response = None
+        self.errors = []
 
     def _request_api(self):
 
@@ -725,22 +729,40 @@ class WikitextAsData:
         self._wikiapi_meta = None
 
         # @TODO refactor this part to allow fetch several pages at once
+
+        res = None
+
         try:
             headers = {"User-Agent": USER_AGENT}
             req = requests.get(WIKI_API, headers=headers, params=self._req_params)
-
             res = req.json()
-            revision = res["query"]["pages"][0]["revisions"][0]
-            wikiapi_meta = res["query"]["pages"][0]
-            wikitext = revision["slots"]["main"]["content"]
-
-            self.api_response = res
-            self.wikitext = wikitext
-            self._wikiapi_meta = wikiapi_meta
-        except (ValueError, KeyError) as err:
-            # return (None, None)
+        except Exception as err:
+            # sys.stderr.write(f"{err}\n")
+            self.errors.append(f"_request_api get {err}")
             # print(err)
             pass
+
+        if res:
+            try:
+                # headers = {"User-Agent": USER_AGENT}
+                # req = requests.get(WIKI_API, headers=headers, params=self._req_params)
+
+                # res = req.json()
+                revision = res["query"]["pages"][0]["revisions"][0]
+                wikiapi_meta = res["query"]["pages"][0]
+                wikitext = revision["slots"]["main"]["content"]
+
+                self.api_response = res
+                self.wikitext = wikitext
+                self._wikiapi_meta = wikiapi_meta
+            except (ValueError, KeyError) as err:
+                # return (None, None)
+                # os.sys
+                # sys.stderr.write(f"{err}\n")
+                self.errors.append(f"_request_api key error (some item not found?)")
+                self.errors.append(res)
+                # print(err)
+                pass
 
         # return (wikitext, wikiapi_meta)
 
@@ -760,6 +782,9 @@ class WikitextAsData:
             self._request_api()
 
         return self
+
+    def is_success(self):
+        return not self.errors or len(self.errors) == 0
 
     def set_titles(self, titles: str):
         self._req_params["titles"] = titles
@@ -785,8 +810,14 @@ class WikitextAsData:
 
     def output_jsonld(self):
         # Use wiki_as_base_meta_from_api
-        data = wiki_as_base_all(self.wikitext, _next_release=True)
-        return data
+
+        # if not self.errors:
+        if self.is_success():
+            # data = wiki_as_base_all(self.wikitext, _next_release=True)
+            return wiki_as_base_all(self.wikitext, _next_release=True)
+        else:
+            # @TODO filter better the errors, in special the ones from API
+            return {"error": self.errors}
 
     def output_zip(self, zip_path: str = None) -> str:
         """output_zip Output as zip (either raw data or path to output)
@@ -800,8 +831,19 @@ class WikitextAsData:
             str: Either the raw zip data (if zip_path is None) or the
                  path itself
         """
-        wabzip = WikiAsBase2Zip(self.output_jsonld(), verbose=True, _next_release=True)
-        result = wabzip.output(zip_path)
+        result = False
+
+        try:
+            wabzip = WikiAsBase2Zip(
+                self.output_jsonld(), verbose=True, _next_release=True
+            )
+            result = wabzip.output(zip_path)
+        except Exception as err:
+            # sys.stderr.write(f"{err}\n")
+            self.errors.append(f"_request_api get {err}")
+            # print(err)
+            # pass
+
         return result
 
 

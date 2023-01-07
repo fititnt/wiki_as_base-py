@@ -104,23 +104,31 @@ def main():
 
     if args.output_raw:
         # If multiple pages, behavior may be undefined
+        # @TODO use wtdata.is_success()
 
         api_response = wtdata.get("api_response", strict=False)
+        errors = wtdata.get("errors", strict=False)
         if api_response:
             print(json.dumps(api_response, ensure_ascii=False, indent=2))
+        elif errors:
+            print({"error": errors})
         else:
             print(wtdata.get("wikitext"))
-        return EXIT_OK
+
+        return EXIT_OK if wtdata.is_success() else EXIT_ERROR
 
     elif args.output_zip_file:
-        result = wtdata.output_zip(args.output_zip_file)
-        if result:
-            return EXIT_OK
-        else:
-            return EXIT_ERROR
+        # result = wtdata.output_zip(args.output_zip_file)
+        wtdata.output_zip(args.output_zip_file)
+        return EXIT_OK if wtdata.is_success() else EXIT_ERROR
+        # if result:
+        #     return EXIT_OK
+        # else:
+        #     return EXIT_ERROR
     else:
         print(json.dumps(wtdata.output_jsonld(), ensure_ascii=False, indent=2))
-        return EXIT_OK
+        return EXIT_OK if wtdata.is_success() else EXIT_ERROR
+        # return EXIT_OK
 
     # return EXIT_ERROR
 

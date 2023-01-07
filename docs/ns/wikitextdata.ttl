@@ -1,0 +1,22 @@
+# W3C Shapes Constraint Language (SHACL) Vocabulary
+# Version from 2017-07-20
+    
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+# @TODO maybe a PURL or W3ID prefix
+PREFIX wktxt: <http://www.w3.org/ns/shacl#>
+
+wktxt:
+    a owl:Ontology ;
+    rdfs:label "JSON-LD simplistic representation of data on wiki markup language"@en ;
+    # rdfs:comment "This vocabulary defines terms used in SHACL, the W3C Shapes Constraint Language."@en ;
+    sh:declare [
+        sh:prefix "wktxt" ;
+        sh:namespace "http://www.w3.org/ns/shacl#" ;
+    ] ;
+    # sh:suggestedShapesGraph <http://www.w3.org/ns/shacl-shacl#>
+.
