@@ -42,7 +42,10 @@ def main():
 
     # added --titles as aliases existing --page-title
     # parser.add_argument("--page-title", help="Page title of input")
-    parser.add_argument("--titles", "--page-title", help="Page title of input")
+    parser.add_argument(
+        "--titles", "--page-title", help="Page titles of input, Use | as separator"
+    )
+    parser.add_argument("--pageids", help="Pageids of input, Use | as separator")
 
     parser.add_argument(
         "--input-stdin",
@@ -90,8 +93,8 @@ def main():
     args.page_title = args.titles
     # print(args.page_title)
 
-    if not args.page_title and not args.input_stdin:
-        print("Missing --titles or --input-stdin")
+    if not args.page_title and not args.pageids and not args.input_stdin:
+        print("Missing --titles, or --pageids, or --input-stdin")
         return EXIT_ERROR
 
     if args.input_stdin:
@@ -99,6 +102,8 @@ def main():
         wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
     elif args.page_title:
         wtdata = wiki_as_base.WikitextAsData().set_titles(args.page_title)
+    elif args.pageids:
+        wtdata = wiki_as_base.WikitextAsData().set_pageids(args.pageids)
 
     wtdata.prepare()
 

@@ -692,11 +692,12 @@ class WikitextAsData:
 
     wikitext: str = None
     api_response: dict = None
+    errors: list = None
     is_fetch_required = None
     _wikiapi_meta: dict = None
     _req_params: dict = None
-
-    errors: list = None
+    _reloaded: bool = None
+    # _reloaded_count: int = 0
 
     def __init__(self, api_params: dict = None) -> None:
         """Initialize
@@ -718,6 +719,7 @@ class WikitextAsData:
             "rvslots": "main",
             # "rvlimit": 1,
             # "titles": title,
+            "pageids": None,
             "titles": None,
             "format": "json",
             "formatversion": "2",
@@ -791,16 +793,31 @@ class WikitextAsData:
         ):
             self._request_api()
 
+        self._reloaded = True
+
         return self
 
     def is_success(self):
         return not self.errors or len(self.errors) == 0
 
+    def set_pageids(self, pageids: str):
+        self._req_params["pageids"] = pageids
+        
+
+        # If user define pageids directly, we assume wants remote call and
+        # unset titles
+        self.is_fetch_required = True
+        del self._req_params["titles"]
+
+        return self
+
     def set_titles(self, titles: str):
         self._req_params["titles"] = titles
 
-        # If user define titles directly, we assume wants remote call
+        # If user define titles directly, we assume wants remote call and
+        # unset pageids
         self.is_fetch_required = True
+        del self._req_params["pageids"]
 
         return self
 
@@ -820,6 +837,9 @@ class WikitextAsData:
 
     def output_jsonld(self):
         # Use wiki_as_base_meta_from_api
+
+        if not self._reloaded:
+            self.prepare()
 
         # if not self.errors:
         if self.is_success():
@@ -842,6 +862,9 @@ class WikitextAsData:
                  path itself
         """
         result = False
+
+        if not self._reloaded:
+            self.prepare()
 
         try:
             wabzip = WikiAsBase2Zip(
