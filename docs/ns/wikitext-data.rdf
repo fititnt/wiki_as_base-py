@@ -1,0 +1,49 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:wtxt="https://wtxt.etica.ai/ns#"
+    xmlns:csvw="http://www.w3.org/ns/csvw#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:sh="http://www.w3.org/ns/shacl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <owl:Ontology rdf:about="https://wtxt.etica.ai/ns#">
+    <sh:declare rdf:parseType="Resource">
+      <sh:namespace>https://wtxt.etica.ai/ns#</sh:namespace>
+      <sh:prefix>wtxt</sh:prefix>
+    </sh:declare>
+    <rdfs:label xml:lang="en">JSON-LD simplistic representation of data on wiki markup language</rdfs:label>
+  </owl:Ontology>
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#Template">
+    <skos:altLabel xml:lang="en">Infobox</skos:altLabel>
+    <rdfs:seeAlso rdf:resource="https://en.wikipedia.org/wiki/Help:Template"/>
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment xml:lang="en">Template element in Wikitext</rdfs:comment>
+    <rdfs:label xml:lang="en">Template</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#PreCode">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment xml:lang="en">An equivalent of Wikitext of HTML &lt;pre&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</rdfs:comment>
+    <rdfs:label xml:lang="en">Preformatted text</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#Table">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment xml:lang="en">Table element as represented in Wikitext/HTML table</rdfs:comment>
+    <rdfs:label xml:lang="en">Table</rdfs:label>
+  </rdfs:Class>
+  <rdf:Property rdf:about="https://wtxt.etica.ai/ns#templateName">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment xml:lang="en">Name of the Wikitext template</rdfs:comment>
+    <rdfs:label xml:lang="en">template name</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="https://wtxt.etica.ai/ns#syntaxLang">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment xml:lang="en">...todo description...</rdfs:comment>
+    <rdfs:label xml:lang="en">syntax language of a PreformattedText</rdfs:label>
+  </rdf:Property>
+</rdf:RDF>

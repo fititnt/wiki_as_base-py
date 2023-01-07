@@ -1,6 +1,3 @@
-# W3C Shapes Constraint Language (SHACL) Vocabulary
-# Version from 2017-07-20
-    
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -10,7 +7,7 @@ PREFIX csvw: <http://www.w3.org/ns/csvw#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 # @TODO maybe a PURL or W3ID prefix
-PREFIX wtxt: <http://www.w3.org/ns/shacl#>
+PREFIX wtxt: <https://wtxt.etica.ai/ns#>
 
 # @see https://www.w3.org/ns/csvw
 # @see https://www.w3.org/TR/csv2rdf/
@@ -21,7 +18,7 @@ wtxt:
     # rdfs:comment "This vocabulary defines terms used in SHACL, the W3C Shapes Constraint Language."@en ;
     sh:declare [
         sh:prefix "wtxt" ;
-        sh:namespace "http://www.w3.org/ns/shacl#" ;
+        sh:namespace "https://wtxt.etica.ai/ns#" ;
     ] ;
     # sh:suggestedShapesGraph <http://www.w3.org/ns/shacl-shacl#>
 .

@@ -1,0 +1,32 @@
+<https://wtxt.etica.ai/ns#> <http://www.w3.org/ns/shacl#declare> _:B212b37cbd728df4b2abce3b475a94853 .
+<https://wtxt.etica.ai/ns#> <http://www.w3.org/2000/01/rdf-schema#label> "JSON-LD simplistic representation of data on wiki markup language"@en .
+<https://wtxt.etica.ai/ns#> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2004/02/skos/core#altLabel> "Infobox"@en .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://en.wikipedia.org/wiki/Help:Template> .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#comment> "Template element in Wikitext"@en .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#label> "Template"@en .
+<https://wtxt.etica.ai/ns#Template> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#comment> "An equivalent of Wikitext of HTML <pre><code></code></pre>"@en .
+<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#label> "Preformatted text"@en .
+<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+<https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#comment> "Table element as represented in Wikitext/HTML table"@en .
+<https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#label> "Table"@en .
+<https://wtxt.etica.ai/ns#Table> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://wtxt.etica.ai/ns#syntaxLang> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#syntaxLang> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://wtxt.etica.ai/ns#syntaxLang> <http://www.w3.org/2000/01/rdf-schema#comment> "...todo description..."@en .
+<https://wtxt.etica.ai/ns#syntaxLang> <http://www.w3.org/2000/01/rdf-schema#label> "syntax language of a PreformattedText"@en .
+<https://wtxt.etica.ai/ns#syntaxLang> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+_:B212b37cbd728df4b2abce3b475a94853 <http://www.w3.org/ns/shacl#namespace> "https://wtxt.etica.ai/ns#" .
+_:B212b37cbd728df4b2abce3b475a94853 <http://www.w3.org/ns/shacl#prefix> "wtxt" .
+<https://wtxt.etica.ai/ns#templateName> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#templateName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://wtxt.etica.ai/ns#templateName> <http://www.w3.org/2000/01/rdf-schema#comment> "Name of the Wikitext template"@en .
+<https://wtxt.etica.ai/ns#templateName> <http://www.w3.org/2000/01/rdf-schema#label> "template name"@en .
+<https://wtxt.etica.ai/ns#templateName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .

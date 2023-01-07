@@ -106,8 +106,13 @@ wiki_as_base==0.5.3
 curl https://www.w3.org/ns/csvw
 
 # Returns turtle
-curl -I -H "Accept: text/turtle" https://www.w3.org/ns/csvw 
+curl -I -H "Accept: text/turtle" https://www.w3.org/ns/csvw
 
+> @TODO maybe generate page with HTML version of the RDF, see
+>       - https://github.com/dgarijo/Widoco
+
+> @TODO investigate about the other formats
+https://www.iana.org/assignments/media-types/application/vnd.openstreetmap.data+xml
 -->
 
 ## The Specification

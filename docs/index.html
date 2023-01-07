@@ -5,12 +5,18 @@
   <meta charset="utf-8" />
   <!-- <title>Replace me with a real title</title> -->
   <title>JSON-LD simplistic representation of data on wiki markup language</title>
+
+  <link rel="alternate" type="text/turtle" href="ns/wikitext-data.ttl" />
+  <link rel="alternate" type="application/rdf+xml" href="ns/wikitext-data.rdf" />
+  <link rel="alternate" type="application/ld+json" href="ns/wikitext-data.jsonld" />
+  <link rel="alternate" type="application/n-triples" href="ns/wikitext-data.nt" />
+
   <script src="https://www.w3.org/Tools/respec/respec-w3c" class="remove" defer></script>
   <script class="remove">
     // All config options at https://respec.org/docs/
     var respecConfig = {
       //specStatus: "ED",
-      latestVersion: "https://fititnt.github.io/wiki_as_base-py/",
+      latestVersion: "https://wtxt.etica.ai/",
       specStatus: 'unofficial',
       editors: [
         {
@@ -37,24 +43,42 @@
           publisher: "EticaAI",
         }
       },
+      lint: {
+        "check-punctuation": true,
+        "local-refs-exist": true,
+        "no-headingless-sections": true,
+        "no-http-props": true,
+      },
     };
+  </script>
+  <script>
+    function escapeExample(utils, content, url) {
+      return content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function removeExamplePREFIX(utils, content, url) {
+      return content.replace(/PREFIX (.*)/g, "");
+    }
+    function escapeExampleCommentsLineStart(utils, content, url) {
+      return content.replace(/^# (.*)/g, "");
+    }
   </script>
 </head>
 
 <body>
   <section id="abstract">
-    <p>This is required.</p>
+    <!-- <p>This is required.</p> -->
   </section>
   <section id="sotd">
-    <p>This is required.</p>
+    <!-- <p>This is required.</p> -->
   </section>
   <section class="informative">
     <h2>Introduction</h2>
     <p>Some informative introductory text.</p>
-    <aside class="note" title="A useful note">
-      <p>I'm a note!</p>
+    <aside class="note" title="TODO">
+      <p>Write an introduction here.</p>
     </aside>
   </section>
+  <!--
   <section>
     <h2>A section</h2>
     <aside class="example">
@@ -67,10 +91,32 @@
     <section>
       <h3>I'm a sub-section</h3>
       <p class="issue" data-number="121">
-        <!-- Issue can automatically be populated from GitHub -->
       </p>
     </section>
   </section>
+  -->
+  <!-- <section class="appendix informative"> -->
+  <section class="normative">
+    <h2>Formal specification</h2>
+    <pre class="example nohighlight" title="ns/wikitext-data.ttl" data-content-type="text/turtle"
+      data-oninclude="escapeExample" data-include="ns/wikitext-data.ttl"></pre>
+  </section>
+  <section class="appendix informative">
+    <h2>Examples of implementations</h2>
+    <pre class="example nohighlight" title="context.jsonld" data-content-type="application/ld+json"
+      data-oninclude="escapeExample" data-include="context.jsonld"></pre>
+    <section class="">
+      <h3>JSON-LD Context for API</h3>
+      <pre class="example nohighlight" title="context.jsonld" data-content-type="application/ld+json"
+        data-oninclude="escapeExample" data-include="context.jsonld"></pre>
+    </section>
+    <section class="">
+      <h3>JSON Schema for API</h3>
+      <pre class="example nohighlight" title="schema.json" data-content-type="application/json"
+        data-oninclude="escapeExample" data-include="schema.json"></pre>
+    </section>
+  </section>
+  <!--
   <section data-dfn-for="Foo">
     <h2>Start your spec!</h2>
     <pre class="idl">
@@ -89,6 +135,8 @@
       <li>A |variable:DOMString| can be declared like this.</li>
     </ol>
   </section>
+  -->
+
   <section id="conformance">
     <p>
       This is required for specifications that contain normative material.

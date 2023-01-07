@@ -1,0 +1,127 @@
+{
+    "@graph": [
+        {
+            "@id": "https://wtxt.etica.ai/ns#",
+            "sh:declare": {
+                "@id": "_:b0"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "JSON-LD simplistic representation of data on wiki markup language"
+            },
+            "@type": "owl:Ontology"
+        },
+        {
+            "@id": "_:b0",
+            "sh:namespace": "https://wtxt.etica.ai/ns#",
+            "sh:prefix": "wtxt"
+        },
+        {
+            "@id": "wtxt:Template",
+            "skos:altLabel": {
+                "@language": "en",
+                "@value": "Infobox"
+            },
+            "rdfs:seeAlso": {
+                "@id": "https://en.wikipedia.org/wiki/Help:Template"
+            },
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Template element in Wikitext"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Template"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:PreCode",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "An equivalent of Wikitext of HTML <pre><code></code></pre>"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Preformatted text"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:Table",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Table element as represented in Wikitext/HTML table"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Table"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:syntaxLang",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "...todo description..."
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "syntax language of a PreformattedText"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:templateName",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Name of the Wikitext template"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "template name"
+            },
+            "@type": "rdf:Property"
+        }
+    ],
+    "@context": {
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "sh": "http://www.w3.org/ns/shacl#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "wtxt": "https://wtxt.etica.ai/ns#",
+        "csvw": "http://www.w3.org/ns/csvw#"
+    }
+}
