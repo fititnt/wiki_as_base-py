@@ -26,7 +26,7 @@ import io
 import json
 import os
 import re
-from typing import List, Union
+from typing import Any, List, Union
 import zipfile
 import requests
 
@@ -416,7 +416,7 @@ def wiki_as_base_request(
         # "rvprop": "content",
         "rvprop": "content|timestamp",
         "rvslots": "main",
-        "rvlimit": 1,
+        # "rvlimit": 1,
         "titles": title,
         "format": "json",
         "formatversion": "2",
@@ -680,6 +680,7 @@ class WikiMarkupTableAST:
 class WikitextAsData:
 
     wikitext: str = None
+    api_response: dict = None
     is_fetch_required = None
     _wikiapi_meta: dict = None
     _req_params: dict = None
@@ -714,6 +715,9 @@ class WikitextAsData:
 
         self._req_params = default_params
 
+        self.wikitext = None
+        self.api_response = None
+
     def _request_api(self):
 
         # Reset values
@@ -730,6 +734,7 @@ class WikitextAsData:
             wikiapi_meta = res["query"]["pages"][0]
             wikitext = revision["slots"]["main"]["content"]
 
+            self.api_response = res
             self.wikitext = wikitext
             self._wikiapi_meta = wikiapi_meta
         except (ValueError, KeyError) as err:
@@ -739,10 +744,12 @@ class WikitextAsData:
 
         # return (wikitext, wikiapi_meta)
 
-    def get(self, key: str):
+    def get(self, key: str, strict: bool = True):
         if key in self.__dict__:
             return self.__dict__[key]
-        raise ValueError(f"WikitextAsData key [{key}]?")
+
+        if strict:
+            raise ValueError(f"WikitextAsData key [{key}]?")
 
     def prepare(self):
         """prepare prepare data and/or make expensive calls"""

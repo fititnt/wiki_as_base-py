@@ -51,7 +51,9 @@ def main():
     )
 
     parser.add_argument(
-        "--output-raw", action="store_true", help="Output RAW, unedited Wiki markup"
+        "--output-raw",
+        action="store_true",
+        help="Output RAW, unedited Wiki markup (or API response if remote call)",
     )
 
     # parser.add_argument(
@@ -102,7 +104,12 @@ def main():
 
     if args.output_raw:
         # If multiple pages, behavior may be undefined
-        print(wtdata.get("wikitext"))
+
+        api_response = wtdata.get("api_response", strict=False)
+        if api_response:
+            print(json.dumps(api_response, ensure_ascii=False, indent=2))
+        else:
+            print(wtdata.get("wikitext"))
         return EXIT_OK
 
     elif args.output_zip_file:
@@ -115,93 +122,12 @@ def main():
         print(json.dumps(wtdata.output_jsonld(), ensure_ascii=False, indent=2))
         return EXIT_OK
 
-    return EXIT_ERROR
-    # @TODO remove after here
-
-    if args.page_title:
-        # print("Welcome to GeeksforGeeks !")
-        # print(args.page_title)
-        wikitext, wikiapi_meta = wiki_as_base.wiki_as_base_request(args.page_title)
-        meta["title"] = args.page_title
-
-        if wikiapi_meta:
-            meta = wiki_as_base.wiki_as_base_meta_from_api(wikiapi_meta)
-
-            # # next line allow some debug
-            # meta["_raw"] = wikiapi_meta
-
-            WIKI_API = os.getenv("WIKI_API", wiki_as_base.WIKI_API)
-            meta["source"] = WIKI_API
-
-    elif args.input_stdin:
-        # print("Welcome to GeeksforGeeks !")
-        # print(args.page_title)
-        wikitext = sys.stdin.read()
-        meta["source"] = "stdin"
-
-        # return EXIT_ERROR
-        # print(data)
-    #     if args.accumulate == max:
-    #         print("The Computation Done is Maximum")
-    #     else:
-    #         print("The Computation Done is Summation")
-    #     print("And Here's your result:", end=" ")
-    else:
-        print("--page-title ?")
-        print("--input-stdin ?")
-        return EXIT_ERROR
-
-    # if args.output_dir and (
-    #     not os.path.exists(args.output_dir) or not os.path.isdir(args.output_dir)
-    # ):
-    #     raise SyntaxError(f"--output-dir error [{args.output_dir}]")
-
-    if not wikitext:
-        print('{"error": "no result from request"}')
-        return EXIT_ERROR
-
-    if args.output_raw:
-        print(wikitext)
-        return EXIT_OK
-
-    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikitext, meta=meta)
-
-    if not wikiasbase_jsonld:
-        print('{"error": "no data from request"}')
-        return EXIT_ERROR
-
-    if args.output_zip_stdout:
-        wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, bool(args.verbose))
-        print(wabzip.output())
-        return EXIT_OK
-
-    elif args.output_zip_file:
-        wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, bool(args.verbose))
-        if wabzip.output(args.output_zip_file):
-            return EXIT_OK
-        else:
-            return EXIT_ERROR
-    else:
-        print(json.dumps(wikiasbase_jsonld, ensure_ascii=False, indent=2))
-        return EXIT_OK
-
-    return EXIT_ERROR
-
-    # print(args.accumulate(args.integers))
+    # return EXIT_ERROR
 
 
 if __name__ == "__main__":
-
-    # hxltmcli = HXLTMCLI()
-    # pyargs_ = hxltmcli.make_args_hxltmcli()
-
-    # hxltmcli.execute_cli(pyargs_)
     main()
 
 
 def exec_from_console_scripts():
-    # hxltmcli_ = HXLTMCLI()
-    # args_ = hxltmcli_.make_args_hxltmcli()
-
-    # hxltmcli_.execute_cli(args_)
     main()
