@@ -18,8 +18,8 @@ def test_wikitext_001_jsonld():
     with open(source_wikitext, "r") as _file:
         wikitext = _file.read()
 
-    wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
-    jsonld = wtdata.output_jsonld()
+    wtdata = wiki_as_base.WikitextAsData()
+    jsonld = wtdata.set_wikitext(wikitext).output_jsonld()
 
     print(jsonld)
     # assert False
@@ -30,7 +30,7 @@ def test_wikitext_001_jsonld():
     # assert len(results["data"]) == 10
     # assert len(jsonld["data"]) == 11
     assert len(jsonld["data"]) == 13
-    assert jsonld["@type"] == "wiki/wikiasbase"
+    assert jsonld["@type"] == "wtxt:DataCollection"
 
 
 def test_wikitext_002_zipfile():
@@ -41,8 +41,8 @@ def test_wikitext_002_zipfile():
     with open(source_wikitext, "r") as content_file3:
         wikitext = content_file3.read()
 
-    wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
-    wtdata.output_zip(target_zipfile)
+    wtdata = wiki_as_base.WikitextAsData()
+    wtdata.set_wikitext(wikitext).output_zip(target_zipfile)
 
     # Now we analyse the zip file
     zip = zipfile.ZipFile(test_dir + "/temp/chatbotpor.zip")

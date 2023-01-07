@@ -28,6 +28,12 @@
     <rdfs:comment xml:lang="en">An equivalent of Wikitext of HTML &lt;pre&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</rdfs:comment>
     <rdfs:label xml:lang="en">Preformatted text</rdfs:label>
   </rdfs:Class>
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#DataCollection">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment xml:lang="en">A collection of data</rdfs:comment>
+    <rdfs:label xml:lang="en">Data Collection</rdfs:label>
+  </rdfs:Class>
   <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#Table">
     <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
     <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>

@@ -38,7 +38,7 @@ def test_wiki_as_base__all_test1():
     # assert len(results["data"]) == 8
     # assert len(results["data"]) == 10
     assert len(results["data"]) == 11
-    assert results["@type"] == "wiki/wikiasbase"
+    assert results["@type"] == "wtxt:DataCollection"
 
 
 def test_wiki_as_base__infobox_test1():
@@ -150,3 +150,26 @@ def test_wiki_as_base__chatbotpor_test2_zip():
     assert "wikiasbase.jsonld" in names_in_zip
     assert "ola.rive" in names_in_zip
     assert "person.rive" in names_in_zip
+
+
+# @TODO enable this test
+
+# def test_wiki_as_base__multiple_test3_zip():
+#     with open(test_dir + "/data/multiple.wiki.txt", "r") as content_file3:
+#         wikimarkup_raw = content_file3.read()
+
+#     wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
+
+#     wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, verbose=True)
+#     wabzip.output(test_dir + "/temp/multiple.zip")
+
+#     zip = zipfile.ZipFile(test_dir + "/temp/multiple.zip")
+#     names_in_zip = zip.namelist()
+
+#     assert len(names_in_zip) == 9
+#     # assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
+#     assert "wikiasbase.jsonld" in names_in_zip
+#     assert "ola.rive" in names_in_zip
+#     assert "person.rive" in names_in_zip
+#     assert "R001_wikidata.shacl.ttl" in names_in_zip
+#     assert "R001_wikidata-valid.tdata.ttl" in names_in_zip

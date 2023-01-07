@@ -96,6 +96,24 @@
             "@type": "rdf:Property"
         },
         {
+            "@id": "wtxt:DataCollection",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A collection of data"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Data Collection"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
             "@id": "wtxt:templateName",
             "rdfs:isDefinedBy": {
                 "@id": "https://wtxt.etica.ai/ns#"

@@ -128,7 +128,7 @@ def wiki_as_base_all(
         # "$schema": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json",
         "$schema": _JSONSCHEMA,
         # Maybe move @type out here
-        "@type": "wiki/wikiasbase",
+        "@type": "wtxt:DataCollection",
         # @TODO implement errors
         "data": None,
         # "meta": {
@@ -185,10 +185,11 @@ def wiki_as_base_all(
                     if result[2]:
                         data["data"].append(
                             {
-                                "@type": "wiki/data/" + result[1],
-                                "@id": result[2],
-                                "_type": "wtxt:PreCode",
+                                # "@type": "wiki/data/" + result[1],
+                                # "@id": result[2],
+                                "@type": "wtxt:PreCode",
                                 "wtxt:syntaxLang": result[1],
+                                "@id": result[2],
                                 # "data_raw": result[0],
                                 data_raw_key: result[0],
                             }
@@ -196,8 +197,8 @@ def wiki_as_base_all(
                     else:
                         data["data"].append(
                             {
-                                "@type": "wiki/data/" + result[1],
-                                "_type": "wtxt:PreCode",
+                                # "@type": "wiki/data/" + result[1],
+                                "@type": "wtxt:PreCode",
                                 "wtxt:syntaxLang": result[1],
                                 # "@id": result[2],
                                 # "data_raw": result[0],
@@ -211,11 +212,11 @@ def wiki_as_base_all(
         index = 1
         for table in tables:
             _tbl = {
-                "@type": "wiki/data/table",
+                "@type": "wtxt:Table",
                 "@id": f"t{index}",
-                "_type": "wtxt:Table",
+                # "_type": "wtxt:Table",
             }
-            # table["@type"] = "wiki/data/table"
+            # table["@type"] = "wtxt:Table"
             # table["@id"] = f"t{index}"
             _tbl.update(table)
             data["data"].append(_tbl)
@@ -234,9 +235,10 @@ def wiki_as_base_from_infobox(
 
     """
     data = {}
-    data["@type"] = "wiki/infobox/" + template_key
+    # data["@type"] = "wiki/infobox/" + template_key
+    # data["@id"] = None
+    data["@type"] = "wtxt:Template"
     data["@id"] = None
-    data["_type"] = "wtxt:Template"
     data["wtxt:templateName"] = template_key
     # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
@@ -452,13 +454,18 @@ def wiki_as_base_raw(wikitext: str) -> dict:
 
 
 class WikiAsBase2Zip:
-    wab_jsonld: dict = {}
-    file_and_data: dict = {}
+    # wab_jsonld: dict
+    # file_and_data: dict
 
     def __init__(
         self, wab_jsonld: dict, verbose: bool = False, _next_release: bool = False
     ) -> None:
+        self.wab_jsonld = None
+        self.file_and_data = None
+
         self.wab_jsonld = wab_jsonld
+        self.file_and_data = {}
+
         if verbose:
             self.file_and_data["wikiasbase.jsonld"] = json.dumps(
                 wab_jsonld, ensure_ascii=False, indent=2
@@ -482,7 +489,7 @@ class WikiAsBase2Zip:
                 if data_raw_key in item:
                     content = item[data_raw_key]
 
-            elif "@id" in item and item["@type"] == "wiki/data/table":
+            elif "@id" in item and item["@type"] == "wtxt:Table":
                 if "_errors" in item and len(item["_errors"]):
                     continue
                 filename = item["@id"] + ".csv"
@@ -690,14 +697,16 @@ class WikiMarkupTableAST:
 
 class WikitextAsData:
 
-    wikitext: str = None
-    api_response: dict = None
-    errors: list = None
-    is_fetch_required = None
-    _wikiapi_meta: dict = None
-    _req_params: dict = None
-    _reloaded: bool = None
-    # _reloaded_count: int = 0
+    # wikitext: str
+    # api_response: dict
+    # errors: list
+    # is_fetch_required: bool
+    # _wikiapi_meta: dict
+    # _req_params: dict
+    # _reloaded: bool
+
+    # # The individual resources to add on the JSON-LD data field
+    # _resources: list
 
     def __init__(self, api_params: dict = None) -> None:
         """Initialize
@@ -730,9 +739,17 @@ class WikitextAsData:
 
         self._req_params = default_params
 
+        # @TODO deal better with reset of the class to avoid reuse
         self.wikitext = None
         self.api_response = None
         self.errors = []
+        self.is_fetch_required = None
+        self._wikiapi_meta = None
+        self._reloaded = None
+        self._resources = []
+
+    def _add_resource(self, resource: dict):
+        self._resources.append(resource)
 
     def _request_api(self):
 
@@ -800,41 +817,6 @@ class WikitextAsData:
     def is_success(self):
         return not self.errors or len(self.errors) == 0
 
-    def set_pageids(self, pageids: str):
-        self._req_params["pageids"] = pageids
-        
-
-        # If user define pageids directly, we assume wants remote call and
-        # unset titles
-        self.is_fetch_required = True
-        del self._req_params["titles"]
-
-        return self
-
-    def set_titles(self, titles: str):
-        self._req_params["titles"] = titles
-
-        # If user define titles directly, we assume wants remote call and
-        # unset pageids
-        self.is_fetch_required = True
-        del self._req_params["pageids"]
-
-        return self
-
-    def set_wikitext(self, wikitext: str):
-        """set_wikitext set Wikitext directly instead of make API request
-
-        Potential use: for piped in content
-
-        Args:
-            wikitext (str): the Wikitext
-        """
-        self.wikitext = wikitext
-
-        # If user define wikitext directly, we assume no remote call is need
-        self.is_fetch_required = False
-        return self
-
     def output_jsonld(self):
         # Use wiki_as_base_meta_from_api
 
@@ -878,6 +860,50 @@ class WikitextAsData:
             # pass
 
         return result
+
+    def set_pageids(self, pageids: str):
+        """set_pageids set pageids for remote call
+
+        Args:
+            pageids (str): The Pageids. Use | as separator
+        """
+        self._req_params["pageids"] = pageids
+
+        # If user define pageids directly, we assume wants remote call and
+        # unset titles
+        self.is_fetch_required = True
+        del self._req_params["titles"]
+
+        return self
+
+    def set_titles(self, titles: str):
+        """set_pageids set page titles for remote call
+
+        Args:
+            pageids (str): The titles. Use | as separator
+        """
+        self._req_params["titles"] = titles
+
+        # If user define titles directly, we assume wants remote call and
+        # unset pageids
+        self.is_fetch_required = True
+        del self._req_params["pageids"]
+
+        return self
+
+    def set_wikitext(self, wikitext: str):
+        """set_wikitext set Wikitext directly instead of make API request
+
+        Potential use: for piped in content
+
+        Args:
+            wikitext (str): the Wikitext
+        """
+        self.wikitext = wikitext
+
+        # If user define wikitext directly, we assume no remote call is need
+        self.is_fetch_required = False
+        return self
 
 
 class WikitextHeading:

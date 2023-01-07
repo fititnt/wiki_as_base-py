@@ -20,4 +20,7 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetr
 # 296167    User:EmericusPetro/sandbox/Wiki-as-base/data-validation
 wiki_as_base --pageids '295916|296167'
 
+
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' > 'tests/temp/wiki-as-base_dump.jsonld'
+
 echo "ok"

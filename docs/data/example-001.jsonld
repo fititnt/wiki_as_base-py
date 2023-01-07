@@ -1,11 +1,11 @@
 {
-  "$schema": "https://wikitextdata.etica.ai/schema.json",
-  "@context": "https://wikitextdata.etica.ai/context.jsonld",
-  "@type": "wiki/wikiasbase",
+  "$schema": "https://wtxt.etica.ai/schema.json",
+  "@context": "https://wtxt.etica.ai/context.jsonld",
+  "@type": "wtxt:DataCollection",
   "data": [
     {
       "@id": "t1",
-      "@type": "wiki/data/table",
+      "@type": "wtxt:Table",
       "_errors": [],
       "_is_complete": true,
       "caption": "Caption text",
@@ -34,7 +34,7 @@
     },
     {
       "@id": "t2",
-      "@type": "wiki/data/table",
+      "@type": "wtxt:Table",
       "_errors": [],
       "_is_complete": true,
       "caption": null,
@@ -67,7 +67,7 @@
     },
     {
       "@id": "t3",
-      "@type": "wiki/data/table",
+      "@type": "wtxt:Table",
       "_errors": [],
       "_is_complete": true,
       "caption": "Caption text",
@@ -96,7 +96,7 @@
     },
     {
       "@id": "t4",
-      "@type": "wiki/data/table",
+      "@type": "wtxt:Table",
       "_errors": [],
       "_is_complete": true,
       "caption": null,

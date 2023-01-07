@@ -12,7 +12,7 @@ import wiki_as_base
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_wikitext_with_network_001_jsonld():
+def _disabled_test_wikitext_with_network_001_jsonld():
     source_titles = "User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation"
 
     wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
@@ -27,7 +27,7 @@ def test_wikitext_with_network_001_jsonld():
     # assert len(results["data"]) == 10
     # assert len(jsonld["data"]) == 11
     assert len(jsonld["data"]) == 13
-    assert jsonld["@type"] == "wiki/wikiasbase"
+    assert jsonld["@type"] == "wtxt:DataCollection"
 
 
 # def test_wikitext_002_zipfile():

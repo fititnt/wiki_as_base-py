@@ -23,6 +23,14 @@ wtxt:
     # sh:suggestedShapesGraph <http://www.w3.org/ns/shacl-shacl#>
 .
 
+wtxt:DataCollection
+    a rdfs:Class ;
+    rdfs:label "Data Collection"@en ;
+    rdfs:comment "A collection of data"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
 wtxt:Table
     a rdfs:Class ;
     rdfs:label "Table"@en ;
