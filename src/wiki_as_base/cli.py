@@ -45,7 +45,10 @@ def main():
     parser.add_argument(
         "--titles", "--page-title", help="Page titles of input, Use | as separator"
     )
+
     parser.add_argument("--pageids", help="Pageids of input, Use | as separator")
+
+    parser.add_argument("--revids", help="Revision IDs of input, Use | as separator")
 
     parser.add_argument(
         "--input-stdin",
@@ -93,8 +96,13 @@ def main():
     args.page_title = args.titles
     # print(args.page_title)
 
-    if not args.page_title and not args.pageids and not args.input_stdin:
-        print("Missing --titles, or --pageids, or --input-stdin")
+    if (
+        not args.page_title
+        and not args.pageids
+        and not args.revids
+        and not args.input_stdin
+    ):
+        print("Missing --titles, or --revids, or --pageids, or --input-stdin")
         return EXIT_ERROR
 
     if args.input_stdin:
@@ -104,6 +112,8 @@ def main():
         wtdata = wiki_as_base.WikitextAsData().set_titles(args.page_title)
     elif args.pageids:
         wtdata = wiki_as_base.WikitextAsData().set_pageids(args.pageids)
+    elif args.revids:
+        wtdata = wiki_as_base.WikitextAsData().set_revids(args.revids)
 
     wtdata.prepare()
 

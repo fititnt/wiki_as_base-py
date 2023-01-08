@@ -18,6 +18,7 @@ Customize for your needs. They're shared between command line and the library.
 
 ```bash
 export WIKI_API='https://wiki.openstreetmap.org/w/api.php'
+export WIKI_NS='osmwiki'
 ```
 
 <!--
@@ -31,10 +32,10 @@ export WIKI_DATA_LANGS='yaml\nturtle'
 wiki_as_base --help
 
 ## Use remote storage (defined on WIKI_API)
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base'
 
 # The output is JSON-LD. Feel free to further filter the data
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[1]
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq .data[1]
 
 ## Example of, instead of use WIKI_API, parse Wiki markup directly. Output JSON- LD
 cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
@@ -45,11 +46,11 @@ cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --out
 ## Use different Wiki with ad-hoc change of the env WIKI_API and WIKI_NS
 WIKI_NS=wikidatawiki \
   WIKI_API=https://www.wikidata.org/w/api.php \
-  wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
+  wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base'
 ```
 
 <details>
-<summary>Click to see examples for other wikies</summary>
+<summary>Click to see more examples for other wikies</summary>
 
 ```bash
 # For suggestion of RDF namespaces, see https://dumps.wikimedia.org/backup-index.html
@@ -65,11 +66,11 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 
 <!--
 export WIKI_DATA_LANGS="yaml\nturtle\ntext"
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' | jq .data[0]
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Chatbot-por' | jq .data[0]
 
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por' --output-raw
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Chatbot-por' --output-raw
 
-wiki_as_base --page-title 'User:EmericusPetro/sandbox/Chatbot-por'
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Chatbot-por'
 
 cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --output-raw
 
@@ -82,19 +83,35 @@ hexcurse tests/temp/teste2-stdout.zip
 cat tests/data/edge-case.wiki.txt | wiki_as_base --input-stdin
 cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-file tests/temp/multiple.zip
 
-wiki_as_base --page-title 'Node'
+wiki_as_base --titles 'Node'
 
 # @TODO test https://wiki.openstreetmap.org/wiki/OSM_XML
 
 https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=parse&format=json&title=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base
 -->
 
+#### Use of permanent IDs for pages
+
+In case the pages are already know upfront (such as automation) then the use of numeric pageid is a better choice.
+
+```bash
+# "--pageids '295916'" is equivalent to "--titles 'User:EmericusPetro/sandbox/Wiki-as-base'"
+wiki_as_base --pageids '295916'
+```
+
+However, if for some reason (such as strictly enforce not just an exact page,
+but exact version of one or more pages) and getting the latest version is not fully essential, then you can use `revids`,
+
+```bash
+# "--revids '2460131'" is an older version of --pageids '295916' and
+# "--titles 'User:EmericusPetro/sandbox/Wiki-as-base'"
+wiki_as_base --revids '2460131'
+```
+
 #### Advanced filter with jq
 
 When working with the JSON-LD output, you can use jq (_"jq is a lightweight and flexible command-line JSON processor."_), see more on https://stedolan.github.io/jq/, to filter the data
 
-<details>
-<summary>Click to see examples</summary>
 
 ```bash
 ## Filter tables
@@ -103,8 +120,6 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 ## Filter Templates
 wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
 ```
-
-</details>
 
 
 ### Library

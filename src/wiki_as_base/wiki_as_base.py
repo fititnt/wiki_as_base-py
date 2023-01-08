@@ -254,6 +254,7 @@ def wiki_as_base_from_infobox(
     data["@type"] = "wtxt:Template"
     data["@id"] = None
     data["wtxt:templateName"] = template_key
+    data["wtxt:templateData"] = {}
     # data['_allkeys'] = []
     # @TODO https://stackoverflow.com/questions/33862336/how-to-extract-information-from-a-wikipedia-infobox
     # @TODO make this part not with regex, but rules.
@@ -270,6 +271,8 @@ def wiki_as_base_from_infobox(
     # @TODO better error handling
     if wikitext.count("{{" + template_key) > 1:
         return False
+
+    _templateData = {}
 
     # if True:
     try:
@@ -301,7 +304,8 @@ def wiki_as_base_from_infobox(
                         index + 1
                     ].strip().startswith("|"):
                         # closed
-                        data[key] = value_tmp.strip()
+                        # data[key] = value_tmp.strip()
+                        _templateData[key] = value_tmp.strip()
                         # pass
                     # pass
                 # pass
@@ -320,6 +324,8 @@ def wiki_as_base_from_infobox(
 
     if data["@id"] is None:
         del data["@id"]
+
+    data["wtxt:templateData"] = _templateData
 
     return data
 
@@ -443,6 +449,7 @@ def wiki_as_base_request(
         # "rvprop": "content",
         "rvprop": "content|timestamp",
         "rvslots": "main",
+        "redirects": "1",  # redirects=1
         # "rvlimit": 1,
         "titles": title,
         "format": "json",
@@ -584,11 +591,39 @@ class WikitextAsData:
             "rvslots": "main",
             # "rvlimit": 1,
             # "titles": title,
-            "pageids": None,
             "titles": None,
+            "pageids": None,
+            "revids": None,
             "format": "json",
             "formatversion": "2",
         }
+
+        # @TODO maybe remove this part later
+        ## prop=pageprops, prop=wbentityusage (example from Key:maxspeed)
+        # "pageprops": {
+        #     "displaytitle": "Key:maxspeed",
+        #     "wikibase_item": "Q414"
+        # },
+        # "wbentityusage": {
+        #     "Q13": {
+        #         "aspects": [
+        #             "C.P16",
+        #             "C.P19",
+        #             "C.P21",
+        #             "L.en"
+        #         ]
+        #     },
+        #     "Q414": {
+        #         "aspects": [
+        #             "C",
+        #             "D.cs",
+        #             "D.de",
+        #             "D.en",
+        #             "D.es",
+        #             "D.fi"
+        #         ]
+        #     }
+        # }
 
         if api_params is not None:
             default_params.update(api_params)
@@ -726,8 +761,25 @@ class WikitextAsData:
         self._req_params["pageids"] = pageids
 
         # If user define pageids directly, we assume wants remote call and
-        # unset titles
+        # unset titles and revids
         self.is_fetch_required = True
+        del self._req_params["titles"]
+        del self._req_params["revids"]
+
+        return self
+
+    def set_revids(self, revids: str):
+        """set_revids set revision IDs for remote call
+
+        Args:
+            revids (str): The Revision IDs. Use | as separator
+        """
+        self._req_params["revids"] = revids
+
+        # If user define revids directly, we assume wants remote call and
+        # unset pageids and titles
+        self.is_fetch_required = True
+        del self._req_params["pageids"]
         del self._req_params["titles"]
 
         return self
@@ -741,9 +793,10 @@ class WikitextAsData:
         self._req_params["titles"] = titles
 
         # If user define titles directly, we assume wants remote call and
-        # unset pageids
+        # unset pageids and revids
         self.is_fetch_required = True
         del self._req_params["pageids"]
+        del self._req_params["revids"]
 
         return self
 
