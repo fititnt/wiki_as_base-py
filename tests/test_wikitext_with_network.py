@@ -2,6 +2,7 @@
 
 
 import os
+
 # import zipfile
 
 import wiki_as_base
@@ -12,21 +13,37 @@ import wiki_as_base
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-def _disabled_test_wikitext_with_network_001_jsonld():
-    source_titles = "User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation"
+# # def _disabled_test_wikitext_with_network_001_jsonld():
+# def test_wikitext_with_network_001_jsonld():
+#     source_titles = "User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation"
 
-    wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
+#     # Both cases are expected to have same output
+#     # wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
+#     wtdata = wiki_as_base.WikitextAsData().set_pages_autodetect(source_titles)
+#     jsonld = wtdata.output_jsonld()
+
+#     print(jsonld)
+#     # assert False
+#     assert jsonld is not None
+#     assert jsonld is not False
+#     assert len(jsonld["data"]) == 18
+#     assert jsonld["@type"] == "wtxt:DataCollection"
+
+
+# def _disabled_test_wikitext_with_network_002_jsonld():
+def test_wikitext_with_network_002_jsonld():
+    source_titles = "295916|296167"
+
+    # Both cases are expected to have same output
+    # wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
+    wtdata = wiki_as_base.WikitextAsData().set_pages_autodetect(source_titles)
     jsonld = wtdata.output_jsonld()
 
     print(jsonld)
     # assert False
     assert jsonld is not None
     assert jsonld is not False
-    # assert len(results['data']) == 5
-    # assert len(results["data"]) == 8
-    # assert len(results["data"]) == 10
-    # assert len(jsonld["data"]) == 11
-    assert len(jsonld["data"]) == 13
+    assert len(jsonld["data"]) == 18
     assert jsonld["@type"] == "wtxt:DataCollection"
 
 

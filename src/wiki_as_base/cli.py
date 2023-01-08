@@ -51,8 +51,16 @@ def main():
     parser.add_argument("--revids", help="Revision IDs of input, Use | as separator")
 
     parser.add_argument(
+        "--input-autodetect",
+        # action="store_true",
+        help="Page titles or pageids (not both). "
+        "Syntax sugar for --titles or --pageids. "
+        "Use | as separator",
+    )
+
+    parser.add_argument(
         "--input-stdin",
-        action="store_true",
+        # action="store_true",
         help="Use STDIN (data piped from other tools)" "instead of remote API",
     )
 
@@ -100,14 +108,22 @@ def main():
         not args.page_title
         and not args.pageids
         and not args.revids
+        and not args.input_autodetect
         and not args.input_stdin
     ):
-        print("Missing --titles, or --revids, or --pageids, or --input-stdin")
+        print(
+            "Missing --titles, --pagesid, --revids, "
+            "or --input-autodetect, or --input-stdin"
+        )
         return EXIT_ERROR
 
     if args.input_stdin:
         wikitext = sys.stdin.read()
         wtdata = wiki_as_base.WikitextAsData().set_wikitext(wikitext)
+    elif args.input_autodetect:
+        wtdata = wiki_as_base.WikitextAsData().set_pages_autodetect(
+            args.input_autodetect
+        )
     elif args.page_title:
         wtdata = wiki_as_base.WikitextAsData().set_titles(args.page_title)
     elif args.pageids:

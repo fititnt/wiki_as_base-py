@@ -919,6 +919,23 @@ class WikitextAsData:
 
         return self
 
+    def set_pages_autodetect(self, pages_auto: str):
+        """set_pages_autodetect autodetect set_pageids() or set_titles()
+
+        Args:
+            pageids (str): Strings to autodetect. Use | as separator
+        """
+
+        pages_auto_norm = pages_auto
+
+        parts = pages_auto_norm.split("|")
+        for part in parts:
+            # Any value not fully numeric means we assume are titles
+            if not part.isnumeric():
+                return self.set_titles(pages_auto_norm)
+
+        return self.set_pageids(pages_auto_norm)
+
     def set_revids(self, revids: str):
         """set_revids set revision IDs for remote call
 

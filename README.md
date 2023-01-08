@@ -94,7 +94,7 @@ wiki_as_base --titles 'Node'
 https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=parse&format=json&title=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base
 -->
 
-#### Use of permanent IDs for pages
+#### Use of permanent IDs for pages, the WikiMedia pageids
 
 In case the pages are already know upfront (such as automation) then the use of numeric pageid is a better choice.
 
@@ -112,6 +112,29 @@ but exact version of one or more pages) and getting the latest version is not fu
 wiki_as_base --revids '2460131'
 ```
 
+#### Request multiple pages at once, either by pageid or titles
+
+Each MediaWiki API may have different limits for batch requests,
+however even unauthenticated users often have decent limits (e.g. 50 pages).
+
+
+> Some Wikies may allow very high limits for authenticated accounts (500 pages),
+> however the current version does not implement authenticated requests.
+
+```bash
+## All the following commands are equivalent for the default WIKI_API
+
+wiki_as_base --input-autodetect '295916|296167'
+wiki_as_base --input-autodetect 'User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation'
+wiki_as_base --pageids '295916|296167'
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation'
+
+```
+
+Trivia: **since this library and CLI fetch directly from WikiMedia API,
+and parse Wikitext (not raw HTML),
+it causes much less server load to request several pages this way than big ones with higher number of template calls 😉.**
+
 #### Advanced filter with jq
 
 When working with the JSON-LD output, you can use jq (_"jq is a lightweight and flexible command-line JSON processor."_), see more on https://stedolan.github.io/jq/, to filter the data
@@ -125,10 +148,14 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
 ```
 
+#### Save JSON-LD extracted as files
+
+> TODO: explain the implemented feature
 
 ### Library
 
-- See [examples/](examples/)
+- See [src/wiki_as_base/cli.py](src/wiki_as_base/cli.py)
+- See [tests/](tests/)
 - See [tests/](tests/)
 
 > **WARNING**: as 2023-12-05 while the command line is less likely to change,
@@ -139,7 +166,16 @@ You can import as a pip package, however set the exact version in special if it 
 
 ```txt
 # requirements.txt
-wiki_as_base==0.5.3
+wiki_as_base==0.5.5
+```
+
+#### Basic use
+
+```python
+from wiki_as_base import WikitextAsData
+
+wtxt = WikitextAsData().set_pages_autodetect('295916|296167')
+print(wtxt.output_jsonld())
 ```
 
 <!--
