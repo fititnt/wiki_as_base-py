@@ -1,3 +1,5 @@
+# @deprecated as 2023-01-08 v0.5.4, this example is deprecated.
+
 # How to run
 # This will just print the output
 #    python ./examples/simple-example-yaml.py

@@ -89,9 +89,9 @@ def main():
     # print(args)
 
     wikitext = None
-    wikiapi_meta = None
+    # wikiapi_meta = None
 
-    meta = {}
+    # meta = {}
 
     args.page_title = args.titles
     # print(args.page_title)

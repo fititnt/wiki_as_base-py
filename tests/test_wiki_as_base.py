@@ -129,21 +129,16 @@ def test_wiki_as_base__chatbotpor_test1():
 
 
 def test_wiki_as_base__chatbotpor_test2_zip():
-    with open(test_dir + "/data/chatbot-por.wiki.txt", "r") as content_file3:
-        wikimarkup_raw = content_file3.read()
+    source_wikitext = test_dir + "/data/chatbot-por.wiki.txt"
+    target_zipfile = test_dir + "/temp/chatbotpor.zip"
+    with open(source_wikitext, "r") as content_file3:
+        wikitext = content_file3.read()
 
-    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
-    # print(wikimarkup_raw)
-    # print(wikiasbase_jsonld)
+    wtdata = wiki_as_base.WikitextAsData()
+    wtdata.set_wikitext(wikitext).output_zip(target_zipfile)
 
-    wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, verbose=True)
-    wabzip.output(test_dir + "/temp/chatbotpor.zip")
-
-    zip = zipfile.ZipFile(test_dir + "/temp/chatbotpor.zip")
+    zip = zipfile.ZipFile(target_zipfile)
     names_in_zip = zip.namelist()
-    # print(names_in_zip)
-    # print(wikimarkup_raw)
-    # print(wikiasbase_jsonld)
 
     assert len(names_in_zip) == 4
     # assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
@@ -154,15 +149,15 @@ def test_wiki_as_base__chatbotpor_test2_zip():
 
 
 def test_wiki_as_base__multiple_test3_zip():
-    with open(test_dir + "/data/multiple.wiki.txt", "r") as content_file3:
-        wikimarkup_raw = content_file3.read()
+    source_wikitext = test_dir + "/data/multiple.wiki.txt"
+    target_zipfile = test_dir + "/temp/multiple.zip"
+    with open(source_wikitext, "r") as content_file3:
+        wikitext = content_file3.read()
 
-    wikiasbase_jsonld = wiki_as_base.wiki_as_base_all(wikimarkup_raw)
+    wtdata = wiki_as_base.WikitextAsData()
+    wtdata.set_wikitext(wikitext).output_zip(target_zipfile)
 
-    wabzip = wiki_as_base.WikiAsBase2Zip(wikiasbase_jsonld, verbose=True)
-    wabzip.output(test_dir + "/temp/multiple.zip")
-
-    zip = zipfile.ZipFile(test_dir + "/temp/multiple.zip")
+    zip = zipfile.ZipFile(target_zipfile)
     names_in_zip = zip.namelist()
 
     assert len(names_in_zip) == 7  # @TODO fix me; tox is caching files?
