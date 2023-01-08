@@ -39,6 +39,14 @@ wtxt:DataCollectionOutline
     rdfs:isDefinedBy wtxt: ;
 .
 
+wtxt:PageOutline
+    a rdfs:Class ;
+    rdfs:label "Page outline"@en ;
+    rdfs:comment "A HTML version of headers h1-h6 of a single page with Wikitext"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
 wtxt:Table
     a rdfs:Class ;
     rdfs:label "Table"@en ;
@@ -112,5 +120,40 @@ wtxt:literalData
     rdfs:label "literal data"@en;
     rdfs:comment """The raw value of something. Use for PreformattedCode and DataCollectionOutline"""@en;
     rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:suggestedFilename
+    a rdf:Property;
+    rdfs:label "suggested filename"@en;
+    rdfs:comment """A strong hint for desired filename of a resource"""@en;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+    skos:note """Mostly used for PreformattedCode (what in on the Wiki) or via some configuration of the tool generating the JSON-LD. Do not use for inferred names"""@en;
+.
+
+wtxt:inWikipage
+    a rdf:Property;
+    rdfs:label "in wiki page"@en;
+    rdfs:comment """the full IRI page"""@en;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+# @TODO review how to encode this when used not for the page itself
+wtxt:timestamp
+    a rdf:Property;
+    rdfs:label "timestamp"@en;
+    rdfs:comment """..."""@en;
+    rdfs:range xsd:dateTimeStamp ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+# @TODO review how to encode this when used not for the page itself
+wtxt:user
+    a rdf:Property;
+    rdfs:label "user"@en;
+    rdfs:comment """..."""@en;
+    rdfs:range xsd:anyURI ;
     rdfs:isDefinedBy wtxt: ;
 .

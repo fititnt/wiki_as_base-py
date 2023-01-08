@@ -58,8 +58,12 @@ WIKI_NS=specieswiki \
   WIKI_API=https://species.wikimedia.org/w/api.php \
   wiki_as_base --titles 'Paubrasilia_echinata'
 
-## Filter Templates
-wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
+# @TODO implement support for MediaWiki version used by wikies like this one
+WIKI_NS=smwwiki \
+  WIKI_API=https://www.semantic-mediawiki.org/w/api.php \
+  wiki_as_base --titles 'Help:Using_SPARQL_and_RDF_stores'
+
+
 ```
 
 </details>

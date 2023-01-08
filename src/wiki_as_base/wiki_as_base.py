@@ -22,6 +22,7 @@
 
 # import copy
 import csv
+import datetime
 import io
 import json
 import os
@@ -153,7 +154,8 @@ def wiki_as_base_all(
         data_raw_key = "data_raw"
 
     wth = WikitextHeading(wikitext)
-    outline = wth.get_headings()
+    # outline = wth.get_headings()
+    outline = wth.get_outline()
     if outline:
         data["data"].append(
             {
@@ -504,8 +506,12 @@ class WikiAsBase2Zip:
             filename = None
             content = None
             # @TODO improve this check to determine in file format
-            if "@id" in item and item["@id"].find(".") > -1:
-                filename = item["@id"]
+            # if "@id" in item and item["@id"].find(".") > -1:
+            if (
+                "wtxt:suggestedFilename" in item
+                and item["wtxt:suggestedFilename"].find(".") > -1
+            ):
+                filename = item["wtxt:suggestedFilename"]
                 # if "data_raw" in item:
                 #     content = item["data_raw"]
                 # if data_raw_key in item:
@@ -516,6 +522,8 @@ class WikiAsBase2Zip:
             elif "@id" in item and item["@type"] == "wtxt:Table":
                 if "_errors" in item and len(item["_errors"]):
                     continue
+
+                # @TODO improve the algoritm for tables
 
                 filename = item["@id"] + ".csv"
 
@@ -569,7 +577,7 @@ class WikitextAsData:
     _reloaded: bool
 
     # # The individual resources to add on the JSON-LD data field
-    # _resources: list
+    _resources: list
 
     def __init__(self, api_params: dict = None) -> None:
         """Initialize
@@ -585,9 +593,10 @@ class WikitextAsData:
         default_params = {
             "action": "query",
             # "prop": "revisions",
-            "prop": "revisions|categories|templates",
+            # "prop": "revisions|categories|templates",
+            "prop": "revisions|categories",
             # "rvprop": "content",
-            "rvprop": "content|timestamp",
+            "rvprop": "content|timestamp|user",
             "rvslots": "main",
             # "rvlimit": 1,
             # "titles": title,
@@ -684,7 +693,109 @@ class WikitextAsData:
                 # print(err)
                 pass
 
+        if self.api_response is not None:
+            self._request_api_post()
+
         # return (wikitext, wikiapi_meta)
+
+    def _request_api_post(self):
+
+        # # Initialize some checks
+        # @TODO finish the refactoring of this part
+        template_keys = WIKI_INFOBOXES.splitlines()
+        syntaxhighlight_langs = WIKI_DATA_LANGS.splitlines()
+
+        for page in self.api_response["query"]["pages"]:
+            _pageid = page["pageid"]
+            _title = page["title"]
+            _title_norm = _title.replace(" ", "_")
+
+            # @TODO fix me, only <NS:pagetitle> is wrong; some pages are in
+            #       subfolders
+
+            # We only get the first revision
+            _user = page["revisions"][0]["user"]
+            _timestamp = page["revisions"][0]["timestamp"]
+            _wikitext = page["revisions"][0]["slots"]["main"]["content"]
+
+            # outline
+            wth = WikitextHeading(_wikitext)
+            outline = wth.get_outline()
+            if outline:
+                self._resources.append(
+                    {
+                        # "@type": "wiki/outline",
+                        # "@type": "wtxt:DataCollectionOutline",
+                        "@type": "wtxt:PageOutline",
+                        "@id": f"{WIKI_NS}:{_title_norm}#__outline",
+                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
+                        "wtxt:suggestedFilename": f"{WIKI_NS}:{_title_norm}.html",
+                        "wtxt:timestamp": _timestamp,
+                        "wtxt:user": _user,
+                        # 'data_raw': outline,
+                        # data_raw_key: outline,
+                        "wtxt:literalData": outline,
+                    }
+                )
+
+            # Infoboxes
+            if template_keys is not None and len(template_keys) > 0:
+                for item in template_keys:
+                    result = wiki_as_base_from_infobox(_wikitext, item)
+                    if result:
+                        self._resources.append(result)
+
+            # preformated blocks
+            if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
+                for item in syntaxhighlight_langs:
+                    results = wiki_as_base_from_syntaxhighlight(_wikitext, item)
+                    # results = wiki_as_base_from_syntaxhighlight(wikitext)
+                    if results:
+                        for result in results:
+                            if not result:
+                                continue
+                            if result[2]:
+                                self._resources.append(
+                                    {
+                                        "@type": "wtxt:PreformattedCode",
+                                        "wtxt:syntaxLang": result[1],
+                                        "wtxt:suggestedFilename": result[2],
+                                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
+                                        "wtxt:literalData": result[0],
+                                    }
+                                )
+                            else:
+                                self._resources.append(
+                                    {
+                                        "@type": "wtxt:PreformattedCode",
+                                        "wtxt:syntaxLang": result[1],
+                                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
+                                        "wtxt:literalData": result[0],
+                                    }
+                                )
+
+            wmt = WikitextTable(_wikitext)
+            tables = wmt.get_tables()
+            if tables and len(tables) > 0:
+                index = 1
+                for table in tables:
+
+                    table_data = [table["header"]] + table["data"]
+
+                    _tbl = {
+                        "@type": "wtxt:Table",
+                        "@id": f"t{index}",
+                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
+                        "wtxt:tableData": table_data,
+                        "_is_complete": table["_is_complete"],
+                        "_errors": table["_errors"]
+                        # "_type": "wtxt:Table",
+                    }
+                    # table["@type"] = "wtxt:Table"
+                    # table["@id"] = f"t{index}"
+                    # _tbl.update(table)
+                    self._resources.append(_tbl)
+                    index += 1
 
     def get(self, key: str, strict: bool = True):
         if key in self.__dict__:
@@ -700,6 +811,27 @@ class WikitextAsData:
             self.is_fetch_required is None and self._req_params["titles"] is not None
         ):
             self._request_api()
+        else:
+            # We will simulate an API request
+            self.api_response = {
+                "query": {
+                    "pages": [
+                        {
+                            "pageid": 0,
+                            "title": "stdin",
+                            "revisions": [
+                                {
+                                    "user": "stdin",
+                                    "timestamp": datetime.datetime.now().isoformat(),
+                                    "slots": {"main": {"content": self.wikitext}},
+                                }
+                            ],
+                        }
+                    ]
+                }
+            }
+            # Now, we can continue with post API :)
+            self._request_api_post()
 
         self._reloaded = True
 
@@ -716,8 +848,25 @@ class WikitextAsData:
 
         # if not self.errors:
         if self.is_success():
-            # data = wiki_as_base_all(self.wikitext, _next_release=True)
-            return wiki_as_base_all(self.wikitext, _next_release=True)
+            # return wiki_as_base_all(self.wikitext, _next_release=True)
+
+            _jsonld = {
+                # TODO: make a permanent URL
+                # "@context": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld",
+                "@context": _JSONLD_CONTEXT,
+                # "$schema": "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json",
+                "$schema": _JSONSCHEMA,
+                # Maybe move @type out here
+                "@type": "wtxt:DataCollection",
+                # @TODO implement errors
+                # "data": None,
+                "data": self._resources,
+                # "meta": {
+                #     '_source': None
+                # }
+            }
+            return _jsonld
+
         else:
             # @TODO filter better the errors, in special the ones from API
             return {"error": self.errors}
@@ -898,6 +1047,10 @@ class WikitextHeading:
                 # continue
 
         return "\n".join(result)
+
+    def get_outline(self) -> str:
+        headings = self.get_headings()
+        return "<article>\n" + headings + "</article>"
 
 
 class WikitextTable:
