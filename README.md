@@ -42,9 +42,26 @@ cat tests/data/multiple.wiki.txt | wiki_as_base --input-stdin
 ## Output zip file instead of JSON-LD. --verbose also adds wikiasbase.jsonld to file
 cat tests/data/chatbot-por.wiki.txt | wiki_as_base --input-stdin --verbose --output-zip-file tests/temp/chatbot-por.zip
 
-## Use different Wiki with ad-hoc change of the env WIKI_API
-WIKI_API=https://www.wikidata.org/w/api.php wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
+## Use different Wiki with ad-hoc change of the env WIKI_API and WIKI_NS
+WIKI_NS=wikidatawiki \
+  WIKI_API=https://www.wikidata.org/w/api.php \
+  wiki_as_base --page-title 'User:EmericusPetro/sandbox/Wiki-as-base'
 ```
+
+<details>
+<summary>Click to see examples for other wikies</summary>
+
+```bash
+# For suggestion of RDF namespaces, see https://dumps.wikimedia.org/backup-index.html
+WIKI_NS=specieswiki \
+  WIKI_API=https://species.wikimedia.org/w/api.php \
+  wiki_as_base --titles 'Paubrasilia_echinata'
+
+## Filter Templates
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
+```
+
+</details>
 
 <!--
 export WIKI_DATA_LANGS="yaml\nturtle\ntext"
@@ -86,7 +103,6 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 ## Filter Templates
 wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
 ```
-
 
 </details>
 

@@ -69,7 +69,7 @@
             },
             "rdfs:comment": {
                 "@language": "en",
-                "@value": "The raw value of a PreCode"
+                "@value": "The raw value of a PreformattedCode"
             },
             "rdfs:label": {
                 "@language": "en",
@@ -78,7 +78,7 @@
             "@type": "rdf:Property"
         },
         {
-            "@id": "wtxt:PreCode",
+            "@id": "wtxt:PreformattedCode",
             "rdfs:isDefinedBy": {
                 "@id": "https://wtxt.etica.ai/ns#"
             },

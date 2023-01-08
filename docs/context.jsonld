@@ -1,7 +1,9 @@
 {
   "@context": {
     "hydra": "https://www.w3.org/ns/hydra/core#",
-    "osmw": "https://wiki.openstreetmap.org/wiki/",
+    "osmwiki": "https://wiki.openstreetmap.org/wiki/",
+    "wikidatawiki": "https://www.wikidata.org/wiki/",
+    "specieswiki": "https://species.wikimedia.org/wiki/",
     "wtxt": "https://wtxt.etica.ai/ns#",
     "data": {
       "@id": "hydra:Collection"

@@ -8,11 +8,11 @@
 <https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#comment> "Template element in Wikitext"@en .
 <https://wtxt.etica.ai/ns#Template> <http://www.w3.org/2000/01/rdf-schema#label> "Template"@en .
 <https://wtxt.etica.ai/ns#Template> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
-<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
-<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
-<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#comment> "An equivalent of Wikitext of HTML <pre><code></code></pre>"@en .
-<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/2000/01/rdf-schema#label> "Preformatted text"@en .
-<https://wtxt.etica.ai/ns#PreCode> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://wtxt.etica.ai/ns#PreformattedCode> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
+<https://wtxt.etica.ai/ns#PreformattedCode> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+<https://wtxt.etica.ai/ns#PreformattedCode> <http://www.w3.org/2000/01/rdf-schema#comment> "An equivalent of Wikitext of HTML <pre><code></code></pre>"@en .
+<https://wtxt.etica.ai/ns#PreformattedCode> <http://www.w3.org/2000/01/rdf-schema#label> "Preformatted text"@en .
+<https://wtxt.etica.ai/ns#PreformattedCode> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <https://wtxt.etica.ai/ns#> .
 <https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
 <https://wtxt.etica.ai/ns#Table> <http://www.w3.org/2000/01/rdf-schema#comment> "Table element as represented in Wikitext/HTML table"@en .

@@ -58,9 +58,9 @@ PERFECT_TABLE_STYLE = """{| class="wikitable"
 
 def test_wiki_as_base_raw():
 
-    # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE)
-    # wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_DOUBLEMARKS)
-    wmt = wiki_as_base.WikiMarkupTableAST(PERFECT_TABLE_STYLE)
+    # wmt = wiki_as_base.WikitextTable(PERFECT_TABLE)
+    # wmt = wiki_as_base.WikitextTable(PERFECT_TABLE_DOUBLEMARKS)
+    wmt = wiki_as_base.WikitextTable(PERFECT_TABLE_STYLE)
 
     tables = wmt.get_tables()
 

@@ -63,7 +63,7 @@ wtxt:Template
 # To represent a block of computer code, the pre element can be used with a code element; to represent a block of computer output the pre element can be used with a samp element. Similarly, the kbd element can be used within a pre element to indicate text that the user is to enter.
 
 # wtxt:PreformattedText
-wtxt:PreCode
+wtxt:PreformattedCode
     a rdfs:Class ;
     rdfs:label "Preformatted text"@en ;
     rdfs:comment "An equivalent of Wikitext of HTML <pre><code></code></pre>"@en ;
@@ -102,7 +102,7 @@ wtxt:templateData
 wtxt:tableData
     a rdf:Property;
     rdfs:label "table data"@en;
-    rdfs:comment """The tabular data, with headers and rows"""@en;
+    rdfs:comment """The tabular data, with headers and rows mixed"""@en;
     # rdfs:range xsd:string ;
     rdfs:isDefinedBy wtxt: ;
 .
@@ -110,7 +110,7 @@ wtxt:tableData
 wtxt:literalData
     a rdf:Property;
     rdfs:label "literal data"@en;
-    rdfs:comment """The raw value of a PreCode"""@en;
+    rdfs:comment """The raw value of something. Use for PreformattedCode and DataCollectionOutline"""@en;
     rdfs:range xsd:string ;
     rdfs:isDefinedBy wtxt: ;
 .

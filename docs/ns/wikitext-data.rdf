@@ -28,7 +28,7 @@
     <rdfs:comment xml:lang="en">A HTML version of headers h1-h6 of entire data collection of one or more pages with Wikitext</rdfs:comment>
     <rdfs:label xml:lang="en">Data collection outline</rdfs:label>
   </rdfs:Class>
-  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#PreCode">
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#PreformattedCode">
     <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
     <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
     <rdfs:comment xml:lang="en">An equivalent of Wikitext of HTML &lt;pre&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</rdfs:comment>
@@ -49,7 +49,7 @@
   <rdf:Property rdf:about="https://wtxt.etica.ai/ns#literalData">
     <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    <rdfs:comment xml:lang="en">The raw value of a PreCode</rdfs:comment>
+    <rdfs:comment xml:lang="en">The raw value of a PreformattedCode</rdfs:comment>
     <rdfs:label xml:lang="en">literal data</rdfs:label>
   </rdf:Property>
   <rdf:Property rdf:about="https://wtxt.etica.ai/ns#templateName">

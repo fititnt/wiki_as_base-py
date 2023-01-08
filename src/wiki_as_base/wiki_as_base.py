@@ -36,17 +36,21 @@ _REFVER = "0.5.4"
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 
+# Consider using prefix like https://dumps.wikimedia.org/backup-index.html
+WIKI_NS = os.getenv("WIKI_NS", "osmwiki")
+WIKI_BASE = os.getenv("WIKI_BASE", lambda x: WIKI_API.replace("/w/api.php", "/wiki/"))
+
 WIKI_INFOBOXES = os.getenv("WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
 
 # @TODO WIKI_INFOBOXES_IDS
 WIKI_INFOBOXES_IDS = os.getenv("WIKI_INFOBOXES_IDS", "{key}={value}\n{key}")
 _JSONLD_CONTEXT = (
     # "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/context.jsonld"
-    "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/docs/context.jsonld"
+    "https://wtxt.etica.ai/context.jsonld"
 )
 _JSONSCHEMA = (
     # "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/schema.json"
-    "https://raw.githubusercontent.com/fititnt/wiki_as_base-py/main/docs/schema.json"
+    "https://wtxt.etica.ai/schema.json"
 )
 
 
@@ -153,10 +157,12 @@ def wiki_as_base_all(
     if outline:
         data["data"].append(
             {
-                "@type": "wiki/outline",
+                # "@type": "wiki/outline",
+                "@type": "wtxt:DataCollectionOutline",
                 "@id": "heading-outline.html",
                 # 'data_raw': outline,
-                data_raw_key: outline,
+                # data_raw_key: outline,
+                "wtxt:literalData": outline,
             }
         )
 
@@ -187,38 +193,46 @@ def wiki_as_base_all(
                             {
                                 # "@type": "wiki/data/" + result[1],
                                 # "@id": result[2],
-                                "@type": "wtxt:PreCode",
+                                "@type": "wtxt:PreformattedCode",
                                 "wtxt:syntaxLang": result[1],
                                 "@id": result[2],
                                 # "data_raw": result[0],
-                                data_raw_key: result[0],
+                                # data_raw_key: result[0],
+                                "wtxt:literalData": result[0],
                             }
                         )
                     else:
                         data["data"].append(
                             {
                                 # "@type": "wiki/data/" + result[1],
-                                "@type": "wtxt:PreCode",
+                                "@type": "wtxt:PreformattedCode",
                                 "wtxt:syntaxLang": result[1],
                                 # "@id": result[2],
                                 # "data_raw": result[0],
-                                data_raw_key: result[0],
+                                # data_raw_key: result[0],
+                                "wtxt:literalData": result[0],
                             }
                         )
 
-    wmt = WikiMarkupTableAST(wikitext)
+    wmt = WikitextTable(wikitext)
     tables = wmt.get_tables()
     if tables and len(tables) > 0:
         index = 1
         for table in tables:
+
+            table_data = [table["header"]] + table["data"]
+
             _tbl = {
                 "@type": "wtxt:Table",
                 "@id": f"t{index}",
+                "wtxt:tableData": table_data,
+                "_is_complete": table["_is_complete"],
+                "_errors": table["_errors"]
                 # "_type": "wtxt:Table",
             }
             # table["@type"] = "wtxt:Table"
             # table["@id"] = f"t{index}"
-            _tbl.update(table)
+            # _tbl.update(table)
             data["data"].append(_tbl)
             index += 1
 
@@ -453,6 +467,7 @@ def wiki_as_base_raw(wikitext: str) -> dict:
     return wikitext
 
 
+# class Wikitext2Zip:
 class WikiAsBase2Zip:
     # wab_jsonld: dict
     # file_and_data: dict
@@ -473,10 +488,10 @@ class WikiAsBase2Zip:
         # self.file_and_data["teste.txt"] = "# filename = teste.txt"
         # self.file_and_data["teste.csv"] = "# filename = teste.csv"
 
-        if _next_release:
-            data_raw_key = "data"
-        else:
-            data_raw_key = "data_raw"
+        # if _next_release:
+        #     data_raw_key = "data"
+        # else:
+        #     data_raw_key = "data_raw"
 
         for item in self.wab_jsonld["data"]:
             filename = None
@@ -486,19 +501,22 @@ class WikiAsBase2Zip:
                 filename = item["@id"]
                 # if "data_raw" in item:
                 #     content = item["data_raw"]
-                if data_raw_key in item:
-                    content = item[data_raw_key]
+                # if data_raw_key in item:
+                #     content = item[data_raw_key]
+                if "wtxt:literalData" in item:
+                    content = item["wtxt:literalData"]
 
             elif "@id" in item and item["@type"] == "wtxt:Table":
                 if "_errors" in item and len(item["_errors"]):
                     continue
+
                 filename = item["@id"] + ".csv"
 
                 output = io.StringIO()
                 writer = csv.writer(output)
 
-                writer.writerow(item["header"])
-                for line in item["data"]:
+                # writer.writerow(item["header"])
+                for line in item["wtxt:tableData"]:
                     writer.writerow(line)
 
                 content = output.getvalue()
@@ -532,178 +550,16 @@ class WikiAsBase2Zip:
             # return str(zip_buffer.getvalue())
 
 
-class WikiMarkupTableAST:
-    """Abstract Syntax Tree of Wiki Markup table
-
-    See https://en.wikipedia.org/wiki/Help:Basic_table_markup
-
-    Markup	Name
-    {|	Table start
-    |+	Table caption
-    |-	Table row
-    !	Header cell
-    !!	Header cell (on the same line)
-    |	Data cell
-    ||	Data cell (on the same line)
-    |	Attribute separator
-    |}	Table end
-
-    @TODO maybe implement syntax of CSVW? https://w3c.github.io/csvw/syntax/
-    """
-
-    wikimarkup: str
-
-    tables_potential: list = None
-    tables: list = None
-
-    def __init__(self, wikimarkup: str) -> None:
-        self.wikimarkup = wikimarkup
-        self.tables_potential = []
-        self.tables = []
-        self._init_potential_tables()
-
-    def _init_potential_tables(self):
-        reg_filename = re.compile(
-            # '\{\| class="wikitable[^\}]+\|\}', flags=re.M | re.S | re.U
-            "\{\| class=[\"'](?:[\w][^'\"]*\s)?wikitable[^\}]+\|\}",
-            flags=re.M | re.S | re.U,
-        )
-
-        items = re.findall(reg_filename, self.wikimarkup)
-        self.tables_potential = items
-        for item in self.tables_potential:
-            parsed = self.parse_table(item)
-            if parsed is not None and len(parsed["_errors"]) == 0:
-                self.tables.append(parsed)
-
-    def parse_table(self, wikimarkup_table: str) -> dict:
-        meta = {
-            "caption": None,
-            "header": [],
-            "data": [],
-            "_is_complete": False,  # Header and Rows have same length?
-            "_errors": [],
-        }
-
-        lines = wikimarkup_table.splitlines()
-        if not lines[0].startswith("{|") or not lines[-1].startswith("|}"):
-            return None
-        lines.pop(0)
-        lines.pop()
-
-        # for line in lines:
-        # is_row = True
-        while len(lines):
-            line = lines.pop(0).strip()
-
-            if line.startswith("|+"):
-                _regresult = re.search("\|\+\s?(?P<caption>.*)", line)
-                if _regresult:
-                    meta["caption"] = _regresult.group("caption")
-                else:
-                    meta["_errors"].append("caption")
-                continue
-
-            # Header
-            # @TODO fix this part because sometimes can start without space
-            #       however it must not start with |- |} |+
-            # if line.startswith("! "):
-            if line.startswith("!"):
-                if line.find("!!") > 2:
-                    meta["header"] = list(
-                        # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
-                        map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
-                    )
-                # if line.startswith("! ") and line.find("!!") == -1:
-                else:
-                    _header = []
-
-                    while line and not line.startswith("|-"):
-                        _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
-                        line = lines.pop(0).strip() if len(lines) > 0 else None
-
-                    meta["header"] = _header
-                continue
-
-            # Row data
-            # @TODO fix this part because sometimes can start without space
-            #       however it must not start with |- |} |+
-            # if line.startswith("| "):
-            if line.startswith("|") and not line.startswith(("|+", "|-", "|}")):
-                if line.find("||") > 2:
-                    meta["data"].append(
-                        list(
-                            map(
-                                self.parse_table_cellvalue,
-                                line.lstrip("| ").split("||"),
-                            )
-                        )
-                    )
-                # if line.startswith("| ") and line.find("||") == -1:
-                else:
-                    _row = []
-
-                    while line and not line.startswith("|-"):
-                        _row.append(self.parse_table_cellvalue(line.lstrip("| ")))
-                        line = lines.pop(0).strip() if len(lines) > 0 else None
-
-                    meta["data"].append(_row)
-                continue
-
-            # break
-
-        header_len = len(meta["header"])
-        row_len = len(meta["data"][0]) if len(meta["data"]) > 0 else -1
-        row_len_mismatch = False
-        if len(meta["data"]) > 0:
-            for row in meta["data"]:
-                if len(row) != row_len:
-                    row_len_mismatch = True
-                    break
-        if row_len_mismatch is False and row_len > 0 and row_len == header_len:
-            meta["_is_complete"] = True
-        else:
-            meta["_errors"].append("incomplete table")
-
-        return meta
-
-    def parse_table_cellvalue(self, formatted_value: str):
-        val = formatted_value
-
-        # style="color: red" | row1cell1
-        if val.find(" | ") > -1:
-            parts = val.split(" | ")
-            val = parts[1]
-
-        return val.strip()
-
-    def get_debug(self):
-        debug = {"tables_potential": self.tables_potential, "tables": self.tables}
-        return debug
-
-    def get_tables(self, strict: bool = False) -> list:
-        tables = []
-
-        # @TODO enable strict=True by default
-
-        for item in self.tables:
-            if not strict or (
-                len(item["_errors"]) == 0 and item["_is_complete"] == True
-            ):
-                tables.append(item)
-
-        return tables
-
-
 class WikitextAsData:
+    """Main class to deal with conversion from Wikitext to linked data"""
 
-    # wikitext: str
-    # api_response: dict
-    # errors: list
-    # is_fetch_required: bool
-    # _wikiapi_meta: dict
-    # _req_params: dict
-    # _reloaded: bool
+    wikitext: str
+    api_response: dict
+    errors: list
+    is_fetch_required: bool
+    _wikiapi_meta: dict
+    _req_params: dict
+    _reloaded: bool
 
     # # The individual resources to add on the JSON-LD data field
     # _resources: list
@@ -906,6 +762,29 @@ class WikitextAsData:
         return self
 
 
+# @TODO implement WikitextDescriptionList
+class WikitextDescriptionList:
+    """WikitextDescriptionList
+
+    @see https://en.wikipedia.org/wiki/Help:Wikitext#Lists
+    @see https://html.spec.whatwg.org/multipage/grouping-content.html#the-dl-element
+
+
+    @example
+    = Heading 1 =
+    == Heading 2 ==
+    === Heading 3 ===
+    ==== Heading 4 ====
+    ===== Heading 5 =====
+    ====== Heading 6 ======
+    """
+
+    wikimarkup: str
+
+    def __init__(self, wikitext: str) -> None:
+        self.wikimarkup = wikitext
+
+
 class WikitextHeading:
     """WikitextHeading
 
@@ -968,24 +847,164 @@ class WikitextHeading:
         return "\n".join(result)
 
 
-# @TODO implement WikitextDescriptionList
-class WikitextDescriptionList:
-    """WikitextDescriptionList
+class WikitextTable:
+    """Abstract Syntax Tree of Wiki Markup table
 
-    @see https://en.wikipedia.org/wiki/Help:Wikitext#Lists
-    @see https://html.spec.whatwg.org/multipage/grouping-content.html#the-dl-element
+    See https://en.wikipedia.org/wiki/Help:Basic_table_markup
 
+    Markup	Name
+    {|	Table start
+    |+	Table caption
+    |-	Table row
+    !	Header cell
+    !!	Header cell (on the same line)
+    |	Data cell
+    ||	Data cell (on the same line)
+    |	Attribute separator
+    |}	Table end
 
-    @example
-    = Heading 1 =
-    == Heading 2 ==
-    === Heading 3 ===
-    ==== Heading 4 ====
-    ===== Heading 5 =====
-    ====== Heading 6 ======
+    @TODO maybe implement syntax of CSVW? https://w3c.github.io/csvw/syntax/
     """
 
     wikimarkup: str
 
-    def __init__(self, wikitext: str) -> None:
-        self.wikimarkup = wikitext
+    tables_potential: list = None
+    tables: list = None
+
+    def __init__(self, wikimarkup: str) -> None:
+        self.wikimarkup = wikimarkup
+        self.tables_potential = []
+        self.tables = []
+        self._init_potential_tables()
+
+    def _init_potential_tables(self):
+        reg_filename = re.compile(
+            # '\{\| class="wikitable[^\}]+\|\}', flags=re.M | re.S | re.U
+            "\{\| class=[\"'](?:[\w][^'\"]*\s)?wikitable[^\}]+\|\}",
+            flags=re.M | re.S | re.U,
+        )
+
+        items = re.findall(reg_filename, self.wikimarkup)
+        self.tables_potential = items
+        for item in self.tables_potential:
+            parsed = self.parse_table(item)
+            if parsed is not None and len(parsed["_errors"]) == 0:
+                self.tables.append(parsed)
+
+    def parse_table(self, wikimarkup_table: str) -> dict:
+        meta = {
+            "caption": None,
+            "header": [],
+            "data": [],
+            "_is_complete": False,  # Header and Rows have same length?
+            "_errors": [],
+        }
+
+        lines = wikimarkup_table.splitlines()
+        if not lines[0].startswith("{|") or not lines[-1].startswith("|}"):
+            return None
+        lines.pop(0)
+        lines.pop()
+
+        # for line in lines:
+        # is_row = True
+        while len(lines):
+            line = lines.pop(0).strip()
+
+            if line.startswith("|+"):
+                _regresult = re.search("\|\+\s?(?P<caption>.*)", line)
+                if _regresult:
+                    meta["caption"] = _regresult.group("caption")
+                else:
+                    meta["_errors"].append("caption")
+                continue
+
+            # Header
+            # @TODO fix this part because sometimes can start without space
+            #       however it must not start with |- |} |+
+            # if line.startswith("! "):
+            if line.startswith("!"):
+                if line.find("!!") > 2:
+                    meta["header"] = list(
+                        # map(lambda cell: cell.strip(), line.lstrip("! ").split("!!"))
+                        map(self.parse_table_cellvalue, line.lstrip("! ").split("!!"))
+                    )
+                # if line.startswith("! ") and line.find("!!") == -1:
+                else:
+                    _header = []
+
+                    while line and not line.startswith("|-"):
+                        _header.append(self.parse_table_cellvalue(line.lstrip("! ")))
+                        line = lines.pop(0).strip() if len(lines) > 0 else None
+
+                    meta["header"] = _header
+                continue
+
+            # Row data
+            # @TODO fix this part because sometimes can start without space
+            #       however it must not start with |- |} |+
+            # if line.startswith("| "):
+            if line.startswith("|") and not line.startswith(("|+", "|-", "|}")):
+                if line.find("||") > 2:
+                    meta["data"].append(
+                        list(
+                            map(
+                                self.parse_table_cellvalue,
+                                line.lstrip("| ").split("||"),
+                            )
+                        )
+                    )
+                # if line.startswith("| ") and line.find("||") == -1:
+                else:
+                    _row = []
+
+                    while line and not line.startswith("|-"):
+                        _row.append(self.parse_table_cellvalue(line.lstrip("| ")))
+                        line = lines.pop(0).strip() if len(lines) > 0 else None
+
+                    meta["data"].append(_row)
+                continue
+
+            # break
+
+        header_len = len(meta["header"])
+        row_len = len(meta["data"][0]) if len(meta["data"]) > 0 else -1
+        row_len_mismatch = False
+        if len(meta["data"]) > 0:
+            for row in meta["data"]:
+                if len(row) != row_len:
+                    row_len_mismatch = True
+                    break
+        if row_len_mismatch is False and row_len > 0 and row_len == header_len:
+            meta["_is_complete"] = True
+        else:
+            meta["_errors"].append("incomplete table")
+
+        return meta
+
+    def parse_table_cellvalue(self, formatted_value: str):
+        val = formatted_value
+
+        # style="color: red" | row1cell1
+        if val.find(" | ") > -1:
+            parts = val.split(" | ")
+            val = parts[1]
+
+        return val.strip()
+
+    def get_debug(self):
+        debug = {"tables_potential": self.tables_potential, "tables": self.tables}
+        return debug
+
+    def get_tables(self, strict: bool = False) -> list:
+        tables = []
+
+        # @TODO enable strict=True by default
+
+        for item in self.tables:
+            if not strict or (
+                len(item["_errors"]) == 0 and item["_is_complete"] == True
+            ):
+                tables.append(item)
+
+        return tables
