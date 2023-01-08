@@ -26,7 +26,15 @@ wtxt:
 wtxt:DataCollection
     a rdfs:Class ;
     rdfs:label "Data Collection"@en ;
-    rdfs:comment "A collection of data"@en ;
+    rdfs:comment "A collection of data resouces from one or more pages with Wikitext"@en ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:DataCollectionOutline
+    a rdfs:Class ;
+    rdfs:label "Data collection outline"@en ;
+    rdfs:comment "A HTML version of headers h1-h6 of entire data collection of one or more pages with Wikitext"@en ;
     rdfs:subClassOf rdfs:Resource ;
     rdfs:isDefinedBy wtxt: ;
 .
@@ -79,5 +87,30 @@ wtxt:templateName
     rdfs:comment """Name of the Wikitext template"""@en;
     # rdfs:domain csvw:NumericFormat;
     rdfs:range xsd:string ;  # @TODO range here likely to be linguistic, not raw string
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:templateData
+    a rdf:Property;
+    rdfs:label "template data"@en;
+    rdfs:comment """The data from a Wikitext template"""@en;
+    # rdfs:domain csvw:NumericFormat;
+    # rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:tableData
+    a rdf:Property;
+    rdfs:label "table data"@en;
+    rdfs:comment """The tabular data, with headers and rows"""@en;
+    # rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:literalData
+    a rdf:Property;
+    rdfs:label "literal data"@en;
+    rdfs:comment """The raw value of a PreCode"""@en;
+    rdfs:range xsd:string ;
     rdfs:isDefinedBy wtxt: ;
 .

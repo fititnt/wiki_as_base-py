@@ -17,6 +17,24 @@
             "sh:prefix": "wtxt"
         },
         {
+            "@id": "wtxt:DataCollectionOutline",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A HTML version of headers h1-h6 of entire data collection of one or more pages with Wikitext"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Data collection outline"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
             "@id": "wtxt:Template",
             "skos:altLabel": {
                 "@language": "en",
@@ -40,6 +58,24 @@
                 "@value": "Template"
             },
             "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:literalData",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "The raw value of a PreCode"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "literal data"
+            },
+            "@type": "rdf:Property"
         },
         {
             "@id": "wtxt:PreCode",
@@ -105,7 +141,7 @@
             },
             "rdfs:comment": {
                 "@language": "en",
-                "@value": "A collection of data"
+                "@value": "A collection of data resouces from one or more pages with Wikitext"
             },
             "rdfs:label": {
                 "@language": "en",
@@ -128,6 +164,36 @@
             "rdfs:label": {
                 "@language": "en",
                 "@value": "template name"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:templateData",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "The data from a Wikitext template"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "template data"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:tableData",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "The tabular data, with headers and rows"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "table data"
             },
             "@type": "rdf:Property"
         }

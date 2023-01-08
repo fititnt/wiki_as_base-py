@@ -72,6 +72,25 @@ wiki_as_base --page-title 'Node'
 https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=parse&format=json&title=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base
 -->
 
+#### Advanced filter with jq
+
+When working with the JSON-LD output, you can use jq (_"jq is a lightweight and flexible command-line JSON processor."_), see more on https://stedolan.github.io/jq/, to filter the data
+
+<details>
+<summary>Click to see examples</summary>
+
+```bash
+## Filter tables
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Table")'
+
+## Filter Templates
+wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
+```
+
+
+</details>
+
+
 ### Library
 
 - See [examples/](examples/)
