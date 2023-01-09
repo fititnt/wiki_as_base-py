@@ -11,13 +11,16 @@
 - [Installing](#installing)
     - [Environment variables](#environment-variables)
 - [Command line Usage](#command-line-usage)
+    - [Quickstart](#quickstart)
     - [Use of permanent IDs for pages, the WikiMedia pageids](#use-of-permanent-ids-for-pages-the-wikimedia-pageids)
     - [Request multiple pages at once, either by pageid or titles](#request-multiple-pages-at-once-either-by-pageid-or-titles)
     - [Advanced filter with jq](#advanced-filter-with-jq)
     - [Save JSON-LD extracted as files](#save-json-ld-extracted-as-files)
 - [Library usage](#library-usage)
     - [Basic use](#basic-use)
-- [The Specification](#the-specification)
+    - [Cache remote requests locally](#cache-remote-requests-locally)
+    - [Safe inferred data as individual files](#safe-inferred-data-as-individual-files)
+- [The JSON-LD Specification](#the-json-ld-specification)
 - [Disclaimer / Trivia](#disclaimer--trivia)
 - [License](#license)
 
@@ -27,7 +30,7 @@
 ## Installing
 
 ```bash
-pip install wiki_as_base --upgrade --force
+pip install wiki_as_base --upgrade
 ```
 
 ### Environment variables
@@ -44,6 +47,13 @@ export WIKI_DATA_LANGS='yaml\nturtle'
 -->
 
 ## Command line Usage
+
+### Quickstart
+
+These examples will request two wikies, OpenStreetMap (default)
+[live page](https://wiki.openstreetmap.org/wiki/User:EmericusPetro/sandbox/Wiki-as-base)
+and Wikidata
+[live page](https://www.wikidata.org/wiki/User:EmericusPetro/sandbox/Wiki-as-base).
 
 ```bash
 wiki_as_base --help
@@ -191,7 +201,7 @@ wiki_as_base==0.5.5
 
 ```bash
 # Run this via cli for force redownload lastest. Do not use --pre (pre-releases)
-pip install wiki_as_base --upgrade --force
+pip install wiki_as_base --upgrade
 ```
 
 ```txt
@@ -220,6 +230,37 @@ print("Pretty print full JSON output")
 print(json.dumps(wtxt.output_jsonld(), ensure_ascii=False, indent=2))
 ```
 
+### Cache remote requests locally
+
+> TODO: port the [requests-cache](https://requests-cache.readthedocs.io/) approach (local SQLite cache database) used on https://github.com/fititnt/openstreetmap-serverless-functions/blob/main/function/wiki-as-base/handler.py .
+
+### Safe inferred data as individual files
+
+```python
+import sys
+import zipfile
+from wiki_as_base import WikitextAsData
+
+wtxt = WikitextAsData().set_pages_autodetect("295916|296167")
+
+# Both output_jsonld() and output_zip() call prepare() (which actually
+# make the remote request) plus is_success() on demand.
+# However the pythonic way woud be try/except
+if not wtxt.prepare().is_success():
+    print("error")
+    print(wtxt.errors)
+    sys.exit(1)
+
+wtxt.output_zip("/tmp/wikitext.zip")
+
+# Using Python zipfile.ZipFile, you can process the file with python
+zip = zipfile.ZipFile("/tmp/wikitext.zip")
+
+print("Files inside the zip:")
+print(zip.namelist())
+
+# @TODO improve this example on future releases
+```
 <!--
 
 > @TODO add links as URN on https://github.com/EticaAI/urn-resolver/tree/main/resolvers
@@ -247,9 +288,11 @@ curl -I -H "Accept: text/turtle" https://www.w3.org/ns/csvw
 https://www.iana.org/assignments/media-types/application/vnd.openstreetmap.data+xml
 -->
 
-## The Specification
+## The JSON-LD Specification
 
-The temporary docs page is at https://fititnt.github.io/wiki_as_base-py/
+> **NOTE**: work in progress.
+
+https://wtxt.etica.ai/
 
 ## Disclaimer / Trivia
 
