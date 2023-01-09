@@ -3,10 +3,8 @@
 import os
 import zipfile
 
-import wiki_as_base
-
-# from ..src.wiki_as_base import wiki_as_base  # debug
-
+# import wiki_as_base
+from wiki_as_base import WikitextAsData
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -18,19 +16,15 @@ def test_wikitext_001_jsonld():
     with open(source_wikitext, "r") as _file:
         wikitext = _file.read()
 
-    wtdata = wiki_as_base.WikitextAsData()
-    jsonld = wtdata.set_wikitext(wikitext).output_jsonld()
+    wtxt = WikitextAsData()
+    wtxt_jsonld = wtxt.set_wikitext(wikitext).output_jsonld()
 
-    print(jsonld)
+    print(wtxt_jsonld)
     # assert False
-    assert jsonld is not None
-    assert jsonld is not False
-    # assert len(results['data']) == 5
-    # assert len(results["data"]) == 8
-    # assert len(results["data"]) == 10
-    # assert len(jsonld["data"]) == 11
-    assert len(jsonld["data"]) == 13
-    assert jsonld["@type"] == "wtxt:DataCollection"
+    assert wtxt_jsonld is not None
+    assert wtxt_jsonld is not False
+    assert len(wtxt_jsonld["data"]) == 13
+    assert wtxt_jsonld["@type"] == "wtxt:DataCollection"
 
 
 def test_wikitext_002_zipfile():
@@ -41,11 +35,11 @@ def test_wikitext_002_zipfile():
     with open(source_wikitext, "r") as content_file3:
         wikitext = content_file3.read()
 
-    wtdata = wiki_as_base.WikitextAsData()
-    wtdata.set_wikitext(wikitext).output_zip(target_zipfile)
+    wtxt = WikitextAsData()
+    wtxt.set_wikitext(wikitext).output_zip(target_zipfile)
 
     # Now we analyse the zip file
-    zip = zipfile.ZipFile(test_dir + "/temp/chatbotpor.zip")
+    zip = zipfile.ZipFile(target_zipfile)
     names_in_zip = zip.namelist()
 
     assert len(names_in_zip) == 4
@@ -53,3 +47,52 @@ def test_wikitext_002_zipfile():
     assert "wikiasbase.jsonld" in names_in_zip
     assert "ola.rive" in names_in_zip
     assert "person.rive" in names_in_zip
+    assert "R001_wikidata.shacl.ttl" not in names_in_zip
+
+
+def test_wikitext_003_zipfile():
+
+    source_wikitext = test_dir + "/data/multiple.wiki.txt"
+    target_zipfile = test_dir + "/temp/multiple.zip"
+
+    with open(source_wikitext, "r") as content_file3:
+        wikitext = content_file3.read()
+
+    wtxt = WikitextAsData()
+    wtxt.set_wikitext(wikitext).output_zip(target_zipfile)
+
+    # Now we analyse the zip file
+    zip = zipfile.ZipFile(target_zipfile)
+    names_in_zip = zip.namelist()
+
+    assert len(names_in_zip) == 7
+    assert "wikiasbase.jsonld" in names_in_zip
+    assert "ola.rive" not in names_in_zip
+    assert "person.rive" not in names_in_zip
+    assert "R001_wikidata.shacl.ttl" in names_in_zip
+    assert "R001_wikidata-valid.tdata.ttl" in names_in_zip
+
+
+def test_wikitext_004_zipfile():
+    # Re-testing again. Must not remember previous state from
+    # test_wikitext_002_zipfile
+
+    source_wikitext = test_dir + "/data/chatbot-por.wiki.txt"
+    target_zipfile = test_dir + "/temp/chatbotpor.zip"
+
+    with open(source_wikitext, "r") as content_file3:
+        wikitext = content_file3.read()
+
+    wtxt = WikitextAsData()
+    wtxt.set_wikitext(wikitext).output_zip(target_zipfile)
+
+    # Now we analyse the zip file
+    zip = zipfile.ZipFile(target_zipfile)
+    names_in_zip = zip.namelist()
+
+    assert len(names_in_zip) == 4
+    # assert len(names_in_zip) == 6  # @TODO fix me; tox is caching files?
+    assert "wikiasbase.jsonld" in names_in_zip
+    assert "ola.rive" in names_in_zip
+    assert "person.rive" in names_in_zip
+    assert "R001_wikidata.shacl.ttl" not in names_in_zip

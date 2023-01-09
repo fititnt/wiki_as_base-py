@@ -5,13 +5,30 @@
 [![Pypi: wiki_as_base](https://img.shields.io/badge/python%20pypi-wiki_as_base-brightgreen[Python] 
  "Pypi: wiki_as_base")](https://pypi.org/project/wiki_as_base)
 
+---
+<!-- TOC depthfrom:2 -->
+
+- [Installing](#installing)
+    - [Environment variables](#environment-variables)
+- [Command line Usage](#command-line-usage)
+    - [Use of permanent IDs for pages, the WikiMedia pageids](#use-of-permanent-ids-for-pages-the-wikimedia-pageids)
+    - [Request multiple pages at once, either by pageid or titles](#request-multiple-pages-at-once-either-by-pageid-or-titles)
+    - [Advanced filter with jq](#advanced-filter-with-jq)
+    - [Save JSON-LD extracted as files](#save-json-ld-extracted-as-files)
+- [Library usage](#library-usage)
+    - [Basic use](#basic-use)
+- [The Specification](#the-specification)
+- [Disclaimer / Trivia](#disclaimer--trivia)
+- [License](#license)
+
+<!-- /TOC -->
+---
+
 ## Installing
 
 ```bash
-pip install wiki_as_base --upgrade
+pip install wiki_as_base --upgrade --force
 ```
-
-## Usage
 
 ### Environment variables
 Customize for your needs. They're shared between command line and the library.
@@ -26,7 +43,7 @@ export WIKI_INFOBOXES='ValueDescription\nKeyDescription'
 export WIKI_DATA_LANGS='yaml\nturtle'
 -->
 
-### Command line
+## Command line Usage
 
 ```bash
 wiki_as_base --help
@@ -94,7 +111,7 @@ wiki_as_base --titles 'Node'
 https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=parse&format=json&title=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base
 -->
 
-#### Use of permanent IDs for pages, the WikiMedia pageids
+### Use of permanent IDs for pages, the WikiMedia pageids
 
 In case the pages are already know upfront (such as automation) then the use of numeric pageid is a better choice.
 
@@ -112,7 +129,7 @@ but exact version of one or more pages) and getting the latest version is not fu
 wiki_as_base --revids '2460131'
 ```
 
-#### Request multiple pages at once, either by pageid or titles
+### Request multiple pages at once, either by pageid or titles
 
 Each MediaWiki API may have different limits for batch requests,
 however even unauthenticated users often have decent limits (e.g. 50 pages).
@@ -135,7 +152,7 @@ Trivia: **since this library and CLI fetch directly from WikiMedia API,
 and parse Wikitext (not raw HTML),
 it causes much less server load to request several pages this way than big ones with higher number of template calls 😉.**
 
-#### Advanced filter with jq
+### Advanced filter with jq
 
 When working with the JSON-LD output, you can use jq (_"jq is a lightweight and flexible command-line JSON processor."_), see more on https://stedolan.github.io/jq/, to filter the data
 
@@ -148,34 +165,59 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | select(.["@type"] == "wtxt:Template")'
 ```
 
-#### Save JSON-LD extracted as files
+### Save JSON-LD extracted as files
 
 > TODO: explain the implemented feature
 
-### Library
+## Library usage
 
+<!--
 - See [src/wiki_as_base/cli.py](src/wiki_as_base/cli.py)
 - See [tests/](tests/)
-- See [tests/](tests/)
+-->
 
-> **WARNING**: as 2023-12-05 while the command line is less likely to change,
-> the internal calls of this library, names of functions,
-> etc are granted to not be stable.
 
-You can import as a pip package, however set the exact version in special if it is unnatended deployment (e.g. GitHub actions, etc).
+> **NOTE**: for production usage (if you can't review releases or are not locked into Docker images)
+> consider enforce a very specific release
 
+
+**Production usage**
 ```txt
 # requirements.txt
 wiki_as_base==0.5.5
 ```
 
-#### Basic use
+**Other cases (or use in your local machine)**
+
+```bash
+# Run this via cli for force redownload lastest. Do not use --pre (pre-releases)
+pip install wiki_as_base --upgrade --force
+```
+
+```txt
+# requirements.txt
+wiki_as_base
+```
+
+### Basic use
 
 ```python
+import json
 from wiki_as_base import WikitextAsData
 
-wtxt = WikitextAsData().set_pages_autodetect('295916|296167')
-print(wtxt.output_jsonld())
+wtxt = WikitextAsData().set_pages_autodetect("295916|296167")
+wtxt_jsonld = wtxt.output_jsonld()
+
+print(f'Total: {len(wtxt_jsonld["data"])}')
+
+for resource in wtxt_jsonld["data"]:
+    if resource["@type"] == "wtxt:Table":
+        print("table found!")
+        print(resource["wtxt:tableData"])
+
+print("Pretty print full JSON output")
+
+print(json.dumps(wtxt.output_jsonld(), ensure_ascii=False, indent=2))
 ```
 
 <!--

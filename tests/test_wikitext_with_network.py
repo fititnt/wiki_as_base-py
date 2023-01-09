@@ -1,50 +1,48 @@
 # Warning: requests here migth fail because they will ask external API
 
-
 import os
 
-# import zipfile
-
-import wiki_as_base
-
-# from ..src.wiki_as_base import wiki_as_base  # debug
+# import wiki_as_base
+from wiki_as_base import WikitextAsData
 
 
 test_dir = os.path.dirname(os.path.realpath(__file__))
 
-
-# # def _disabled_test_wikitext_with_network_001_jsonld():
 # def test_wikitext_with_network_001_jsonld():
-#     source_titles = "User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation"
+def _disabled_test_wikitext_with_network_001_jsonld():
 
-#     # Both cases are expected to have same output
-#     # wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
-#     wtdata = wiki_as_base.WikitextAsData().set_pages_autodetect(source_titles)
-#     jsonld = wtdata.output_jsonld()
+    # def test_wikitext_with_network_001_jsonld():
+    source_titles = "User:EmericusPetro/sandbox/Wiki-as-base|User:EmericusPetro/sandbox/Wiki-as-base/data-validation"
 
-#     print(jsonld)
-#     # assert False
-#     assert jsonld is not None
-#     assert jsonld is not False
-#     assert len(jsonld["data"]) == 18
-#     assert jsonld["@type"] == "wtxt:DataCollection"
+    # Both cases are expected to have same output
+    # wtdata = WikitextAsData().set_titles(source_titles)
+    wtxt = WikitextAsData().set_pages_autodetect(source_titles)
+    wtxt_jsonld = wtxt.output_jsonld()
+
+    print(wtxt_jsonld)
+    # assert False
+    assert wtxt_jsonld is not None
+    assert wtxt_jsonld is not False
+    assert len(wtxt_jsonld["data"]) == 18
+    assert wtxt_jsonld["@type"] == "wtxt:DataCollection"
 
 
-# def _disabled_test_wikitext_with_network_002_jsonld():
-def test_wikitext_with_network_002_jsonld():
+# def test_wikitext_with_network_002_jsonld():
+def _disabled_test_wikitext_with_network_002_jsonld():
+
     source_titles = "295916|296167"
 
     # Both cases are expected to have same output
-    # wtdata = wiki_as_base.WikitextAsData().set_titles(source_titles)
-    wtdata = wiki_as_base.WikitextAsData().set_pages_autodetect(source_titles)
-    jsonld = wtdata.output_jsonld()
+    # wtxt = WikitextAsData.set_titles(source_titles)
+    wtxt = WikitextAsData().set_pages_autodetect(source_titles)
+    wtxt_jsonld = wtxt.output_jsonld()
 
-    print(jsonld)
+    print(wtxt_jsonld)
     # assert False
-    assert jsonld is not None
-    assert jsonld is not False
-    assert len(jsonld["data"]) == 18
-    assert jsonld["@type"] == "wtxt:DataCollection"
+    assert wtxt_jsonld is not None
+    assert wtxt_jsonld is not False
+    assert len(wtxt_jsonld["data"]) == 18
+    assert wtxt_jsonld["@type"] == "wtxt:DataCollection"
 
 
 # def test_wikitext_002_zipfile():
