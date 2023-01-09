@@ -806,40 +806,12 @@ class WikitextAsData:
         if strict:
             raise ValueError(f"WikitextAsData key [{key}]?")
 
-    def prepare(self):
-        """prepare prepare data and/or make expensive calls"""
+    def is_success(self) -> bool:
+        """is_success is remote fetch okay?
 
-        if self.is_fetch_required is True or (
-            self.is_fetch_required is None and self._req_params["titles"] is not None
-        ):
-            self._request_api()
-        else:
-            # We will simulate an API request
-            self.api_response = {
-                "query": {
-                    "pages": [
-                        {
-                            "pageid": 0,
-                            "title": "stdin",
-                            "revisions": [
-                                {
-                                    "user": "stdin",
-                                    "timestamp": datetime.datetime.now().isoformat(),
-                                    "slots": {"main": {"content": self.wikitext}},
-                                }
-                            ],
-                        }
-                    ]
-                }
-            }
-            # Now, we can continue with post API :)
-            self._request_api_post()
-
-        self._reloaded = True
-
-        return self
-
-    def is_success(self):
+        Returns:
+            bool: True if okay
+        """
         return not self.errors or len(self.errors) == 0
 
     def output_jsonld(self):
@@ -903,6 +875,39 @@ class WikitextAsData:
 
         return result
 
+    def prepare(self):
+        """prepare prepare data and/or make expensive calls"""
+
+        if self.is_fetch_required is True or (
+            self.is_fetch_required is None and self._req_params["titles"] is not None
+        ):
+            self._request_api()
+        else:
+            # We will simulate an API request
+            self.api_response = {
+                "query": {
+                    "pages": [
+                        {
+                            "pageid": 0,
+                            "title": "stdin",
+                            "revisions": [
+                                {
+                                    "user": "stdin",
+                                    "timestamp": datetime.datetime.now().isoformat(),
+                                    "slots": {"main": {"content": self.wikitext}},
+                                }
+                            ],
+                        }
+                    ]
+                }
+            }
+            # Now, we can continue with post API :)
+            self._request_api_post()
+
+        self._reloaded = True
+
+        return self
+
     def set_pageids(self, pageids: str):
         """set_pageids set pageids for remote call
 
@@ -926,7 +931,10 @@ class WikitextAsData:
             pageids (str): Strings to autodetect. Use | as separator
         """
 
-        pages_auto_norm = pages_auto
+        pages_auto_norm = pages_auto.strip()
+
+        if pages_auto_norm.startswith("Category:"):
+            return self.set_pages_from_category(pages_auto_norm)
 
         parts = pages_auto_norm.split("|")
         for part in parts:
@@ -935,6 +943,16 @@ class WikitextAsData:
                 return self.set_titles(pages_auto_norm)
 
         return self.set_pageids(pages_auto_norm)
+
+    def set_pages_from_category(self, category_auto: str):
+        cat = WikitextPagesFromCategory()
+        if not cat.set_category_autodetect(category_auto).prepare().is_success():
+            self.errors.append(cat.errors)
+        else:
+            pageids_str = "|".join(map(str, cat.get_pageids()))
+            # pageids_str = cat.get_pageids().join("|")
+            self.set_pageids(pageids_str)
+        return self
 
     def set_revids(self, revids: str):
         """set_revids set revision IDs for remote call
@@ -1070,6 +1088,105 @@ class WikitextHeading:
     def get_outline(self) -> str:
         headings = self.get_headings()
         return "<article>\n" + headings + "</article>"
+
+
+# Two example queries
+# - https://wiki.openstreetmap.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:External_reference_tag&prop=info
+# - https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:External_reference_tag&list=categorymembers&format=json&formatversion=2
+class WikitextPagesFromCategory:
+    """Return page IDs from category name
+
+    @see https://www.mediawiki.org/wiki/API:Categorymembers
+    """
+
+    errors: list
+    _pageids: list
+    _req_params: dict
+    _is_done: bool
+
+    def __init__(self, api_params: dict = None) -> None:
+
+        # @see https://www.mediawiki.org/wiki/API:Categorymembers
+        default_params = {
+            "action": "query",
+            "list": "categorymembers",
+            "cmprop": "ids|title|timestamp",
+            "cmlimit": "500",
+            "cmtitle": None,
+            "cmpageid": None,
+            "format": "json",
+            "formatversion": "2",
+        }
+
+        if api_params is not None:
+            default_params.update(api_params)
+
+        self.errors = []
+        self._pageids = []
+        self._req_params = default_params
+        self._is_done = False
+
+    def _api_request(self):
+        res = None
+
+        try:
+            headers = {"User-Agent": USER_AGENT}
+            req = requests.get(WIKI_API, headers=headers, params=self._req_params)
+            res = req.json()
+        except Exception as err:
+            # sys.stderr.write(f"{err}\n")
+            self.errors.append(f"_request_api get {err}")
+            # print(err)
+            pass
+
+        if res:
+            try:
+                # self._pageids = []
+
+                for page in res["query"]["categorymembers"]:
+                    self._pageids.append(page["pageid"])
+
+            except (ValueError, KeyError) as err:
+                self.errors.append(
+                    f"Category _request_api key error (some item not found?)"
+                )
+                self.errors.append(res)
+
+        self._is_done = True
+
+    def prepare(self):
+        if self._is_done is False:
+            self._api_request()
+        return self
+
+    def get_pageids(self) -> list:
+        if self.is_success():
+            return self._pageids
+        return False
+
+    def is_success(self) -> bool:
+        """is_success is remote fetch okay?
+
+        Returns:
+            bool: True if okay
+        """
+        return self._is_done is True and (not self.errors or len(self.errors) == 0)
+
+    def set_category_autodetect(self, category_auto: str):
+        """set_category_autodetect detect if cmtitle or cmpageid
+
+        Args:
+            category_auto (str): String
+        """
+
+        if category_auto.isnumeric():
+            self._req_params["cmpageid"] = category_auto
+            del self._req_params["cmtitle"]
+        else:
+            self._req_params["cmtitle"] = category_auto
+            del self._req_params["cmpageid"]
+
+        return self
 
 
 class WikitextTable:

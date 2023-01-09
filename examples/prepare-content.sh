@@ -18,7 +18,6 @@ curl --silent 'https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Cat
 # 72215
 # 98438
 
-
 curl --silent 'https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:Overpass_API&list=categorymembers&format=json' | jq '.query.categorymembers | .[] | .pageid' | tr -s "\n" "|"
 # 35322|253043|104140|100013|156642|96046|141055|101307|72215|98438|
 
@@ -36,7 +35,14 @@ wiki_as_base --input-autodetect '39064|108476|60558|37578|52585|65349|63929|7722
 
 
 ### Category:External_reference_tag ____________________________________________
-curl --silent 'https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:External_reference_tag&list=categorymembers&format=json' | jq '.query.categorymembers | .[] | .pageid' | tr -s "\n" "|"
+curl --silent 'https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:External_reference_tag&list=categorymembers&format=json&formatversion=2' | jq '.query.categorymembers | .[] | .pageid' | tr -s "\n" "|"
 # 141977|28801|67580|190684|53003|184981|254895|95210|124074|138320
 
 wiki_as_base --input-autodetect '141977|28801|67580|190684|53003|184981|254895|95210|124074|138320' --output-zip-file ./tests/temp/category-External_reference_tag.zip
+
+
+
+### new version of wiki_as_base
+
+wiki_as_base --input-autodetect 'Category:External_reference_tag'
+wiki_as_base --input-autodetect 'Category:External_reference_tag' --output-zip-file ./tests/temp/category-External_reference_tag.zip
