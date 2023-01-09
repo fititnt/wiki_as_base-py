@@ -132,6 +132,15 @@ wtxt:suggestedFilename
     skos:note """Mostly used for PreformattedCode (what in on the Wiki) or via some configuration of the tool generating the JSON-LD. Do not use for inferred names"""@en;
 .
 
+wtxt:uniqueFilename
+    a rdf:Property;
+    rdfs:label "unique filename"@en;
+    rdfs:comment """A procedural filename for the resource"""@en;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+    # skos:note """..."""@en;
+.
+
 wtxt:inWikipage
     a rdf:Property;
     rdfs:label "in wiki page"@en;

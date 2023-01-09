@@ -1,6 +1,29 @@
 {
     "@graph": [
         {
+            "@id": "_:b0",
+            "sh:namespace": "https://wtxt.etica.ai/ns#",
+            "sh:prefix": "wtxt"
+        },
+        {
+            "@id": "wtxt:Table",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Table element as represented in Wikitext/HTML table"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Table"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
             "@id": "https://wtxt.etica.ai/ns#",
             "sh:declare": {
                 "@id": "_:b0"
@@ -12,9 +35,40 @@
             "@type": "owl:Ontology"
         },
         {
-            "@id": "_:b0",
-            "sh:namespace": "https://wtxt.etica.ai/ns#",
-            "sh:prefix": "wtxt"
+            "@id": "wtxt:inWikipage",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:anyURI"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "the full IRI page"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "in wiki page"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:user",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:anyURI"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "..."
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "user"
+            },
+            "@type": "rdf:Property"
         },
         {
             "@id": "wtxt:DataCollectionOutline",
@@ -33,6 +87,42 @@
                 "@value": "Data collection outline"
             },
             "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:DataCollection",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A collection of data resouces from one or more pages with Wikitext"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Data Collection"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:uniqueFilename",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A procedural filename for the resource"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "unique filename"
+            },
+            "@type": "rdf:Property"
         },
         {
             "@id": "wtxt:Template",
@@ -60,96 +150,6 @@
             "@type": "rdfs:Class"
         },
         {
-            "@id": "wtxt:literalData",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:string"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "The raw value of something. Use for PreformattedCode and DataCollectionOutline"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "literal data"
-            },
-            "@type": "rdf:Property"
-        },
-        {
-            "@id": "wtxt:Table",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:subClassOf": {
-                "@id": "rdfs:Resource"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "Table element as represented in Wikitext/HTML table"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "Table"
-            },
-            "@type": "rdfs:Class"
-        },
-        {
-            "@id": "wtxt:syntaxLang",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:string"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "...todo description..."
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "syntax language of a PreformattedText"
-            },
-            "@type": "rdf:Property"
-        },
-        {
-            "@id": "wtxt:PreformattedCode",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:subClassOf": {
-                "@id": "rdfs:Resource"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "An equivalent of Wikitext of HTML <pre><code></code></pre>"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "Preformatted text"
-            },
-            "@type": "rdfs:Class"
-        },
-        {
-            "@id": "wtxt:user",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:anyURI"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "..."
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "user"
-            },
-            "@type": "rdf:Property"
-        },
-        {
             "@id": "wtxt:timestamp",
             "rdfs:isDefinedBy": {
                 "@id": "https://wtxt.etica.ai/ns#"
@@ -164,64 +164,6 @@
             "rdfs:label": {
                 "@language": "en",
                 "@value": "timestamp"
-            },
-            "@type": "rdf:Property"
-        },
-        {
-            "@id": "wtxt:PageOutline",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:subClassOf": {
-                "@id": "rdfs:Resource"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "A HTML version of headers h1-h6 of a single page with Wikitext"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "Page outline"
-            },
-            "@type": "rdfs:Class"
-        },
-        {
-            "@id": "wtxt:DataCollection",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:subClassOf": {
-                "@id": "rdfs:Resource"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "A collection of data resouces from one or more pages with Wikitext"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "Data Collection"
-            },
-            "@type": "rdfs:Class"
-        },
-        {
-            "@id": "wtxt:suggestedFilename",
-            "skos:note": {
-                "@language": "en",
-                "@value": "Mostly used for PreformattedCode (what in on the Wiki) or via some configuration of the tool generating the JSON-LD. Do not use for inferred names"
-            },
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:string"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "A strong hint for desired filename of a resource"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "suggested filename"
             },
             "@type": "rdf:Property"
         },
@@ -259,24 +201,6 @@
             "@type": "rdf:Property"
         },
         {
-            "@id": "wtxt:inWikipage",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:anyURI"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "the full IRI page"
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "in wiki page"
-            },
-            "@type": "rdf:Property"
-        },
-        {
             "@id": "wtxt:tableData",
             "rdfs:isDefinedBy": {
                 "@id": "https://wtxt.etica.ai/ns#"
@@ -290,6 +214,100 @@
                 "@value": "table data"
             },
             "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:PageOutline",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A HTML version of headers h1-h6 of a single page with Wikitext"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Page outline"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:syntaxLang",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "...todo description..."
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "syntax language of a PreformattedText"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:suggestedFilename",
+            "skos:note": {
+                "@language": "en",
+                "@value": "Mostly used for PreformattedCode (what in on the Wiki) or via some configuration of the tool generating the JSON-LD. Do not use for inferred names"
+            },
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "A strong hint for desired filename of a resource"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "suggested filename"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:literalData",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "The raw value of something. Use for PreformattedCode and DataCollectionOutline"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "literal data"
+            },
+            "@type": "rdf:Property"
+        },
+        {
+            "@id": "wtxt:PreformattedCode",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "An equivalent of Wikitext of HTML <pre><code></code></pre>"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Preformatted text"
+            },
+            "@type": "rdfs:Class"
         }
     ],
     "@context": {
