@@ -215,3 +215,23 @@ Example from https://wiki.openstreetmap.org/wiki/MapCSS/Examples
   } 
 
 </code>
+
+
+=== Overpass_API - Language_Guide - Control output format (print, out) ===
+
+From https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide
+
+{| class="wikitable"
+|-
+| XML || QL || Description 
+|- 
+| &lt;print/&gt; || out;<br>''or''<br>out&nbsp;body; || The normal print mode.
+|-
+| &lt;print&nbsp;mode="skeleton"&gt; || out&nbsp;skel; || The <em>skeleton</em> print mode is somewhat shorter than the usual print mode: No tags are printed in this mode, only ids, child elements, and coordinates of nodes.
+|-
+| &lt;print&nbsp;mode="tags"&gt; || out&nbsp;tags; || The <em>tags</em> print mode only print ids and tags for each element, and not coordinates or members.
+|-
+| &lt;print&nbsp;mode="ids_only"&gt; || out&nbsp;ids; || <em>ids_only</em> is the shortest print mode; only ids are printed. <em>ids_only</em> is shortened to <em>ids</em> in Overpass QL. Note that this doesn't work with [[OpenLayers]] because no coordinates are returned.
+|-
+| &lt;print&nbsp;mode="meta"&gt; || out&nbsp;meta; || <em>meta</em> is the most complete mode. Beside child elements and tags, also the meta data (timestamp, version, changeset, user name and id) is printed.
+|}
