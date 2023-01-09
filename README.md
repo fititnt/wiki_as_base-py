@@ -39,6 +39,7 @@ Customize for your needs. They're shared between command line and the library.
 ```bash
 export WIKI_API='https://wiki.openstreetmap.org/w/api.php'
 export WIKI_NS='osmwiki'
+export WTXT_PAGE_LIMIT='50'
 ```
 
 <!--

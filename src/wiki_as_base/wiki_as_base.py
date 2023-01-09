@@ -22,6 +22,7 @@
 
 # import copy
 import csv
+from ctypes import Union
 import datetime
 import io
 import json
@@ -33,8 +34,9 @@ import re
 from typing import List
 import zipfile
 import requests
+import requests_cache
 
-_REFVER = "0.5.4"
+_REFVER = "0.5.6"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -42,6 +44,25 @@ WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 # Consider using prefix like https://dumps.wikimedia.org/backup-index.html
 WIKI_NS = os.getenv("WIKI_NS", "osmwiki")
 WIKI_BASE = os.getenv("WIKI_BASE", lambda x: WIKI_API.replace("/w/api.php", "/wiki/"))
+
+# @TODO document better this part
+WTXT_PAGE_LIMIT = int(os.getenv("WTXT_PAGE_LIMIT", "50"))
+WTXT_PAGE_OFFSET = int(os.getenv("WTXT_PAGE_OFFSET", "0"))
+
+CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
+# @TODO increate default to 23 hours
+CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
+
+# @see https://requests-cache.readthedocs.io/en/stable/
+requests_cache.install_cache(
+    "wikiasbase",
+    # /tmp OpenFaaS allow /tmp be writtable even in read-only mode
+    # However, is not granted that changes will persist or shared
+    db_path="/tmp/wikiasbase_cache.sqlite",
+    backend=CACHE_DRIVER,
+    expire_after=CACHE_TTL,
+    allowable_codes=[200, 400, 404, 500],
+)
 
 WIKI_INFOBOXES = os.getenv("WIKI_INFOBOXES", "ValueDescription\nKeyDescription")
 
@@ -687,6 +708,20 @@ class WikitextAsData:
     def _add_resource(self, resource: dict):
         self._resources.append(resource)
 
+    # def _pagination(self, pages: Union[list, str]):
+    def _pagination(self, pages: str) -> str:
+
+        parts = pages.split("|")
+
+        if len(parts) <= WTXT_PAGE_LIMIT:
+            return pages
+        else:
+            # @TODO implement offset
+            # @TODO implement offset and WTXT_PAGE_LIMIT without env vars
+            # @TODO add note on generated JSON-LD about being paginated result
+            sliced = parts[0:WTXT_PAGE_LIMIT]
+            return "|".join(sliced)
+
     def _request_api(self):
 
         # Reset values
@@ -829,7 +864,9 @@ class WikitextAsData:
 
                     _tbl = {
                         "@type": "wtxt:Table",
-                        "@id": f"t{index}",
+                        # "@id": f"t{index}",
+                        "@id": f"{WIKI_NS}_pageid{_pageid}_table{index}",
+                        # "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_table{index}.csv",
                         "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
                         "wtxt:tableData": table_data,
                         "_is_complete": table["_is_complete"],
@@ -957,7 +994,7 @@ class WikitextAsData:
         Args:
             pageids (str): The Pageids. Use | as separator
         """
-        self._req_params["pageids"] = pageids
+        self._req_params["pageids"] = self._pagination(pageids)
 
         # If user define pageids directly, we assume wants remote call and
         # unset titles and revids
@@ -1003,7 +1040,7 @@ class WikitextAsData:
         Args:
             revids (str): The Revision IDs. Use | as separator
         """
-        self._req_params["revids"] = revids
+        self._req_params["revids"] = self._pagination(revids)
 
         # If user define revids directly, we assume wants remote call and
         # unset pageids and titles
@@ -1019,7 +1056,7 @@ class WikitextAsData:
         Args:
             pageids (str): The titles. Use | as separator
         """
-        self._req_params["titles"] = titles
+        self._req_params["titles"] = self._pagination(titles)
 
         # If user define titles directly, we assume wants remote call and
         # unset pageids and revids
@@ -1140,6 +1177,9 @@ class WikitextPagesFromCategory:
     """Return page IDs from category name
 
     @see https://www.mediawiki.org/wiki/API:Categorymembers
+
+    For openstreetap categories:
+    https://wiki.openstreetmap.org/wiki/Special:Categories
     """
 
     errors: list

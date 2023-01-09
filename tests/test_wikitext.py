@@ -65,7 +65,8 @@ def test_wikitext_003_zipfile():
     zip = zipfile.ZipFile(target_zipfile)
     names_in_zip = zip.namelist()
 
-    assert len(names_in_zip) == 7
+    # assert len(names_in_zip) == 7
+    assert len(names_in_zip) == 11
     assert "wikiasbase.jsonld" in names_in_zip
     assert "ola.rive" not in names_in_zip
     assert "person.rive" not in names_in_zip
