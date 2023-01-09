@@ -24,6 +24,7 @@ curl --silent 'https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Cat
 
 wiki_as_base --input-autodetect '35322|253043|104140|100013|156642|96046|141055|101307|72215|98438' --output-zip-file ./tests/temp/category-overpass-api.zip
 
+wiki_as_base --input-autodetect 'Category:Overpass_API' --output-zip-file ./tests/temp/category-overpass-api.zip
 
 ### MapCSS _____________________________________________________________________
 

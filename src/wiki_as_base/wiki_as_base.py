@@ -125,6 +125,10 @@ def wiki_as_base_all(
     meta: dict = None,
     _next_release: bool = False,
 ) -> dict:
+    """wiki_as_base_all
+
+    @deprecated Use WikitextAsData()
+    """
 
     #   "$schema": "https://urn.etica.ai/urn:resolver:schema:api:base",
     #   "@context": "https://urn.etica.ai/urn:resolver:context:api:base",
@@ -444,6 +448,10 @@ def wiki_as_base_request(
     title: str,
     # template_key: str,
 ) -> tuple:
+    """wiki_as_base_request
+
+    @deprecated Use WikitextAsData()
+    """
     # Inspired on https://github.com/earwig/mwparserfromhell example
     # Demo https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=query&format=json&prop=revisions&list=&titles=User%3AEmericusPetro%2Fsandbox%2FWiki-as-base&formatversion=2&rvprop=ids%7Ctimestamp%7Cflags%7Ccomment%7Cuser%7Ccontent&rvslots=main&rvlimit=1
     params = {
@@ -520,14 +528,40 @@ class WikiAsBase2Zip:
                 #     content = item[data_raw_key]
                 if "wtxt:literalData" in item:
                     content = item["wtxt:literalData"]
+            elif (
+                "wtxt:uniqueFilename" in item
+                and item["wtxt:uniqueFilename"].find(".") > -1
+            ):
+                filename = item["wtxt:uniqueFilename"]
+                # if "data_raw" in item:
+                #     content = item["data_raw"]
+                # if data_raw_key in item:
+                #     content = item[data_raw_key]
+                if "wtxt:literalData" in item:
+                    content = item["wtxt:literalData"]
 
-            elif "@id" in item and item["@type"] == "wtxt:Table":
+            # elif "@id" in item and item["@type"] == "wtxt:Table":
+            elif item["@type"] == "wtxt:Table":
                 if "_errors" in item and len(item["_errors"]):
                     continue
 
                 # @TODO improve the algoritm for tables
 
-                filename = item["@id"] + ".csv"
+                if (
+                    "wtxt:suggestedFilename" in item
+                    and item["wtxt:suggestedFilename"].find(".") > -1
+                ):
+                    filename = item["wtxt:suggestedFilename"]
+                elif (
+                    "wtxt:uniqueFilename" in item
+                    and item["wtxt:uniqueFilename"].find(".") > -1
+                ):
+                    filename = item["wtxt:uniqueFilename"]
+                else:
+                    if "@id" in item:
+                        filename = item["@id"] + ".csv"
+                    else:
+                        continue
 
                 output = io.StringIO()
                 writer = csv.writer(output)
@@ -731,7 +765,10 @@ class WikitextAsData:
                         "@type": "wtxt:PageOutline",
                         "@id": f"{WIKI_NS}:{_title_norm}#__outline",
                         "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-                        "wtxt:suggestedFilename": f"{WIKI_NS}:{_title_norm}.html",
+                        # @TODO remove prefix outline/ from here
+                        #       and implement on zip output only
+                        "wtxt:suggestedFilename": f"outline/{WIKI_NS}:{_title_norm}.html",
+                        "wtxt:uniqueFilename": f"outline/{WIKI_NS}_pageid{_pageid}.html",
                         "wtxt:timestamp": _timestamp,
                         "wtxt:user": _user,
                         # 'data_raw': outline,
@@ -749,19 +786,24 @@ class WikitextAsData:
 
             # preformated blocks
             if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
+                index_syntax = 0
                 for item in syntaxhighlight_langs:
                     results = wiki_as_base_from_syntaxhighlight(_wikitext, item)
                     # results = wiki_as_base_from_syntaxhighlight(wikitext)
+                    index_syntax += 1
                     if results:
                         for result in results:
                             if not result:
                                 continue
+                            fileextension = result[1]
                             if result[2]:
+                                # @TODO make this smarter
                                 self._resources.append(
                                     {
                                         "@type": "wtxt:PreformattedCode",
                                         "wtxt:syntaxLang": result[1],
                                         "wtxt:suggestedFilename": result[2],
+                                        "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_item{index_syntax}.{fileextension}",
                                         "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
                                         "wtxt:literalData": result[0],
                                     }
@@ -771,6 +813,7 @@ class WikitextAsData:
                                     {
                                         "@type": "wtxt:PreformattedCode",
                                         "wtxt:syntaxLang": result[1],
+                                        "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_item{index_syntax}.{fileextension}",
                                         "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
                                         "wtxt:literalData": result[0],
                                     }
