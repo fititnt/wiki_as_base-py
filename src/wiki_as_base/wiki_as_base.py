@@ -21,8 +21,9 @@
 # ==============================================================================
 
 # import copy
+from abc import ABC
 import csv
-from ctypes import Union
+# from ctypes import Union
 import datetime
 import io
 import json
@@ -35,6 +36,10 @@ from typing import List
 import zipfile
 import requests
 import requests_cache
+
+from .parser import (
+    sections
+)
 
 _REFVER = "0.5.6"
 
@@ -1081,8 +1086,27 @@ class WikitextAsData:
         return self
 
 
+# class Wikipage:
+#     pass
+
+
+class WikitextGenericPart(ABC):
+    """WikitextGenericPart abstract class for parts of a page"""
+
+    pass
+    # wikitext: str
+    # wikipage: Wikipage
+
+    # def set_wikitext(self, wikitext: str):
+    #     return self
+
+    # def set_wikipage(self, wikipage: Wikipage):
+
+    #     return self
+
+
 # @TODO implement WikitextDescriptionList
-class WikitextDescriptionList:
+class WikitextDescriptionList(WikitextGenericPart):
     """WikitextDescriptionList
 
     @see https://en.wikipedia.org/wiki/Help:Wikitext#Lists
@@ -1104,7 +1128,7 @@ class WikitextDescriptionList:
         self.wikimarkup = wikitext
 
 
-class WikitextHeading:
+class WikitextHeading(WikitextGenericPart):
     """WikitextHeading
 
     @see https://en.wikipedia.org/wiki/Help:Wikitext#Sections
@@ -1173,7 +1197,7 @@ class WikitextHeading:
 # Two example queries
 # - https://wiki.openstreetmap.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:External_reference_tag&prop=info
 # - https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:External_reference_tag&list=categorymembers&format=json&formatversion=2
-class WikitextPagesFromCategory:
+class WikitextPagesFromCategory(WikitextGenericPart):
     """Return page IDs from category name
 
     @see https://www.mediawiki.org/wiki/API:Categorymembers
@@ -1272,7 +1296,7 @@ class WikitextPagesFromCategory:
         return self
 
 
-class WikitextTable:
+class WikitextTable(WikitextGenericPart):
     """Abstract Syntax Tree of Wiki Markup table
 
     See https://en.wikipedia.org/wiki/Help:Basic_table_markup
@@ -1433,3 +1457,8 @@ class WikitextTable:
                 tables.append(item)
 
         return tables
+
+
+class WikitextTemplate(WikitextGenericPart):
+    def __init__(self) -> None:
+        pass
