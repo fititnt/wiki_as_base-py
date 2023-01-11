@@ -24,9 +24,9 @@
 import wikitextparser as wtp
 
 
-def sections(wikitext: str):
+def parse_sections(wikitext: str):
     return wtp.parse(wikitext).sections
 
 
-def tables(wikitext: str):
+def parse_tables(wikitext: str):
     return wtp.parse(wikitext).tables

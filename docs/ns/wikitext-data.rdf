@@ -22,6 +22,12 @@
     <rdfs:comment xml:lang="en">Template element in Wikitext</rdfs:comment>
     <rdfs:label xml:lang="en">Template</rdfs:label>
   </rdfs:Class>
+  <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#TextCorpus">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    <rdfs:comment xml:lang="en">Representation in natural language of Wikitext</rdfs:comment>
+    <rdfs:label xml:lang="en">Text corpus</rdfs:label>
+  </rdfs:Class>
   <rdfs:Class rdf:about="https://wtxt.etica.ai/ns#PageOutline">
     <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
     <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>

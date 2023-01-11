@@ -23,6 +23,7 @@
 # import copy
 from abc import ABC
 import csv
+
 # from ctypes import Union
 import datetime
 import io
@@ -38,7 +39,8 @@ import requests
 import requests_cache
 
 from .parser import (
-    sections
+    parse_sections,
+    parse_tables,
 )
 
 _REFVER = "0.5.6"

@@ -1,9 +1,33 @@
 {
     "@graph": [
         {
-            "@id": "_:b0",
-            "sh:namespace": "https://wtxt.etica.ai/ns#",
-            "sh:prefix": "wtxt"
+            "@id": "wtxt:TextCorpus",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:subClassOf": {
+                "@id": "rdfs:Resource"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Representation in natural language of Wikitext"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "Text corpus"
+            },
+            "@type": "rdfs:Class"
+        },
+        {
+            "@id": "https://wtxt.etica.ai/ns#",
+            "sh:declare": {
+                "@id": "_:b0"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "JSON-LD simplistic representation of data on wiki markup language"
+            },
+            "@type": "owl:Ontology"
         },
         {
             "@id": "wtxt:Table",
@@ -24,15 +48,22 @@
             "@type": "rdfs:Class"
         },
         {
-            "@id": "https://wtxt.etica.ai/ns#",
-            "sh:declare": {
-                "@id": "_:b0"
+            "@id": "wtxt:user",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:anyURI"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "..."
             },
             "rdfs:label": {
                 "@language": "en",
-                "@value": "JSON-LD simplistic representation of data on wiki markup language"
+                "@value": "user"
             },
-            "@type": "owl:Ontology"
+            "@type": "rdf:Property"
         },
         {
             "@id": "wtxt:inWikipage",
@@ -49,24 +80,6 @@
             "rdfs:label": {
                 "@language": "en",
                 "@value": "in wiki page"
-            },
-            "@type": "rdf:Property"
-        },
-        {
-            "@id": "wtxt:user",
-            "rdfs:isDefinedBy": {
-                "@id": "https://wtxt.etica.ai/ns#"
-            },
-            "rdfs:range": {
-                "@id": "xsd:anyURI"
-            },
-            "rdfs:comment": {
-                "@language": "en",
-                "@value": "..."
-            },
-            "rdfs:label": {
-                "@language": "en",
-                "@value": "user"
             },
             "@type": "rdf:Property"
         },
@@ -148,6 +161,11 @@
                 "@value": "Template"
             },
             "@type": "rdfs:Class"
+        },
+        {
+            "@id": "_:b0",
+            "sh:namespace": "https://wtxt.etica.ai/ns#",
+            "sh:prefix": "wtxt"
         },
         {
             "@id": "wtxt:timestamp",
