@@ -21,7 +21,7 @@
 # ==============================================================================
 
 # https://github.com/5j9/wikitextparser
-from typing import List
+from typing import List, Union
 from dataclasses import dataclass, field
 import re
 import wikitextparser as wtp
@@ -59,7 +59,8 @@ class WikitextTemplateContext:
     # @TODO make this generic, not hardcoded to OpenStreetMap
     def __post_init__(self):
         # self.local_id = f'#pageid{self.pagectx.pageid}'
-        self.local_id = f'pageid{self.pagectx.pageid}'
+        # self.local_id = f"pageid{self.pagectx.pageid}"
+        self.local_id = f"{self.pagectx.title_norm}"
 
 
 def _headings(
@@ -123,6 +124,26 @@ def _headings(
     # return ValueError
 
 
+def _parse_value(value_literal: str) -> Union[list, str]:
+    """_parse_value parse value arguments of templates
+
+    Args:
+        value_literal (str): the input data
+
+    Returns:
+        Union[list, str]: if list, return list, if string, strip spaces
+    """
+    result = value_literal.strip()
+    if len(result) > 0:
+        parsed = wtp.parse(result)
+        # Note: we're only get the first list; may have bugs
+        wikilist = parsed.get_lists()
+        if len(wikilist) > 0:
+            result = list(map(lambda item: item.strip(), wikilist[0].items))
+
+    return result
+
+
 def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
     page_data = []
 
@@ -173,18 +194,18 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
 
         parsed_now_again = wtp.parse(contents)
 
-        # print(hstack)
-        # print(type(hstack))
-        page_data.append(
-            {
-                "@type": "____debug",
-                "wtxt:titleContext": "\n".join(hstack),
-                "title": title,
-                "level": section.level,
-                "contents": contents,
-                "__templates": repr(parsed_now_again.templates),
-            }
-        )
+        # # print(hstack)
+        # # print(type(hstack))
+        # page_data.append(
+        #     {
+        #         "@type": "____debug",
+        #         "wtxt:titleContext": "\n".join(hstack),
+        #         "title": title,
+        #         "level": section.level,
+        #         "contents": contents,
+        #         "__templates": repr(parsed_now_again.templates),
+        #     }
+        # )
 
         if len(parsed_now_again.tables):
             for table in parsed_now_again.tables:
@@ -211,14 +232,13 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                         "@type": "wtxt:Template",
                         "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
                         "wtxt:titleContext": "\n".join(hstack),
-                        "wtxt:literalData": template.literal,
+                        # @TODO maybe enable wtxt:literalData (if debug on)
+                        # "wtxt:literalData": template.literal,
                         "wtxt:templateData": template.arguments,
-                        "__templatename": template.name,
-                        # "__meta": template.meta,
-                        # "wtxt:templateData": template,
                     }
                 )
 
+        index_syntax = 0
         for item in WIKI_DATA_LANGS.splitlines():
             results = wiki_as_base_from_syntaxhighlight_v2(contents, item)
             if not results:
@@ -227,28 +247,26 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
             for result in results:
                 if not result:
                     continue
+                index_syntax += 1
+                fileextension = result[1]
                 if result[2]:
                     page_data.append(
                         {
-                            # "@type": "wiki/data/" + result[1],
-                            # "@id": result[2],
                             "@type": "wtxt:PreformattedCode",
                             "wtxt:syntaxLang": result[1],
-                            "@id": result[2],
-                            # "data_raw": result[0],
-                            # data_raw_key: result[0],
+                            "wtxt:suggestedFilename": result[2],
+                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
+                            "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
                             "wtxt:literalData": result[0],
                         }
                     )
                 else:
                     page_data.append(
                         {
-                            # "@type": "wiki/data/" + result[1],
                             "@type": "wtxt:PreformattedCode",
                             "wtxt:syntaxLang": result[1],
-                            # "@id": result[2],
-                            # "data_raw": result[0],
-                            # data_raw_key: result[0],
+                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
+                            "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
                             "wtxt:literalData": result[0],
                         }
                     )
@@ -264,7 +282,9 @@ def parse_tables(wikitext: str):
     return wtp.parse(wikitext).tables
 
 
-def parse_templates(wikitext: str, pagectx: WikipageContext) -> List[WikitextTemplateContext]:
+def parse_templates(
+    wikitext: str, pagectx: WikipageContext
+) -> List[WikitextTemplateContext]:
     results = []
 
     parsed = wtp.parse(wikitext)
@@ -277,7 +297,8 @@ def parse_templates(wikitext: str, pagectx: WikipageContext) -> List[WikitextTem
             # template.normal_name
             arguments = {}
             for args in template.arguments:
-                arguments[args.name] = args.value.strip()
+                # arguments[args.name] = args.value.strip()
+                arguments[args.name.strip()] = _parse_value(args.value)
 
             tpl = WikitextTemplateContext(
                 name=template.name.strip(),
