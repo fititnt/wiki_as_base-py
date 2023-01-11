@@ -30,3 +30,9 @@ def parse_sections(wikitext: str):
 
 def parse_tables(wikitext: str):
     return wtp.parse(wikitext).tables
+
+
+def wtxt_text_corpus(wikitext: str) -> str:
+    # @TODO remove <syntaxhighlight> and <source> blocks
+    tcorpus = wtp.remove_markup(wikitext)
+    return tcorpus

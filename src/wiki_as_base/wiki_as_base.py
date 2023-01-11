@@ -41,6 +41,7 @@ import requests_cache
 from .parser import (
     parse_sections,
     parse_tables,
+    wtxt_text_corpus,
 )
 
 _REFVER = "0.5.6"
@@ -797,27 +798,48 @@ class WikitextAsData:
             _wikitext = page["revisions"][0]["slots"]["main"]["content"]
 
             # outline
-            wth = WikitextHeading(_wikitext)
-            outline = wth.get_outline()
-            if outline:
+            tcorpus = wtxt_text_corpus(_wikitext)
+            if tcorpus:
                 self._resources.append(
                     {
                         # "@type": "wiki/outline",
                         # "@type": "wtxt:DataCollectionOutline",
-                        "@type": "wtxt:PageOutline",
-                        "@id": f"{WIKI_NS}:{_title_norm}#__outline",
+                        "@type": "wtxt:TextCorpus",
+                        "@id": f"{WIKI_NS}:{_title_norm}#__textcorpus",
                         "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
                         # @TODO remove prefix outline/ from here
                         #       and implement on zip output only
-                        "wtxt:suggestedFilename": f"outline/{WIKI_NS}:{_title_norm}.html",
-                        "wtxt:uniqueFilename": f"outline/{WIKI_NS}_pageid{_pageid}.html",
+                        "wtxt:suggestedFilename": f"corpora/{WIKI_NS}:{_title_norm}.txt",
+                        "wtxt:uniqueFilename": f"corpora/{WIKI_NS}_pageid{_pageid}.txt",
                         "wtxt:timestamp": _timestamp,
                         "wtxt:user": _user,
                         # 'data_raw': outline,
                         # data_raw_key: outline,
-                        "wtxt:literalData": outline,
+                        "wtxt:literalData": tcorpus,
                     }
                 )
+
+            # wth = WikitextHeading(_wikitext)
+            # outline = wth.get_outline()
+            # if outline:
+            #     self._resources.append(
+            #         {
+            #             # "@type": "wiki/outline",
+            #             # "@type": "wtxt:DataCollectionOutline",
+            #             "@type": "wtxt:PageOutline",
+            #             "@id": f"{WIKI_NS}:{_title_norm}#__outline",
+            #             "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
+            #             # @TODO remove prefix outline/ from here
+            #             #       and implement on zip output only
+            #             "wtxt:suggestedFilename": f"outline/{WIKI_NS}:{_title_norm}.html",
+            #             "wtxt:uniqueFilename": f"outline/{WIKI_NS}_pageid{_pageid}.html",
+            #             "wtxt:timestamp": _timestamp,
+            #             "wtxt:user": _user,
+            #             # 'data_raw': outline,
+            #             # data_raw_key: outline,
+            #             "wtxt:literalData": outline,
+            #         }
+            #     )
 
             # Infoboxes
             if template_keys is not None and len(template_keys) > 0:

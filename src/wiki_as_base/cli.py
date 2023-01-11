@@ -60,7 +60,7 @@ def main():
 
     parser.add_argument(
         "--input-stdin",
-        # action="store_true",
+        action="store_true",
         help="Use STDIN (data piped from other tools)" "instead of remote API",
     )
 
