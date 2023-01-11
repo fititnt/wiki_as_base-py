@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 import re
 import wikitextparser as wtp
 
-from .constants import WIKI_DATA_LANGS
+from .constants import WIKI_DATA_LANGS, WIKI_TEMPLATES
 
 
 @dataclass
@@ -45,6 +45,21 @@ class WikipageContext:
 @dataclass
 class WikisiteContext:
     ns: str
+
+
+@dataclass
+class WikitextTemplateContext:
+    name: str
+    literal: str
+    arguments: dict
+    pagectx: WikipageContext
+    # meta: dict
+    local_id: str = field(init=False)
+
+    # @TODO make this generic, not hardcoded to OpenStreetMap
+    def __post_init__(self):
+        # self.local_id = f'#pageid{self.pagectx.pageid}'
+        self.local_id = f'pageid{self.pagectx.pageid}'
 
 
 def _headings(
@@ -184,6 +199,26 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                         "_errors": None,
                     }
                 )
+
+        # raise ValueError(contents)
+
+        templates = parse_templates(contents, pagectx)
+        if templates:
+            for template in templates:
+                # tables_counter += 1
+                page_data.append(
+                    {
+                        "@type": "wtxt:Template",
+                        "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
+                        "wtxt:titleContext": "\n".join(hstack),
+                        "wtxt:literalData": template.literal,
+                        "wtxt:templateData": template.arguments,
+                        "__templatename": template.name,
+                        # "__meta": template.meta,
+                        # "wtxt:templateData": template,
+                    }
+                )
+
         for item in WIKI_DATA_LANGS.splitlines():
             results = wiki_as_base_from_syntaxhighlight_v2(contents, item)
             if not results:
@@ -227,6 +262,40 @@ def parse_sections(wikitext: str):
 
 def parse_tables(wikitext: str):
     return wtp.parse(wikitext).tables
+
+
+def parse_templates(wikitext: str, pagectx: WikipageContext) -> List[WikitextTemplateContext]:
+    results = []
+
+    parsed = wtp.parse(wikitext)
+    if parsed.templates:
+        for template in parsed.templates:
+
+            if template.name.strip() not in WIKI_TEMPLATES:
+                continue
+
+            # template.normal_name
+            arguments = {}
+            for args in template.arguments:
+                arguments[args.name] = args.value.strip()
+
+            tpl = WikitextTemplateContext(
+                name=template.name.strip(),
+                literal=template.pformat(),
+                arguments=arguments,
+                pagectx=pagectx,
+                # meta={
+                #     "arguments": arguments,
+                #     # "normal_name": template.normal_name,
+                #     # "parameters": template.parameters,
+                # },
+            )
+
+            # raise ValueError(template)
+            # results.append(template.pformat())
+            results.append(tpl)
+
+    return results if len(results) > 0 else None
 
 
 def wtxt_text_corpus(wikitext: str) -> str:
