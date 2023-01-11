@@ -39,6 +39,9 @@ import requests
 import requests_cache
 
 from .parser import (
+    WikipageContext,
+    WikisiteContext,
+    parse_all,
     parse_sections,
     parse_tables,
     wtxt_text_corpus,
@@ -783,6 +786,22 @@ class WikitextAsData:
         # @TODO finish the refactoring of this part
         template_keys = WIKI_INFOBOXES.splitlines()
         syntaxhighlight_langs = WIKI_DATA_LANGS.splitlines()
+
+        # wsite = WikisiteContext(ns=WIKI_NS)
+
+        # for page in self.api_response["query"]["pages"]:
+
+        #     wpage = WikipageContext(
+        #         wikitext=page["revisions"][0]["slots"]["main"]["content"],
+        #         pageid=page["pageid"],
+        #         title=page["title"],
+        #         user=page["revisions"][0]["user"],
+        #         timestamp=page["revisions"][0]["timestamp"],
+        #     )
+        #     self._resources.extend(parse_all(wpage, wsite))
+        #     continue
+
+        # return True
 
         for page in self.api_response["query"]["pages"]:
             _pageid = page["pageid"]
