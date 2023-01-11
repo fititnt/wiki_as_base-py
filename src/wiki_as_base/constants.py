@@ -35,3 +35,21 @@ _default_langs = {
 
 # WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "yaml\nturtle\ntext\ncpp\nsparql\nsql")
 WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs.keys()))
+
+# TODO make this configurable per wiki
+_default_templates = [
+    # https://wiki.openstreetmap.org/wiki/Template:Description
+    'Description',
+    'Feature',
+    'KeyDescription',
+    'ValueDescription',
+    'KeyPrefixDescription',
+    # https://wiki.openstreetmap.org/wiki/Template:RelationDescription
+    'RelationDescription',
+    # https://wiki.openstreetmap.org/wiki/Template:ElementUsage
+    'ElementUsage',
+]
+
+
+
+WIKI_TEMPLATES = os.getenv("WIKI_TEMPLATES", "\n".join(_default_langs.keys()))

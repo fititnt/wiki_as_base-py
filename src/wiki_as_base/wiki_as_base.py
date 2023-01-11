@@ -204,8 +204,6 @@ def wiki_as_base_all(
                                 "@type": "wtxt:PreformattedCode",
                                 "wtxt:syntaxLang": result[1],
                                 "@id": result[2],
-                                # "data_raw": result[0],
-                                # data_raw_key: result[0],
                                 "wtxt:literalData": result[0],
                             }
                         )

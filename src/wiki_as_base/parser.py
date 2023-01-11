@@ -160,15 +160,16 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
 
         # print(hstack)
         # print(type(hstack))
-        # page_data.append(
-        #     {
-        #         "@type": "____debug",
-        #         "wtxt:titleContext": "\n".join(hstack),
-        #         "title": title,
-        #         "level": section.level,
-        #         "contents": contents,
-        #     }
-        # )
+        page_data.append(
+            {
+                "@type": "____debug",
+                "wtxt:titleContext": "\n".join(hstack),
+                "title": title,
+                "level": section.level,
+                "contents": contents,
+                "__templates": repr(parsed_now_again.templates),
+            }
+        )
 
         if len(parsed_now_again.tables):
             for table in parsed_now_again.tables:
