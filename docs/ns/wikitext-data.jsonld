@@ -53,7 +53,7 @@
                 "@id": "https://wtxt.etica.ai/ns#"
             },
             "rdfs:range": {
-                "@id": "xsd:anyURI"
+                "@id": "xsd:string"
             },
             "rdfs:comment": {
                 "@language": "en",
@@ -161,6 +161,24 @@
                 "@value": "Template"
             },
             "@type": "rdfs:Class"
+        },
+        {
+            "@id": "wtxt:titleContext",
+            "rdfs:isDefinedBy": {
+                "@id": "https://wtxt.etica.ai/ns#"
+            },
+            "rdfs:range": {
+                "@id": "xsd:string"
+            },
+            "rdfs:comment": {
+                "@language": "en",
+                "@value": "Title of the Wikipage and all ancestor titles until the current active part of the page"
+            },
+            "rdfs:label": {
+                "@language": "en",
+                "@value": "title context"
+            },
+            "@type": "rdf:Property"
         },
         {
             "@id": "_:b0",

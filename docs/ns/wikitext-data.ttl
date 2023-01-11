@@ -171,6 +171,14 @@ wtxt:user
     a rdf:Property;
     rdfs:label "user"@en;
     rdfs:comment """..."""@en;
-    rdfs:range xsd:anyURI ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy wtxt: ;
+.
+
+wtxt:titleContext
+    a rdf:Property;
+    rdfs:label "title context"@en;
+    rdfs:comment """Title of the Wikipage and all ancestor titles until the current active part of the page"""@en;
+    rdfs:range xsd:string ;
     rdfs:isDefinedBy wtxt: ;
 .

@@ -94,9 +94,15 @@
     <rdfs:comment xml:lang="en">The data from a Wikitext template</rdfs:comment>
     <rdfs:label xml:lang="en">template data</rdfs:label>
   </rdf:Property>
+  <rdf:Property rdf:about="https://wtxt.etica.ai/ns#titleContext">
+    <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment xml:lang="en">Title of the Wikipage and all ancestor titles until the current active part of the page</rdfs:comment>
+    <rdfs:label xml:lang="en">title context</rdfs:label>
+  </rdf:Property>
   <rdf:Property rdf:about="https://wtxt.etica.ai/ns#user">
     <rdfs:isDefinedBy rdf:resource="https://wtxt.etica.ai/ns#"/>
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     <rdfs:comment xml:lang="en">...</rdfs:comment>
     <rdfs:label xml:lang="en">user</rdfs:label>
   </rdf:Property>

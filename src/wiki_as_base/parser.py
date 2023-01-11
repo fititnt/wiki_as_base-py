@@ -21,12 +21,12 @@
 # ==============================================================================
 
 # https://github.com/5j9/wikitextparser
+from typing import List
 from dataclasses import dataclass, field
+import re
 import wikitextparser as wtp
 
-# from .wiki_as_base import (
-#     WIKI_NS,
-# )
+from .constants import WIKI_DATA_LANGS
 
 
 @dataclass
@@ -47,10 +47,12 @@ class WikisiteContext:
     ns: str
 
 
-def _headings(level_now: int, title_now: str = None, stack: list = None):
+def _headings(
+    page_title: str, level_now: int, title_now: str = None, stack: list = None
+):
     # if stack is None:
     if not isinstance(stack, list):
-        stack = ["", "", "", "", "", "", "", ""]
+        stack = [page_title, "", "", "", "", "", "", ""]
     # return ValueError
     if level_now == 0:
         return stack
@@ -131,27 +133,89 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
         )
 
     parsed = wtp.parse(pagectx.wikitext)
+
+    total_tables = len(parsed.tables)
+    tables_counter = 0
+
     # hstack = None
-    hstack = ["", "", "", "", "", "", "", ""]
+    hstack = [pagectx.title, "", "", "", "", "", "", ""]
     for section in parsed.sections:
         # page_data.append({"title": section.title, '_nesting_level': section._nesting_level})
 
         title = section.title.strip() if section.title else None
+        contents = section.contents
 
-        hstack = _headings(section.level, title, hstack)
+        hstack = _headings(pagectx.title, section.level, title, hstack)
+
+        # Lets get only relevant contents for this header
+        parsed_now = wtp.parse(contents)
+        if len(parsed_now.sections) > 1:
+            contents = parsed_now.sections[0].contents
+
+        contents_raw = wtp.remove_markup(contents.strip())
+        if len(contents_raw) == 0:
+            continue
+
+        parsed_now_again = wtp.parse(contents)
+
         # print(hstack)
         # print(type(hstack))
-        page_data.append(
-            {
-                "_headers": "\n".join(hstack),
-                "title": title,
-                "level": section.level,
-                "contents": section.contents,
-            }
-        )
-        # print(section.ancestors)
-        # print(section.)
-        # pass
+        # page_data.append(
+        #     {
+        #         "@type": "____debug",
+        #         "wtxt:titleContext": "\n".join(hstack),
+        #         "title": title,
+        #         "level": section.level,
+        #         "contents": contents,
+        #     }
+        # )
+
+        if len(parsed_now_again.tables):
+            for table in parsed_now_again.tables:
+                tables_counter += 1
+                page_data.append(
+                    {
+                        "@type": "wtxt:Table",
+                        "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
+                        "wtxt:titleContext": "\n".join(hstack),
+                        "wtxt:tableData": table.data(),
+                        "_is_complete": True,
+                        "_errors": None,
+                    }
+                )
+        for item in WIKI_DATA_LANGS.splitlines():
+            results = wiki_as_base_from_syntaxhighlight_v2(contents, item)
+            if not results:
+                continue
+
+            for result in results:
+                if not result:
+                    continue
+                if result[2]:
+                    page_data.append(
+                        {
+                            # "@type": "wiki/data/" + result[1],
+                            # "@id": result[2],
+                            "@type": "wtxt:PreformattedCode",
+                            "wtxt:syntaxLang": result[1],
+                            "@id": result[2],
+                            # "data_raw": result[0],
+                            # data_raw_key: result[0],
+                            "wtxt:literalData": result[0],
+                        }
+                    )
+                else:
+                    page_data.append(
+                        {
+                            # "@type": "wiki/data/" + result[1],
+                            "@type": "wtxt:PreformattedCode",
+                            "wtxt:syntaxLang": result[1],
+                            # "@id": result[2],
+                            # "data_raw": result[0],
+                            # data_raw_key: result[0],
+                            "wtxt:literalData": result[0],
+                        }
+                    )
 
     return page_data
 
@@ -168,3 +232,87 @@ def wtxt_text_corpus(wikitext: str) -> str:
     # @TODO remove <syntaxhighlight> and <source> blocks
     tcorpus = wtp.remove_markup(wikitext)
     return tcorpus
+
+
+def wiki_as_base_from_syntaxhighlight_v2(
+    wikitext: str, lang: str = None, has_text: str = None, match_regex: str = None
+) -> List[tuple]:
+    """wiki_as_base_get_syntaxhighlight _summary_
+
+    _extended_summary_
+
+    Args:
+        wikitext (str):            The raw Wiki markup to search for
+        lang (str, optional):      The lang on <syntaxhighlight lang="{lang}">.
+                                   Defaults to None.
+        has_text (str, optional):  Text content is expected to have.
+                                   Defaults to None
+        match_regex (str, optional): Regex content is expected to match.
+                                     Defaults to None
+
+    Returns:
+        List[tuple]: List of tuples. Content on first index, lang on second.
+                     None if no result found.
+    """
+    result = []
+    if lang is None:
+        reg_sh = re.compile(
+            '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
+            flags=re.M | re.S | re.U,
+        )
+        # example https://wiki.openstreetmap.org/wiki/OSM_XML
+        reg_sh_old = re.compile(
+            '<source lang="?(?P<lang>[a-z0-9]{2,20})"?>(?P<data>.*?)</source>',
+            flags=re.M | re.S | re.U,
+        )
+    else:
+        reg_sh = re.compile(
+            f'<syntaxhighlight lang="(?P<lang>{lang})">(?P<data>.*?)</syntaxhighlight>',
+            flags=re.M | re.S | re.U,
+        )
+        reg_sh_old = re.compile(
+            f'<source lang="?(?P<lang>{lang})"?>(?P<data>.*?)</source>',
+            flags=re.M | re.S | re.U,
+        )
+
+    # TODO make comments like <!-- work
+    reg_filename = re.compile(
+        "[#|\/\/]\s?filename\s?=\s?(?P<filename>[\w\-\_\.]{3,255})", flags=re.U
+    )
+
+    items_a = re.findall(reg_sh, wikitext)
+    items_b = re.findall(reg_sh_old, wikitext)
+
+    items = [*items_a, *items_b]
+
+    if len(items) > 0 and has_text is not None:
+        original = items
+        items = []
+        for item in original:
+            if item[1].find(has_text) > -1:
+                items.append(item)
+
+    if len(items) > 0 and match_regex is not None:
+        original = items
+        items = []
+        for item in original:
+            if re.search(match_regex, item[1]) is not None:
+                items.append(item)
+
+    if len(items) == 0:
+        return None
+
+    # swap order and detect filename
+    for item in items:
+        data_raw = item[1].strip()
+
+        # We would only check first line for a hint of suggested filename
+        items = re.findall(reg_filename, data_raw)
+        # print(items, data_raw)
+        # raise ValueError(items)
+        if items and items[0]:
+            result.append((data_raw, item[0], items[0]))
+        else:
+            result.append((data_raw, item[0], None))
+
+    return result

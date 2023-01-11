@@ -42,10 +42,12 @@ from .parser import (
     WikipageContext,
     WikisiteContext,
     parse_all,
-    parse_sections,
-    parse_tables,
+    # parse_sections,
+    # parse_tables,
     wtxt_text_corpus,
 )
+
+from .constants import WIKI_DATA_LANGS
 
 _REFVER = "0.5.6"
 
@@ -89,40 +91,6 @@ _JSONSCHEMA = (
 )
 
 
-# @TODO add other common formats on <syntaxhighlight lang="">
-#       see https://pygments.org/docs/formatters/
-#       see https://pygments.org/docs/lexers/
-#           - Stopped on 'Lexers for .net languages'; needs check others
-_default_langs = {
-    "bash": "sh",
-    "c": "c",  # what about .h?
-    "css": "css",
-    "c\+\+": "cpp",
-    "cpp": "cpp",
-    "dpatch": "dpatch",
-    "diff": "diff",
-    "udiff": "diff",
-    "html": "html",
-    "latex": "tex",
-    "tex": "tex",
-    "json": "json",
-    "python": "py",
-    # "raw": "raw",
-    # "tokens": "raw",
-    "sparql": "rq",
-    "sql": "sql",
-    "svg": "svg",
-    "text": "txt",
-    "turtle": "ttl",
-    "toml": "toml",
-    "terraform": "tf",
-    "tf": "tf",
-    "xml": "xml",
-    "yaml": "yml",
-}
-
-# WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "yaml\nturtle\ntext\ncpp\nsparql\nsql")
-WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "\n".join(_default_langs.keys()))
 # raise ValueError(WIKI_DATA_LANGS)
 # CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
 # CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
@@ -665,6 +633,7 @@ class WikitextAsData:
             "prop": "revisions|categories",
             # "rvprop": "content",
             "rvprop": "content|timestamp|user",
+            # "rvprop": "content|timestamp|user|langlinks",
             "rvslots": "main",
             # "rvlimit": 1,
             # "titles": title,
