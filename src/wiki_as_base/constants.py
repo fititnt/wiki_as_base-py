@@ -50,5 +50,5 @@ _default_templates = {
     "ElementUsage": "",
 }
 
-
-WIKI_TEMPLATES = os.getenv("WIKI_TEMPLATES", "\n".join(_default_templates.keys()))
+_WIKI_TEMPLATES = os.getenv("WIKI_TEMPLATES", "\n".join(_default_templates.keys()))
+WIKI_TEMPLATES = _WIKI_TEMPLATES.split('\n')

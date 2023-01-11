@@ -30,6 +30,7 @@ import io
 import json
 import os
 import re
+import sys
 
 # import sys
 # from typing import Any, List, Union
@@ -513,6 +514,13 @@ class WikiAsBase2Zip:
         for item in self.wab_jsonld["data"]:
             filename = None
             content = None
+
+            # print("test data init", file=sys.stderr)
+
+            if "wtxt:literalData" in item:
+                content = item["wtxt:literalData"]
+
+            # print(item.__dict__, file=sys.stderr)
             # @TODO improve this check to determine in file format
             # if "@id" in item and item["@id"].find(".") > -1:
             if (
@@ -520,28 +528,16 @@ class WikiAsBase2Zip:
                 and item["wtxt:suggestedFilename"].find(".") > -1
             ):
                 filename = item["wtxt:suggestedFilename"]
-                # if "data_raw" in item:
-                #     content = item["data_raw"]
-                # if data_raw_key in item:
-                #     content = item[data_raw_key]
-                if "wtxt:literalData" in item:
-                    content = item["wtxt:literalData"]
             elif (
                 "wtxt:uniqueFilename" in item
                 and item["wtxt:uniqueFilename"].find(".") > -1
             ):
                 filename = item["wtxt:uniqueFilename"]
-                # if "data_raw" in item:
-                #     content = item["data_raw"]
-                # if data_raw_key in item:
-                #     content = item[data_raw_key]
-                if "wtxt:literalData" in item:
-                    content = item["wtxt:literalData"]
 
-            # elif "@id" in item and item["@type"] == "wtxt:Table":
-            elif item["@type"] == "wtxt:Table":
-                if "_errors" in item and len(item["_errors"]):
-                    continue
+            # Tables need further encoding
+            if item["@type"] == "wtxt:Table":
+                # if "_errors" in item and len(item["_errors"]):
+                #     continue
 
                 # @TODO improve the algoritm for tables
 
@@ -555,12 +551,12 @@ class WikiAsBase2Zip:
                     and item["wtxt:uniqueFilename"].find(".") > -1
                 ):
                     filename = item["wtxt:uniqueFilename"]
-                else:
-                    if "@id" in item:
-                        filename = item["@id"] + ".csv"
-                    else:
-                        continue
-
+                # else:
+                #     if "@id" in item:
+                #         filename = item["@id"] + ".csv"
+                #     else:
+                #         continue
+                # print("stargint table... filename " + filename, file=sys.stderr)
                 output = io.StringIO()
                 writer = csv.writer(output)
 
@@ -569,8 +565,10 @@ class WikiAsBase2Zip:
                     writer.writerow(line)
 
                 content = output.getvalue()
-
+            # print("test filename " + filename, file=sys.stderr)
+            # print("test content" + type(content), file=sys.stderr)
             if filename is not None and content is not None:
+                # print("saved! filename " + filename, file=sys.stderr)
                 self.file_and_data[filename] = content
 
     def output(self, zip_path: str = None):

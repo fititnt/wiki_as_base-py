@@ -65,10 +65,15 @@ def test_wikitext_003_zipfile():
     # Now we analyse the zip file
     zip = zipfile.ZipFile(target_zipfile)
     names_in_zip = zip.namelist()
+    print(names_in_zip)
 
     # assert len(names_in_zip) == 7
-    assert len(names_in_zip) == 11
+    # assert len(names_in_zip) == 11
+    assert len(names_in_zip) == 13
     assert "wikiasbase.jsonld" in names_in_zip
+    assert "corpora/osmwiki:stdin.txt" in names_in_zip  # temp, may change
+    assert "osmwiki_pageid0_item1.yaml" in names_in_zip  # temp, may change
+    assert "osmwiki_pageid0_item4.csv" in names_in_zip  # temp, may change
     assert "ola.rive" not in names_in_zip
     assert "person.rive" not in names_in_zip
     assert "R001_wikidata.shacl.ttl" in names_in_zip

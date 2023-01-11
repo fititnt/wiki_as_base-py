@@ -215,9 +215,10 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                         "@type": "wtxt:Table",
                         "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
                         "wtxt:titleContext": "\n".join(hstack),
+                        "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{tables_counter}.csv",
                         "wtxt:tableData": table.data(),
-                        "_is_complete": True,
-                        "_errors": None,
+                        # "_is_complete": True,
+                        # "_errors": None,
                     }
                 )
 
@@ -232,7 +233,8 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                         "@type": "wtxt:Template",
                         "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
                         "wtxt:titleContext": "\n".join(hstack),
-                        # @TODO maybe enable wtxt:literalData (if debug on)
+                        "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_table{index_syntax}.csv",
+                        # # @TODO maybe enable wtxt:literalData (if debug on)
                         # "wtxt:literalData": template.literal,
                         "wtxt:templateData": template.arguments,
                     }
@@ -292,9 +294,12 @@ def parse_templates(
         for template in parsed.templates:
 
             if template.name.strip() not in WIKI_TEMPLATES:
+                # if WIKI_TEMPLATES.find(template.name.strip()) == -1:
+                # print('continue', template.name)
                 continue
 
-            # template.normal_name
+            # raise ValueError(WIKI_TEMPLATES, template.name.strip())
+            template.normal_name
             arguments = {}
             for args in template.arguments:
                 # arguments[args.name] = args.value.strip()
