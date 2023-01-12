@@ -72,7 +72,7 @@ def test_wikitext_003_zipfile():
     assert len(names_in_zip) == 13
     assert "wikiasbase.jsonld" in names_in_zip
     assert "corpora/osmwiki:stdin.txt" in names_in_zip  # temp, may change
-    assert "osmwiki_pageid0_item1.yaml" in names_in_zip  # temp, may change
+    assert "osmwiki_pageid0_item1.yml" in names_in_zip  # temp, may change
     assert "osmwiki_pageid0_item4.csv" in names_in_zip  # temp, may change
     assert "ola.rive" not in names_in_zip
     assert "person.rive" not in names_in_zip

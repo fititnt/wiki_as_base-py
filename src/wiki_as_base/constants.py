@@ -31,6 +31,9 @@ _default_langs = {
     "tf": "tf",
     "xml": "xml",
     "yaml": "yml",
+    "overpassql": "overpassql",
+    "osm": "osm",
+    "osc": "osc",
 }
 
 # WIKI_DATA_LANGS = os.getenv("WIKI_DATA_LANGS", "yaml\nturtle\ntext\ncpp\nsparql\nsql")

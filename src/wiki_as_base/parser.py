@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 import re
 import wikitextparser as wtp
 
-from .constants import WIKI_DATA_LANGS, WIKI_TEMPLATES
+from .constants import WIKI_DATA_LANGS, WIKI_TEMPLATES, _default_langs
 
 
 @dataclass
@@ -144,6 +144,14 @@ def _parse_value(value_literal: str) -> Union[list, str]:
     return result
 
 
+def _fileextension(extension: str) -> str:
+    extension_norm = extension
+    if extension in _default_langs:
+        extension_norm = _default_langs[extension]
+
+    return extension_norm
+
+
 def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
     page_data = []
 
@@ -233,7 +241,8 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                         "@type": "wtxt:Template",
                         "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
                         "wtxt:titleContext": "\n".join(hstack),
-                        "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_table{index_syntax}.csv",
+                        # "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_table{index_syntax}.csv",
+                        # "wtxt:uniqueFilename": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
                         # # @TODO maybe enable wtxt:literalData (if debug on)
                         # "wtxt:literalData": template.literal,
                         "wtxt:templateData": template.arguments,
@@ -250,7 +259,7 @@ def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
                 if not result:
                     continue
                 index_syntax += 1
-                fileextension = result[1]
+                fileextension = _fileextension(result[1])
                 if result[2]:
                     page_data.append(
                         {

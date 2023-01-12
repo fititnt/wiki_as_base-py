@@ -1,0 +1,165 @@
+Veja também [[User:EmericusPetro/sandbox/Wiki-as-base]]
+
+{{Info|Página com exemplos de queries do Overpass }}
+
+
+== Região Administrativa ==
+
+* https://t.me/OSMBrasil_Comunidade/66017
+
+<syntaxhighlight lang="overpassql">
+# filename = regiao-administrativa.overpassql
+[out:json][timeout:250];
+(
+  relation(362413);
+);
+out body;
+>;
+out skel qt;
+</syntaxhighlight>
+
+== Cameras ==
+
+=== Exemplo 1 ===
+
+* https://t.me/OSMBrasil_Comunidade/66096
+* https://overpass-turbo.eu/s/1q2w
+
+<syntaxhighlight lang="overpassql">
+// Busca radares na área selecionada
+
+[out:json][timeout:240];
+
+// Descomente um dos "make" abaixo e comente o outro para escolher entre "bbox"
+// (área visível no mapa) ou a área do município especificado no "else".
+make x opcao="bbox";
+//make x opcao="município";
+
+
+if(set(t["opcao"] == "bbox")) {
+  node [highway=speed_camera] [maxspeed] ({{bbox}}) -> .radar_no;
+  rel [type=enforcement][enforcement=maxspeed] ({{bbox}}) -> .radar_rel;
+}
+else
+{
+  // Substitua o municípío e o estado pelos de seu interesse
+  area [name = "Niterói"] [boundary=administrative][admin_level=8]-> .m;
+  area [name = "Rio de Janeiro"] [boundary=administrative][admin_level=4]-> .uf;
+
+  node [highway=speed_camera] [maxspeed] (area.m) (area.uf) -> .radar_no;
+  rel [type=enforcement][enforcement=maxspeed] (area.m) (area.uf) -> .radar_rel;
+}
+
+node(r.radar_rel:device) -> .radar_device;
+
+// mostra os radares mapeados como nó de via
+//.radar_no out meta;
+
+// mostra os "devices" dos radares mapeados como relação
+.radar_device out skel;
+
+{{style:
+  node[maxspeed]{color: red; width: 3; text: eval("'Nó ' . tag('maxspeed')");}
+  node[!maxspeed][!tipo]{color: green; width: 4; text: eval("'Relação'");}
+}}
+
+</syntaxhighlight>
+
+=== Exemplo 2 ===
+
+https://t.me/OSMBrasil_Comunidade/66111
+
+https://overpass-turbo.eu/s/1nfQ
+
+<syntaxhighlight lang="overpassql">
+[out:json][timeout:900];
+{{geocodeArea:Santa Catarina}}->.searchArea;
+(
+  node["highway"="speed_camera"](area.searchArea);
+  node["disused:highway"="speed_camera"](area.searchArea);
+  node["highway"="speed_display"](area.searchArea);
+  way["highway"="speed_camera"](area.searchArea);
+  relation["highway"="speed_camera"](area.searchArea);
+  relation["enforcement"="maxspeed"](area.searchArea);
+);
+out body;
+>;
+out skel qt;
+
+{{style:
+node[note]{
+  text: note;
+  color:green;
+}
+}}
+</syntaxhighlight>
+
+=== Exemplo 2 ===
+
+https://t.me/OSMBrasil_Comunidade/66125
+
+
+https://overpass-turbo.eu/s/1q2w
+
+<syntaxhighlight lang="overpassql">
+// Busca radares na área selecionada
+
+[out:json][timeout:240];
+
+// Descomente um dos "make" abaixo e comente o outro para escolher entre "bbox"
+// (área visível no mapa) ou a área do município especificado no "else".
+make x opcao="bbox";
+//make x opcao="município";
+
+
+if(set(t["opcao"] == "bbox")) {
+  node [highway=speed_camera] [maxspeed] ({{bbox}}) -> .radar_no;
+  rel [type=enforcement][enforcement=maxspeed] ({{bbox}}) -> .radar_rel;
+}
+else
+{
+  // Substitua o municípío e o estado pelos de seu interesse
+  area [name = "Niterói"] [boundary=administrative][admin_level=8]-> .m;
+  area [name = "Rio de Janeiro"] [boundary=administrative][admin_level=4]-> .uf;
+
+  node [highway=speed_camera] [maxspeed] (area.m) (area.uf) -> .radar_no;
+  rel [type=enforcement][enforcement=maxspeed] (area.m) (area.uf) -> .radar_rel;
+}
+
+node(r.radar_rel:device) -> .radar_device;
+
+// mostra os radares mapeados como nó de via
+//.radar_no out meta;
+
+// mostra os "devices" dos radares mapeados como relação
+.radar_device out skel;
+
+{{style:
+  node[maxspeed]{color: red; width: 3; text: eval("'Nó ' . tag('maxspeed')");}
+  node[!maxspeed][!tipo]{color: green; width: 4; text: eval("'Relação'");}
+}}
+</syntaxhighlight>
+
+== Comentários diversos ==
+
+https://t.me/OSMBrasil_Comunidade/66070
+
+<syntaxhighlight lang="text">
+# filename = como-baixar-relations-dos-municipios.txt
+Para baixar pelos nomes dos estados ou município, você pode usar isso:
+
+area [name = "Rio de Janeiro"] [boundary=administrative][admin_level=4]-> .uf;
+area [name = "Niterói"] [boundary=administrative][admin_level=8]-> .m;
+
+e depois filtrar pelas áreas (area.uf) para estado e a combinação (area.uf) (area.m) para município. 
+
+No caso de município, é importante filtrar pela unidade da federação também porque tem municípios com mesmo nome em dieferetes unidades da federação.
+
+Aí, o formulário só precisa obter o nome do município e o nome da unidade da federação.
+</syntaxhighlight>
+
+== Outros links ==
+
+* https://github.com/ldodds/osm-queries/issues/7
+** https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL#File_extension
+** https://wiki.openstreetmap.org/wiki/Talk:Overpass_API/Overpass_QL#Recommended_file_extension?
