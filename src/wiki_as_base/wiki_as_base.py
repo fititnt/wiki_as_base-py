@@ -607,7 +607,8 @@ class WikitextAsData:
     _wikiapi_meta: dict
     _req_params: dict
     _reloaded: bool
-    _filters: dict
+    # _filters: dict
+    _filters: WikitextOutputFilter = None
 
     # # The individual resources to add on the JSON-LD data field
     _resources: list
@@ -623,10 +624,7 @@ class WikitextAsData:
                                          Defaults to None.
         """
 
-        self._filters = {
-            type: None,
-            id: None,
-        }
+        # self._filters = dict
 
         default_params = {
             "action": "query",
@@ -765,7 +763,7 @@ class WikitextAsData:
                 user=page["revisions"][0]["user"],
                 timestamp=page["revisions"][0]["timestamp"],
             )
-            self._resources.extend(parse_all(wpage, wsite))
+            self._resources.extend(parse_all(wpage, wsite, self._filters))
             continue
 
         return True
@@ -1026,10 +1024,13 @@ class WikitextAsData:
 
         return self
 
-    def set_filters(self, filters: dict):
-
-        if filters:
-            wsite = WikitextOutputFilter(type=self._filters.type, id=self._filters.id)
+    # def set_filters(self, filters: dict):
+    def set_filters(self, item_type: str = None, item_id: str = None) -> None:
+        # self.item_type = item_type
+        # self.item_id = item_id
+        # pass
+        # if filters:
+        filters = WikitextOutputFilter(item_type=item_type, item_id=item_id)
 
         self._filters = filters
         return self

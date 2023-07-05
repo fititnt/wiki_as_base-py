@@ -98,13 +98,15 @@ def main():
     parser.add_argument(
         "--filter-item-type",
         # action="store_true",
-        help="(draft) Filter item @type. Python REGEX value",
+        help="(experimental) Filter item @type. Python REGEX value",
+        default=None,
     )
 
     parser.add_argument(
         "--filter-item-id",
         # action="store_true",
-        help="(draft) Filter item @id. Python REGEX value",
+        help="(experimental) Filter item @id. Python REGEX value",
+        default=None,
     )
 
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
@@ -149,12 +151,16 @@ def main():
         wtdata = wiki_as_base.WikitextAsData().set_revids(args.revids)
 
     if args.filter_item_type or args.filter_item_id:
-        filters = {
-            type: args.filter_item_type,
-            id: args.filter_item_id,
-        }
-        wtdata.set_filters(filters)
+        # filters = {
+        #     "item_type": args.filter_item_type,
+        #     "item_id": args.filter_item_id,
+        # }
+        # print(args, filters)
+        wtdata.set_filters(item_type=args.filter_item_type, item_id=args.filter_item_id)
 
+    # print(args, filters)
+
+    # sys.exit()
     wtdata.prepare()
 
     if args.output_raw:

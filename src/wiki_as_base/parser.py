@@ -47,10 +47,29 @@ class WikisiteContext:
     ns: str
 
 
-@dataclass
 class WikitextOutputFilter:
-    type: str = field(init=False)
-    id: str = field(init=False)
+    # item_type: str = field(init=False)
+    # item_id: str = field(init=False)
+    item_type: str
+    item_id: str
+
+    def __init__(self, item_type: str = None, item_id: str = None) -> None:
+        self.item_type = item_type
+        self.item_id = item_id
+        # pass
+
+    def allowed_id(self, id: str) -> bool:
+        # @TODO
+        return True
+
+    def allowed_type(self, item_type: str) -> bool:
+        # return False
+        # print(self.item_type, item_type)
+        if self.item_type:
+            if self.item_type != item_type:
+                return False
+
+        return True
 
 
 @dataclass
@@ -165,26 +184,27 @@ def parse_all(
 ) -> list:
     page_data = []
 
-    tcorpus = wtxt_text_corpus(pagectx.wikitext)
-    if tcorpus:
-        page_data.append(
-            {
-                # "@type": "wiki/outline",
-                # "@type": "wtxt:DataCollectionOutline",
-                "@type": "wtxt:TextCorpus",
-                "@id": f"{sitectx.ns}:{pagectx.title_norm}#__textcorpus",
-                "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
-                # @TODO remove prefix outline/ from here
-                #       and implement on zip output only
-                "wtxt:suggestedFilename": f"corpora/{sitectx.ns}:{pagectx.title_norm}.txt",
-                "wtxt:uniqueFilename": f"corpora/{sitectx.ns}_pageid{pagectx.pageid}.txt",
-                "wtxt:timestamp": pagectx.timestamp,
-                "wtxt:user": pagectx.user,
-                # 'data_raw': outline,
-                # data_raw_key: outline,
-                "wtxt:literalData": tcorpus,
-            }
-        )
+    if not itemfilter or itemfilter.allowed_type("wtxt:TextCorpus"):
+        tcorpus = wtxt_text_corpus(pagectx.wikitext)
+        if tcorpus:
+            page_data.append(
+                {
+                    # "@type": "wiki/outline",
+                    # "@type": "wtxt:DataCollectionOutline",
+                    "@type": "wtxt:TextCorpus",
+                    "@id": f"{sitectx.ns}:{pagectx.title_norm}#__textcorpus",
+                    "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
+                    # @TODO remove prefix outline/ from here
+                    #       and implement on zip output only
+                    "wtxt:suggestedFilename": f"corpora/{sitectx.ns}:{pagectx.title_norm}.txt",
+                    "wtxt:uniqueFilename": f"corpora/{sitectx.ns}_pageid{pagectx.pageid}.txt",
+                    "wtxt:timestamp": pagectx.timestamp,
+                    "wtxt:user": pagectx.user,
+                    # 'data_raw': outline,
+                    # data_raw_key: outline,
+                    "wtxt:literalData": tcorpus,
+                }
+            )
 
     parsed = wtp.parse(pagectx.wikitext)
 
@@ -225,72 +245,75 @@ def parse_all(
         #     }
         # )
 
-        if len(parsed_now_again.tables):
-            for table in parsed_now_again.tables:
-                tables_counter += 1
-                page_data.append(
-                    {
-                        "@type": "wtxt:Table",
-                        "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
-                        "wtxt:titleContext": "\n".join(hstack),
-                        "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{tables_counter}.csv",
-                        "wtxt:tableData": table.data(),
-                        # "_is_complete": True,
-                        # "_errors": None,
-                    }
-                )
+        if not itemfilter or itemfilter.allowed_type("wtxt:Table"):
+            if len(parsed_now_again.tables):
+                for table in parsed_now_again.tables:
+                    tables_counter += 1
+                    page_data.append(
+                        {
+                            "@type": "wtxt:Table",
+                            "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
+                            "wtxt:titleContext": "\n".join(hstack),
+                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{tables_counter}.csv",
+                            "wtxt:tableData": table.data(),
+                            # "_is_complete": True,
+                            # "_errors": None,
+                        }
+                    )
 
         # raise ValueError(contents)
 
-        templates = parse_templates(contents, pagectx)
-        if templates:
-            for template in templates:
-                # tables_counter += 1
-                page_data.append(
-                    {
-                        "@type": "wtxt:Template",
-                        "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
-                        "wtxt:titleContext": "\n".join(hstack),
-                        # "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_table{index_syntax}.csv",
-                        # "wtxt:uniqueFilename": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
-                        # # @TODO maybe enable wtxt:literalData (if debug on)
-                        # "wtxt:literalData": template.literal,
-                        "wtxt:templateData": template.arguments,
-                    }
-                )
+        if not itemfilter or itemfilter.allowed_type("wtxt:Template"):
+            templates = parse_templates(contents, pagectx)
+            if templates:
+                for template in templates:
+                    # tables_counter += 1
+                    page_data.append(
+                        {
+                            "@type": "wtxt:Template",
+                            "@id": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
+                            "wtxt:titleContext": "\n".join(hstack),
+                            # "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_table{index_syntax}.csv",
+                            # "wtxt:uniqueFilename": f"{sitectx.ns}:Template:{template.name}#{template.local_id}",
+                            # # @TODO maybe enable wtxt:literalData (if debug on)
+                            # "wtxt:literalData": template.literal,
+                            "wtxt:templateData": template.arguments,
+                        }
+                    )
 
-        index_syntax = 0
-        for item in WIKI_DATA_LANGS.splitlines():
-            results = wiki_as_base_from_syntaxhighlight_v2(contents, item)
-            if not results:
-                continue
-
-            for result in results:
-                if not result:
+        if not itemfilter or itemfilter.allowed_type("wtxt:PreformattedCode"):
+            index_syntax = 0
+            for item in WIKI_DATA_LANGS.splitlines():
+                results = wiki_as_base_from_syntaxhighlight_v2(contents, item)
+                if not results:
                     continue
-                index_syntax += 1
-                fileextension = _fileextension(result[1])
-                if result[2]:
-                    page_data.append(
-                        {
-                            "@type": "wtxt:PreformattedCode",
-                            "wtxt:syntaxLang": result[1],
-                            "wtxt:suggestedFilename": result[2],
-                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
-                            "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
-                            "wtxt:literalData": result[0],
-                        }
-                    )
-                else:
-                    page_data.append(
-                        {
-                            "@type": "wtxt:PreformattedCode",
-                            "wtxt:syntaxLang": result[1],
-                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
-                            "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
-                            "wtxt:literalData": result[0],
-                        }
-                    )
+
+                for result in results:
+                    if not result:
+                        continue
+                    index_syntax += 1
+                    fileextension = _fileextension(result[1])
+                    if result[2]:
+                        page_data.append(
+                            {
+                                "@type": "wtxt:PreformattedCode",
+                                "wtxt:syntaxLang": result[1],
+                                "wtxt:suggestedFilename": result[2],
+                                "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
+                                "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
+                                "wtxt:literalData": result[0],
+                            }
+                        )
+                    else:
+                        page_data.append(
+                            {
+                                "@type": "wtxt:PreformattedCode",
+                                "wtxt:syntaxLang": result[1],
+                                "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{index_syntax}.{fileextension}",
+                                "wtxt:inWikipage": f"{sitectx.ns}:{pagectx.title_norm}",
+                                "wtxt:literalData": result[0],
+                            }
+                        )
 
     return page_data
 
