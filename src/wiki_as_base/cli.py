@@ -22,7 +22,6 @@ EXIT_SYNTAX = 2  # pylint: disable=invalid-name
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         prog="wiki_as_base",
         description="Use MediaWiki Wiki page content as read-only database",
@@ -53,9 +52,9 @@ def main():
     parser.add_argument(
         "--input-autodetect",
         # action="store_true",
-        help="Page titles or pageids (not both). "
+        help="Page titles, pageids (not both). "
         "Syntax sugar for --titles or --pageids. "
-        "Use | as separator",
+        "Use | as separator. (experimental) by category content fetch",
     )
 
     parser.add_argument(
@@ -68,6 +67,12 @@ def main():
         "--output-raw",
         action="store_true",
         help="Output RAW, unedited Wiki markup (or API response if remote call)",
+    )
+
+    parser.add_argument(
+        "--output-streaming",
+        action="store_true",
+        help="Output JSON Text Sequences (RFC 7464 application/json-seq)",
     )
 
     # parser.add_argument(
