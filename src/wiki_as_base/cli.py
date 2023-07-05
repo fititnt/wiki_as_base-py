@@ -95,6 +95,18 @@ def main():
         "With --verbose will save input text and JSON-LD metadata",
     )
 
+    parser.add_argument(
+        "--filter-item-type",
+        # action="store_true",
+        help="(draft) Filter item @type. Python REGEX value",
+    )
+
+    parser.add_argument(
+        "--filter-item-id",
+        # action="store_true",
+        help="(draft) Filter item @id. Python REGEX value",
+    )
+
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
 
     args = parser.parse_args()
@@ -136,6 +148,13 @@ def main():
     elif args.revids:
         wtdata = wiki_as_base.WikitextAsData().set_revids(args.revids)
 
+    if args.filter_item_type or args.filter_item_id:
+        filters = {
+            type: args.filter_item_type,
+            id: args.filter_item_id,
+        }
+        wtdata.set_filters(filters)
+
     wtdata.prepare()
 
     if args.output_raw:
@@ -152,6 +171,12 @@ def main():
             print(wtdata.get("wikitext"))
 
         return EXIT_OK if wtdata.is_success() else EXIT_ERROR
+
+    elif args.output_streaming:
+        # @TODO maybe hint about errors? But JSON-SEQ allow individual items fail
+        #       if malformated, but we could have a full error at input data
+        wtdata.output_jsonseq()
+        # print("TODO")
 
     elif args.output_zip_file:
         # result = wtdata.output_zip(args.output_zip_file)

@@ -42,6 +42,7 @@ import requests_cache
 from .parser import (
     WikipageContext,
     WikisiteContext,
+    WikitextOutputFilter,
     parse_all,
     # parse_sections,
     # parse_tables,
@@ -227,7 +228,6 @@ def wiki_as_base_all(
     if tables and len(tables) > 0:
         index = 1
         for table in tables:
-
             table_data = [table["header"]] + table["data"]
 
             _tbl = {
@@ -574,7 +574,6 @@ class WikiAsBase2Zip:
 
     def output(self, zip_path: str = None):
         if zip_path:
-
             if isinstance(zip_path, str) and os.path.isfile(zip_path):
                 os.remove(zip_path)
 
@@ -608,11 +607,12 @@ class WikitextAsData:
     _wikiapi_meta: dict
     _req_params: dict
     _reloaded: bool
+    _filters: dict
 
     # # The individual resources to add on the JSON-LD data field
     _resources: list
 
-    def __init__(self, api_params: dict = None) -> None:
+    def __init__(self, api_params: dict = None, filters: dict = None) -> None:
         """Initialize
 
         Instead of defining api_params, consider use set_wikitext() or
@@ -622,6 +622,11 @@ class WikitextAsData:
             api_params (dict, optional): (advanced use)customize default_params.
                                          Defaults to None.
         """
+
+        self._filters = {
+            type: None,
+            id: None,
+        }
 
         default_params = {
             "action": "query",
@@ -687,7 +692,6 @@ class WikitextAsData:
 
     # def _pagination(self, pages: Union[list, str]):
     def _pagination(self, pages: str) -> str:
-
         parts = pages.split("|")
 
         if len(parts) <= WTXT_PAGE_LIMIT:
@@ -700,7 +704,6 @@ class WikitextAsData:
             return "|".join(sliced)
 
     def _request_api(self):
-
         # Reset values
         self.wikitext = None
         self._wikiapi_meta = None
@@ -747,7 +750,6 @@ class WikitextAsData:
         # return (wikitext, wikiapi_meta)
 
     def _request_api_post(self):
-
         # # Initialize some checks
         # @TODO finish the refactoring of this part
         template_keys = WIKI_INFOBOXES.splitlines()
@@ -756,7 +758,6 @@ class WikitextAsData:
         wsite = WikisiteContext(ns=WIKI_NS)
 
         for page in self.api_response["query"]["pages"]:
-
             wpage = WikipageContext(
                 wikitext=page["revisions"][0]["slots"]["main"]["content"],
                 pageid=page["pageid"],
@@ -873,7 +874,6 @@ class WikitextAsData:
             if tables and len(tables) > 0:
                 index = 1
                 for table in tables:
-
                     table_data = [table["header"]] + table["data"]
 
                     _tbl = {
@@ -939,6 +939,30 @@ class WikitextAsData:
             # @TODO filter better the errors, in special the ones from API
             return {"error": self.errors}
 
+    def output_jsonseq(self):
+        # @see https://datatracker.ietf.org/doc/html/rfc7464
+
+        if not self._reloaded:
+            self.prepare()
+
+        # if not self.errors:
+        if self.is_success():
+            # return wiki_as_base_all(self.wikitext, _next_release=True)
+
+            for item in self._resources:
+                # print("␞" + json.dumps(item, ensure_ascii=False), end="\n", file=os.stdout)
+                # sys.stdout.write("␞" + json.dumps(item, ensure_ascii=False) + "\n")
+                item_str = json.dumps(item, ensure_ascii=False)
+
+                sys.stdout.write("\x1e" + item_str + "\n")
+                # print(json.dumps(wtdata.output_jsonld(), ensure_ascii=False, indent=2))
+            # return _jsonld
+
+        else:
+            # @TODO filter better the errors, in special the ones from API
+            # return {"error": self.errors}
+            raise SyntaxError({"error": self.errors})
+
     def output_zip(self, zip_path: str = None) -> str:
         """output_zip Output as zip (either raw data or path to output)
 
@@ -1000,6 +1024,14 @@ class WikitextAsData:
 
         self._reloaded = True
 
+        return self
+
+    def set_filters(self, filters: dict):
+
+        if filters:
+            wsite = WikitextOutputFilter(type=self._filters.type, id=self._filters.id)
+
+        self._filters = filters
         return self
 
     def set_pageids(self, pageids: str):
@@ -1221,7 +1253,6 @@ class WikitextPagesFromCategory(WikitextGenericPart):
     _is_done: bool
 
     def __init__(self, api_params: dict = None) -> None:
-
         # @see https://www.mediawiki.org/wiki/API:Categorymembers
         default_params = {
             "action": "query",

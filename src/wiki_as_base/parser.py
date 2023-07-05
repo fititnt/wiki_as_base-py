@@ -48,6 +48,12 @@ class WikisiteContext:
 
 
 @dataclass
+class WikitextOutputFilter:
+    type: str = field(init=False)
+    id: str = field(init=False)
+
+
+@dataclass
 class WikitextTemplateContext:
     name: str
     literal: str
@@ -152,7 +158,11 @@ def _fileextension(extension: str) -> str:
     return extension_norm
 
 
-def parse_all(pagectx: WikipageContext, sitectx: WikisiteContext) -> list:
+def parse_all(
+    pagectx: WikipageContext,
+    sitectx: WikisiteContext,
+    itemfilter: WikitextOutputFilter = None,
+) -> list:
     page_data = []
 
     tcorpus = wtxt_text_corpus(pagectx.wikitext)
@@ -301,7 +311,6 @@ def parse_templates(
     parsed = wtp.parse(wikitext)
     if parsed.templates:
         for template in parsed.templates:
-
             if template.name.strip() not in WIKI_TEMPLATES:
                 # if WIKI_TEMPLATES.find(template.name.strip()) == -1:
                 # print('continue', template.name)
