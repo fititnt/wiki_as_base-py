@@ -31,6 +31,9 @@
 
 ```bash
 pip install wiki_as_base --upgrade
+
+## Alternative:
+# pip install wiki_as_base==0.5.7
 ```
 
 ### Environment variables
@@ -195,7 +198,7 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 **Production usage**
 ```txt
 # requirements.txt
-wiki_as_base==0.5.5
+wiki_as_base==0.5.7
 ```
 
 **Other cases (or use in your local machine)**

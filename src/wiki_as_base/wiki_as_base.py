@@ -50,7 +50,7 @@ from .parser import (
 
 from .constants import WIKI_DATA_LANGS
 
-_REFVER = "0.5.6"
+_REFVER = "0.5.8"
 
 USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -64,8 +64,9 @@ WTXT_PAGE_LIMIT = int(os.getenv("WTXT_PAGE_LIMIT", "50"))
 WTXT_PAGE_OFFSET = int(os.getenv("WTXT_PAGE_OFFSET", "0"))
 
 CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
-# @TODO increate default to 23 hours
-CACHE_TTL = os.getenv("CACHE_TTL", "3600")  # 1 hour
+
+# CACHE_TTL = int(os.getenv("CACHE_TTL", "3600"))  # 1 hour
+CACHE_TTL = int(os.getenv("CACHE_TTL", "82800"))  # 23 hours
 
 # @see https://requests-cache.readthedocs.io/en/stable/
 requests_cache.install_cache(
