@@ -692,6 +692,9 @@ class WikitextAsData:
     def _pagination(self, pages: str) -> str:
         parts = pages.split("|")
 
+        # return pages
+        # WTXT_PAGE_LIMIT = 9999999999
+
         if len(parts) <= WTXT_PAGE_LIMIT:
             return pages
         else:
@@ -1239,6 +1242,11 @@ class WikitextHeading(WikitextGenericPart):
 # Two example queries
 # - https://wiki.openstreetmap.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:External_reference_tag&prop=info
 # - https://wiki.openstreetmap.org/w/api.php?action=query&cmtitle=Category:External_reference_tag&list=categorymembers&format=json&formatversion=2
+#  - Web preview
+#    - https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=query&format=json&prop=&list=categorymembers&continue=-%7C%7C&formatversion=2&cmtitle=Category%3AExternal_reference_tag&cmcontinue=page%7C4b45593a4e4554574f524b3a57494b4944415441%7C186683
+#    - https://wiki.openstreetmap.org/w/api.php?action=query&format=json&prop=&list=categorymembers&continue=-%7C%7C&formatversion=2&cmtitle=Category%3AExternal_reference_tag&cmcontinue=page%7C4b45593a4e4554574f524b3a57494b4944415441%7C186683&cmlimit=500
+# - Category:Tagging_Mistakes
+#   - https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=query&format=json&prop=&list=categorymembers&continue=-%7C%7C&formatversion=2&cmtitle=Category%3ATagging_Mistakes&cmcontinue=page%7C4b45593a4e4554574f524b3a57494b4944415441%7C186683&cmlimit=500
 class WikitextPagesFromCategory(WikitextGenericPart):
     """Return page IDs from category name
 

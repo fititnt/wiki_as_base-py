@@ -226,6 +226,16 @@ def parse_all(
         if len(parsed_now.sections) > 1:
             contents = parsed_now.sections[0].contents
 
+        if len(contents.strip()) == 0:
+            continue
+
+        try:
+            contents_raw = wtp.remove_markup(contents.strip())
+        except TypeError:
+            # TypeError: unsupported format string passed to NoneType.__format__
+            # tcorpus = "wiki text parsing error"
+            continue
+
         contents_raw = wtp.remove_markup(contents.strip())
         if len(contents_raw) == 0:
             continue
@@ -367,7 +377,17 @@ def parse_templates(
 
 def wtxt_text_corpus(wikitext: str) -> str:
     # @TODO remove <syntaxhighlight> and <source> blocks
-    tcorpus = wtp.remove_markup(wikitext)
+    # print("wtxt_text_corpus", wikitext)
+    # if not wikitext:
+    #     return False
+
+    try:
+        tcorpus = wtp.remove_markup(wikitext)
+    except TypeError:
+        # TypeError: unsupported format string passed to NoneType.__format__
+        # tcorpus = "wiki text parsing error"
+        tcorpus = "<!-- wiki text parsing error -->"
+
     return tcorpus
 
 
