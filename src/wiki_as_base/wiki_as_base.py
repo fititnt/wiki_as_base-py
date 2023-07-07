@@ -688,6 +688,7 @@ class WikitextAsData:
         self.api_response = None
         self.errors = []
         self.is_fetch_required = None
+        self.is_fetch_incomplete = None
         self._wikiapi_meta = None
         self._reloaded = None
         self._resources = []
