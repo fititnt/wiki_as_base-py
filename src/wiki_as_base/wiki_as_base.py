@@ -22,6 +22,7 @@
 
 # import copy
 from abc import ABC
+from ast import Tuple
 import csv
 
 # from ctypes import Union
@@ -606,6 +607,7 @@ class WikitextAsData:
     is_fetch_required: bool
     _wikiapi_meta: dict
     _req_params: dict
+    _req_params_rest: dict
     _reloaded: bool
     # _filters: dict
     _filters: WikitextOutputFilter = None
@@ -675,6 +677,11 @@ class WikitextAsData:
             default_params.update(api_params)
 
         self._req_params = default_params
+        self._req_params_rest = {
+            "titles": None,
+            "pageids": None,
+            "revids": None,
+        }
 
         # @TODO deal better with reset of the class to avoid reuse
         self.wikitext = None
@@ -689,20 +696,21 @@ class WikitextAsData:
         self._resources.append(resource)
 
     # def _pagination(self, pages: Union[list, str]):
-    def _pagination(self, pages: str) -> str:
+    def _pagination(self, pages: str) -> Tuple(str, str):
         parts = pages.split("|")
 
         # return pages
         # WTXT_PAGE_LIMIT = 9999999999
 
         if len(parts) <= WTXT_PAGE_LIMIT:
-            return pages
+            return pages, None
         else:
             # @TODO implement offset
             # @TODO implement offset and WTXT_PAGE_LIMIT without env vars
             # @TODO add note on generated JSON-LD about being paginated result
             sliced = parts[0:WTXT_PAGE_LIMIT]
-            return "|".join(sliced)
+            rest = parts[WTXT_PAGE_LIMIT:]
+            return "|".join(sliced), "|".join(rest)
 
     def _request_api(self):
         # Reset values
@@ -1023,6 +1031,22 @@ class WikitextAsData:
             # Now, we can continue with post API :)
             self._request_api_post()
 
+        if self.is_fetch_incomplete:
+            if self._req_params_rest["pageids"] is not None:
+                self.set_pageids(self._req_params_rest["pageids"])
+
+            elif self._req_params_rest["revids"] is not None:
+                self.set_revids(self._req_params_rest["revids"])
+
+            elif self._req_params_rest["titles"] is not None:
+                self.set_titles(self._req_params_rest["titles"])
+            else:
+                raise NotImplemented
+
+            # Move this to somewhere else
+            print("loop...", file=sys.stderr)
+            return self.prepare()
+
         self._reloaded = True
 
         return self
@@ -1044,13 +1068,21 @@ class WikitextAsData:
         Args:
             pageids (str): The Pageids. Use | as separator
         """
-        self._req_params["pageids"] = self._pagination(pageids)
+        # self._req_params["pageids"] = self._pagination(pageids)
+        (
+            self._req_params["pageids"],
+            self._req_params_rest["pageids"],
+        ) = self._pagination(pageids)
 
         # If user define pageids directly, we assume wants remote call and
         # unset titles and revids
         self.is_fetch_required = True
-        del self._req_params["titles"]
-        del self._req_params["revids"]
+        self.is_fetch_incomplete = bool(self._req_params_rest["pageids"])
+
+        if "titles" in self._req_params:
+            del self._req_params["titles"]
+        if "revids" in self._req_params:
+            del self._req_params["revids"]
 
         return self
 
@@ -1090,11 +1122,14 @@ class WikitextAsData:
         Args:
             revids (str): The Revision IDs. Use | as separator
         """
-        self._req_params["revids"] = self._pagination(revids)
+        self._req_params["revids"], self._req_params_rest["revids"] = self._pagination(
+            revids
+        )
 
         # If user define revids directly, we assume wants remote call and
         # unset pageids and titles
         self.is_fetch_required = True
+        self.is_fetch_incomplete = bool(self._req_params_rest["revids"])
         del self._req_params["pageids"]
         del self._req_params["titles"]
 
@@ -1106,11 +1141,15 @@ class WikitextAsData:
         Args:
             pageids (str): The titles. Use | as separator
         """
-        self._req_params["titles"] = self._pagination(titles)
+        # self._req_params["titles"] = self._pagination(titles)
+        self._req_params["titles"], self._req_params_rest["titles"] = self._pagination(
+            titles
+        )
 
         # If user define titles directly, we assume wants remote call and
         # unset pageids and revids
         self.is_fetch_required = True
+        self.is_fetch_incomplete = bool(self._req_params_rest["titles"])
         del self._req_params["pageids"]
         del self._req_params["revids"]
 

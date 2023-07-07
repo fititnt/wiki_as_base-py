@@ -236,7 +236,7 @@ def parse_all(
             # tcorpus = "wiki text parsing error"
             continue
 
-        contents_raw = wtp.remove_markup(contents.strip())
+        # contents_raw = wtp.remove_markup(contents.strip())
         if len(contents_raw) == 0:
             continue
 
@@ -259,17 +259,22 @@ def parse_all(
             if len(parsed_now_again.tables):
                 for table in parsed_now_again.tables:
                     tables_counter += 1
-                    page_data.append(
-                        {
-                            "@type": "wtxt:Table",
-                            "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
-                            "wtxt:titleContext": "\n".join(hstack),
-                            "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{tables_counter}.csv",
-                            "wtxt:tableData": table.data(),
-                            # "_is_complete": True,
-                            # "_errors": None,
-                        }
-                    )
+
+                    try:
+                        page_data.append(
+                            {
+                                "@type": "wtxt:Table",
+                                "@id": f"{sitectx.ns}:{pagectx.title_norm}#__table{tables_counter}",
+                                "wtxt:titleContext": "\n".join(hstack),
+                                "wtxt:uniqueFilename": f"{sitectx.ns}_pageid{pagectx.pageid}_item{tables_counter}.csv",
+                                "wtxt:tableData": table.data(),
+                                # "_is_complete": True,
+                                # "_errors": None,
+                            }
+                        )
+                    except AttributeError:
+                        # @TODO improve error handling
+                        continue
 
         # raise ValueError(contents)
 
