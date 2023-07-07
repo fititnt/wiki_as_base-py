@@ -45,6 +45,15 @@ export WIKI_NS='osmwiki'
 export WTXT_PAGE_LIMIT='50'
 ```
 
+Configure user agent, which [follows the logic of MediaWiki user agent](https://meta.wikimedia.org/wiki/User-Agent_policy).
+TIP: Unless you customize the `WIKI_AS_BASE_CONTACT`, the library will run up to 10 times slower for recursive requests not already cached on a `wikiasbase.sqlite` created by the cli.
+
+<!-- export WIKI_AS_BASE_BOTNAME='wiki_as_base-cli-bot/0.5.8' -->
+
+```bash
+export WIKI_AS_BASE_CONTACT='https://github.com/fititnt/wiki_as_base-py; generic@example.org'
+```
+
 <!--
 export WIKI_INFOBOXES='ValueDescription\nKeyDescription'
 export WIKI_DATA_LANGS='yaml\nturtle'

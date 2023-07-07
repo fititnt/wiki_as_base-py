@@ -54,7 +54,18 @@ from .constants import WIKI_DATA_LANGS
 
 _REFVER = "0.5.8"
 
-USER_AGENT = os.getenv("USER_AGENT", "wiki-as-base/" + _REFVER)
+
+WIKI_AS_BASE_BOTNAME = os.getenv(
+    "WIKI_AS_BASE_BOTNAME", "wiki_as_base-cli-bot/" + _REFVER
+)
+_WIKI_AS_BASE_CONTACT_DEFAULT = (
+    "https://github.com/fititnt/wiki_as_base-py; generic@example.org"
+)
+WIKI_AS_BASE_CONTACT = os.getenv("WIKI_AS_BASE_CONTACT", _WIKI_AS_BASE_CONTACT_DEFAULT)
+WIKI_AS_BASE_LIB = f"wiki_as_base/{_REFVER}"
+
+_USER_AGENT_MERGED = f"{WIKI_AS_BASE_BOTNAME} ({WIKI_AS_BASE_CONTACT}) {WIKI_AS_BASE_LIB}"
+USER_AGENT = os.getenv("USER_AGENT", _USER_AGENT_MERGED)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 
 # Consider using prefix like https://dumps.wikimedia.org/backup-index.html
