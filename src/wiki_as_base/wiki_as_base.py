@@ -638,6 +638,17 @@ class WikiAsBase2Zip:
             # return str(zip_buffer.getvalue())
 
 
+def wikitext_item_as_file(jsonld_object: dict) -> str:
+    if not jsonld_object or not isinstance(jsonld_object, dict):
+        raise SyntaxError("wikitext_item_as_file invalid type")
+
+    if "wtxt:literalData" in jsonld_object:
+        return jsonld_object["wtxt:literalData"]
+    else:
+        # TODO improve this part
+        return json.dumps(jsonld_object, ensure_ascii=False, indent=2)
+
+
 class WikitextAsData:
     """Main class to deal with conversion from Wikitext to linked data"""
 
@@ -832,6 +843,54 @@ class WikitextAsData:
 
         if strict:
             raise ValueError(f"WikitextAsData key [{key}]?")
+
+    # def get_singlefile(self, filename_hint: str) -> Tuple(str, list, list):
+    def get_singlefile(self, filename_hint: str) -> Tuple:
+        file_mached = False
+        list_fileids = []
+        list_weakhint = []
+        list_namesuggested = []
+        list_ambiguoushint = set()
+
+        if not self._reloaded:
+            self.prepare()
+
+        if self.is_success():
+            for item in self._resources:
+                if "wtxt:uniqueFilename" in item:
+                    list_fileids.append(item["wtxt:uniqueFilename"])
+
+                    if item["wtxt:uniqueFilename"] == filename_hint:
+                        file_mached = item
+                        break
+
+                if "wtxt:suggestedFilename" in item:
+                    if item["wtxt:suggestedFilename"] in list_namesuggested:
+                        list_ambiguoushint.add(item["wtxt:suggestedFilename"])
+                    else:
+                        list_namesuggested.append(item["wtxt:suggestedFilename"])
+                # print(item)
+            # pass
+            if not file_mached:
+                _suggested_mached = None
+                for potential in list_namesuggested:
+                    if filename_hint == potential:
+                        _suggested_mached = potential
+                        break
+
+                for item in self._resources:
+                    if (
+                        "wtxt:suggestedFilename" in item
+                        and _suggested_mached == item["wtxt:suggestedFilename"]
+                    ):
+                        file_mached = item
+                        break
+
+        if file_mached:
+            file_mached = wikitext_item_as_file(file_mached)
+
+        # self.is_verbose = filename_hint
+        return file_mached, list_fileids, list_weakhint, list(list_ambiguoushint)
 
     def is_success(self) -> bool:
         """is_success is remote fetch okay?

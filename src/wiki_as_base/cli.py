@@ -102,11 +102,16 @@ def main():
     )
 
     parser_output.add_argument(
+        "--output-file-stdout",
+        dest="out_file_stdout",
+        help="Filename hint for a single file be printed to stdout",
+    )
+
+    parser_output.add_argument(
         "--output-raw",
         action="store_true",
         help="[DEBUG] Output RAW, unedited Wiki markup (or API response if remote call)",
     )
-
 
     # parser_filter = parser.add_argument_group('filter2', 'Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.')
     parser_filter = parser.add_argument_group(
@@ -186,6 +191,29 @@ def main():
 
     # sys.exit()
     wtdata.prepare()
+
+    if args.out_file_stdout:
+        (
+            file_mached,
+            list_fileids,
+            list_weakhint,
+            list_ambiguoushint,
+        ) = wtdata.get_singlefile(args.out_file_stdout)
+        if not file_mached:
+            print(f"# ERROR: file hint <[{args.out_file_stdout}]> not found")
+            print(
+                f"#        list_fileids ({len(list_fileids)}) <[{', '.join(list_fileids)}]>"
+            )
+            print(
+                f"#        list_weakhint ({len(list_weakhint)}) <[{', '.join(list_weakhint)}]>"
+            )
+            print(
+                f"#        list_ambiguoushint ({len(list_ambiguoushint)}) <[{', '.join(list_ambiguoushint)}]>"
+            )
+            return EXIT_ERROR
+        else:
+            print(file_mached)
+            return EXIT_OK
 
     if args.output_raw:
         # If multiple pages, behavior may be undefined
