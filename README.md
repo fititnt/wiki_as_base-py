@@ -42,7 +42,7 @@ Customize for your needs. They're shared between command line and the library.
 ```bash
 export WIKI_API='https://wiki.openstreetmap.org/w/api.php'
 export WIKI_NS='osmwiki'
-export WTXT_PAGE_LIMIT='50'
+export CACHE_TTL='82800'  # 82800 seconds = 23 hours
 ```
 
 Configure user agent, which [follows the logic of MediaWiki user agent](https://meta.wikimedia.org/wiki/User-Agent_policy).
@@ -190,7 +190,12 @@ wiki_as_base --titles 'User:EmericusPetro/sandbox/Wiki-as-base' | jq '.data[] | 
 
 ### Save JSON-LD extracted as files
 
-> TODO: explain the implemented feature
+Use `--output-zip-file` parameter. One example:
+
+```bash
+wiki_as_base --input-autodetect 'Category:References' --output-zip-file ~/Downloads/Category:References.zip
+
+```
 
 ## Library usage
 

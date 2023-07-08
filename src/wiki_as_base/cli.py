@@ -41,15 +41,22 @@ def main():
 
     # added --titles as aliases existing --page-title
     # parser.add_argument("--page-title", help="Page title of input")
-    parser.add_argument(
+
+    parser_input = parser.add_argument_group(
+        "input", "Input data. Select ONE of these options"
+    )
+
+    parser_input.add_argument(
         "--titles", "--page-title", help="Page titles of input, Use | as separator"
     )
 
-    parser.add_argument("--pageids", help="Pageids of input, Use | as separator")
+    parser_input.add_argument("--pageids", help="Pageids of input, Use | as separator")
 
-    parser.add_argument("--revids", help="Revision IDs of input, Use | as separator")
+    parser_input.add_argument(
+        "--revids", help="Revision IDs of input, Use | as separator"
+    )
 
-    parser.add_argument(
+    parser_input.add_argument(
         "--input-autodetect",
         # action="store_true",
         help="Page titles, pageids (not both). "
@@ -57,19 +64,18 @@ def main():
         "Use | as separator. (experimental) by category content fetch",
     )
 
-    parser.add_argument(
+    parser_input.add_argument(
         "--input-stdin",
         action="store_true",
         help="Use STDIN (data piped from other tools) instead of remote API",
     )
 
-    parser.add_argument(
-        "--output-raw",
-        action="store_true",
-        help="Output RAW, unedited Wiki markup (or API response if remote call)",
+    parser_output = parser.add_argument_group(
+        "output",
+        "Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.",
     )
 
-    parser.add_argument(
+    parser_output.add_argument(
         "--output-streaming",
         action="store_true",
         help="Output JSON Text Sequences (RFC 7464 application/json-seq)",
@@ -81,35 +87,49 @@ def main():
     #     "With --verbose will save input text and JSON-LD metadata",
     # )
 
-    parser.add_argument(
+    parser_output.add_argument(
         "--output-zip-stdout",
         action="store_true",
         help="Output inferred files to a zip (stdout)"
         "With --verbose will save input text and JSON-LD metadata",
     )
 
-    parser.add_argument(
+    parser_output.add_argument(
         "--output-zip-file",
         # action="store_true",
         help="Output inferred files to a zip (file)"
         "With --verbose will save input text and JSON-LD metadata",
     )
 
-    parser.add_argument(
+    parser_output.add_argument(
+        "--output-raw",
+        action="store_true",
+        help="[DEBUG] Output RAW, unedited Wiki markup (or API response if remote call)",
+    )
+
+    # parser_filter = parser.add_argument_group('filter2', 'Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.')
+    parser_filter = parser.add_argument_group(
+        "filter",
+        "Filter data. Optional. Allow restrict only a subset of the items.",
+    )
+
+    parser_filter.add_argument(
         "--filter-item-type",
         # action="store_true",
-        help="(experimental) Filter item @type. Python REGEX value",
+        help="(experimental) Filter item @type values on JSON-LD. Python REGEX value",
+        default=None,
+    )
+
+    parser_filter.add_argument(
+        "--filter-item-id",
+        # action="store_true",
+        help="(experimental, not 100% implemented) Filter item @id on JSON-LD. Python REGEX value",
         default=None,
     )
 
     parser.add_argument(
-        "--filter-item-id",
-        # action="store_true",
-        help="(experimental) Filter item @id. Python REGEX value",
-        default=None,
+        "-v", "--verbose", action="store_true", help="Verbose", dest="verbose"
     )
-
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose")
 
     args = parser.parse_args()
 

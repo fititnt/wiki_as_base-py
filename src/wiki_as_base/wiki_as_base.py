@@ -32,6 +32,7 @@ import json
 import os
 import re
 import sys
+import time
 
 # import sys
 # from typing import Any, List, Union
@@ -64,7 +65,9 @@ _WIKI_AS_BASE_CONTACT_DEFAULT = (
 WIKI_AS_BASE_CONTACT = os.getenv("WIKI_AS_BASE_CONTACT", _WIKI_AS_BASE_CONTACT_DEFAULT)
 WIKI_AS_BASE_LIB = f"wiki_as_base/{_REFVER}"
 
-_USER_AGENT_MERGED = f"{WIKI_AS_BASE_BOTNAME} ({WIKI_AS_BASE_CONTACT}) {WIKI_AS_BASE_LIB}"
+_USER_AGENT_MERGED = (
+    f"{WIKI_AS_BASE_BOTNAME} ({WIKI_AS_BASE_CONTACT}) {WIKI_AS_BASE_LIB}"
+)
 USER_AGENT = os.getenv("USER_AGENT", _USER_AGENT_MERGED)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
 
@@ -80,6 +83,12 @@ CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
 
 # CACHE_TTL = int(os.getenv("CACHE_TTL", "3600"))  # 1 hour
 CACHE_TTL = int(os.getenv("CACHE_TTL", "82800"))  # 23 hours
+
+DELAY_GENERIC_CONTACT = int(os.getenv("DELAY_GENERIC_CONTACT", "10"))  # 10 seconds
+# DELAY_NONGENERIC_CONTACT = int(
+#     os.getenv("DELAY_GENERIC_CONTACT", "0")
+# )  # 0 seconds (0 seconds + server delay for pagination)
+DELAY_NONGENERIC_CONTACT = 1 # 1 second
 
 # @see https://requests-cache.readthedocs.io/en/stable/
 requests_cache.install_cache(
@@ -131,6 +140,17 @@ _JSONSCHEMA = (
 #     '<syntaxhighlight lang="(?P<lang>[a-z0-9]{2,20})">(?P<data>.*?)</syntaxhighlight>',
 #     flags=re.M | re.S | re.U,
 # )
+
+
+def delay_consecutive_request():
+    """delay_consecutive_request compute delay for implicit requests
+
+    Returns:
+        int: delay in seconds
+    """
+    if WIKI_AS_BASE_CONTACT == _WIKI_AS_BASE_CONTACT_DEFAULT:
+        return DELAY_GENERIC_CONTACT
+    return DELAY_NONGENERIC_CONTACT
 
 
 def wiki_as_base_all(
@@ -700,6 +720,8 @@ class WikitextAsData:
         self.errors = []
         self.is_fetch_required = None
         self.is_fetch_incomplete = None
+        self._last_fetch_from_cache = None
+        self._last_fetch_expired = None
         self._wikiapi_meta = None
         self._reloaded = None
         self._resources = []
@@ -737,6 +759,9 @@ class WikitextAsData:
             headers = {"User-Agent": USER_AGENT}
             req = requests.get(WIKI_API, headers=headers, params=self._req_params)
             res = req.json()
+            # https://requests-cache.readthedocs.io/en/stable/user_guide/expiration.html
+            self._last_fetch_from_cache = req.from_cache
+            self._last_fetch_expired = req.is_expired
         except Exception as err:
             # sys.stderr.write(f"{err}\n")
             self.errors.append(f"_request_api get {err}")
@@ -790,129 +815,6 @@ class WikitextAsData:
             continue
 
         return True
-
-        for page in self.api_response["query"]["pages"]:
-            _pageid = page["pageid"]
-            _title = page["title"]
-            _title_norm = _title.replace(" ", "_")
-
-            # @TODO fix me, only <NS:pagetitle> is wrong; some pages are in
-            #       subfolders
-
-            # We only get the first revision
-            _user = page["revisions"][0]["user"]
-            _timestamp = page["revisions"][0]["timestamp"]
-            _wikitext = page["revisions"][0]["slots"]["main"]["content"]
-
-            # outline
-            tcorpus = wtxt_text_corpus(_wikitext)
-            if tcorpus:
-                self._resources.append(
-                    {
-                        # "@type": "wiki/outline",
-                        # "@type": "wtxt:DataCollectionOutline",
-                        "@type": "wtxt:TextCorpus",
-                        "@id": f"{WIKI_NS}:{_title_norm}#__textcorpus",
-                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-                        # @TODO remove prefix outline/ from here
-                        #       and implement on zip output only
-                        "wtxt:suggestedFilename": f"corpora/{WIKI_NS}:{_title_norm}.txt",
-                        "wtxt:uniqueFilename": f"corpora/{WIKI_NS}_pageid{_pageid}.txt",
-                        "wtxt:timestamp": _timestamp,
-                        "wtxt:user": _user,
-                        # 'data_raw': outline,
-                        # data_raw_key: outline,
-                        "wtxt:literalData": tcorpus,
-                    }
-                )
-
-            # wth = WikitextHeading(_wikitext)
-            # outline = wth.get_outline()
-            # if outline:
-            #     self._resources.append(
-            #         {
-            #             # "@type": "wiki/outline",
-            #             # "@type": "wtxt:DataCollectionOutline",
-            #             "@type": "wtxt:PageOutline",
-            #             "@id": f"{WIKI_NS}:{_title_norm}#__outline",
-            #             "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-            #             # @TODO remove prefix outline/ from here
-            #             #       and implement on zip output only
-            #             "wtxt:suggestedFilename": f"outline/{WIKI_NS}:{_title_norm}.html",
-            #             "wtxt:uniqueFilename": f"outline/{WIKI_NS}_pageid{_pageid}.html",
-            #             "wtxt:timestamp": _timestamp,
-            #             "wtxt:user": _user,
-            #             # 'data_raw': outline,
-            #             # data_raw_key: outline,
-            #             "wtxt:literalData": outline,
-            #         }
-            #     )
-
-            # Infoboxes
-            if template_keys is not None and len(template_keys) > 0:
-                for item in template_keys:
-                    result = wiki_as_base_from_infobox(_wikitext, item)
-                    if result:
-                        self._resources.append(result)
-
-            # preformated blocks
-            if syntaxhighlight_langs is not None and len(syntaxhighlight_langs) > 0:
-                index_syntax = 0
-                for item in syntaxhighlight_langs:
-                    results = wiki_as_base_from_syntaxhighlight(_wikitext, item)
-                    # results = wiki_as_base_from_syntaxhighlight(wikitext)
-                    index_syntax += 1
-                    if results:
-                        for result in results:
-                            if not result:
-                                continue
-                            fileextension = result[1]
-                            if result[2]:
-                                # @TODO make this smarter
-                                self._resources.append(
-                                    {
-                                        "@type": "wtxt:PreformattedCode",
-                                        "wtxt:syntaxLang": result[1],
-                                        "wtxt:suggestedFilename": result[2],
-                                        "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_item{index_syntax}.{fileextension}",
-                                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-                                        "wtxt:literalData": result[0],
-                                    }
-                                )
-                            else:
-                                self._resources.append(
-                                    {
-                                        "@type": "wtxt:PreformattedCode",
-                                        "wtxt:syntaxLang": result[1],
-                                        "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_item{index_syntax}.{fileextension}",
-                                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-                                        "wtxt:literalData": result[0],
-                                    }
-                                )
-
-            wmt = WikitextTable(_wikitext)
-            tables = wmt.get_tables()
-            if tables and len(tables) > 0:
-                index = 1
-                for table in tables:
-                    table_data = [table["header"]] + table["data"]
-
-                    _tbl = {
-                        "@type": "wtxt:Table",
-                        # "@id": f"t{index}",
-                        "@id": f"{WIKI_NS}_pageid{_pageid}_table{index}",
-                        # "wtxt:uniqueFilename": f"{WIKI_NS}_pageid{_pageid}_table{index}.csv",
-                        "wtxt:inWikipage": f"{WIKI_NS}:{_title_norm}",
-                        "wtxt:tableData": table_data,
-                        "_is_complete": table["_is_complete"],
-                        "_errors": table["_errors"]
-                        # "_type": "wtxt:Table",
-                    }
-                    # table["@type"] = "wtxt:Table"
-                    # table["@id"] = f"t{index}"
-                    # _tbl.update(table)
-                    self._resources.append(_tbl)
-                    index += 1
 
     def get(self, key: str, strict: bool = True):
         if key in self.__dict__:
@@ -1056,7 +958,14 @@ class WikitextAsData:
                 raise NotImplemented
 
             # Move this to somewhere else
-            print("loop...", file=sys.stderr)
+            print(
+                f"loop... {self._last_fetch_from_cache} {self._last_fetch_expired} delay if not cached {delay_consecutive_request()}",
+                file=sys.stderr,
+            )
+
+            if not self._last_fetch_from_cache:
+                time.sleep(delay_consecutive_request())
+
             return self.prepare()
 
         self._reloaded = True
