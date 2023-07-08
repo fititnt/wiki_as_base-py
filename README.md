@@ -45,16 +45,18 @@ export WIKI_NS='osmwiki'
 export CACHE_TTL='82800'  # 82800 seconds = 23 hours
 ```
 
-Configure user agent, which [follows the logic of MediaWiki user agent](https://meta.wikimedia.org/wiki/User-Agent_policy).
-TIP: Unless you customize the `WIKI_AS_BASE_CONTACT`, the library will run up to 10 times slower for recursive requests not already cached on a `wikiasbase.sqlite` created by the cli.
+**Suggested**. Customize user agent. [Follows the logic of MediaWiki user agent](https://meta.wikimedia.org/wiki/User-Agent_policy). Without `WIKI_AS_BASE_BOT_CONTACT` customization, for recursive and pagination requests already not cached locally will far slower, with a delay 10 seconds. This default may increase in future releases. Does not affect direct requests (likely ones with less than 50 pages).
 
 <!-- export WIKI_AS_BASE_BOTNAME='wiki_as_base-cli-bot/0.5.8' -->
 
 ```bash
-export WIKI_AS_BASE_CONTACT='https://github.com/fititnt/wiki_as_base-py; generic@example.org'
+export WIKI_AS_BASE_BOT_CONTACT='https://github.com/fititnt/wiki_as_base-py; generic@example.org'
 ```
 
 <!--
+# To increase de delay over the 1
+
+export WIKI_AS_BASE_BOT_CUSTOM_DELAY='60'
 export WIKI_INFOBOXES='ValueDescription\nKeyDescription'
 export WIKI_DATA_LANGS='yaml\nturtle'
 -->

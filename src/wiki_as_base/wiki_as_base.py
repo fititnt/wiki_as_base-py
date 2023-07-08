@@ -59,14 +59,16 @@ _REFVER = "0.5.8"
 WIKI_AS_BASE_BOTNAME = os.getenv(
     "WIKI_AS_BASE_BOTNAME", "wiki_as_base-cli-bot/" + _REFVER
 )
-_WIKI_AS_BASE_CONTACT_DEFAULT = (
+_WIKI_AS_BASE_BOT_CONTACT_DEFAULT = (
     "https://github.com/fititnt/wiki_as_base-py; generic@example.org"
 )
-WIKI_AS_BASE_CONTACT = os.getenv("WIKI_AS_BASE_CONTACT", _WIKI_AS_BASE_CONTACT_DEFAULT)
+WIKI_AS_BASE_BOT_CONTACT = os.getenv(
+    "WIKI_AS_BASE_BOT_CONTACT", _WIKI_AS_BASE_BOT_CONTACT_DEFAULT
+)
 WIKI_AS_BASE_LIB = f"wiki_as_base/{_REFVER}"
 
 _USER_AGENT_MERGED = (
-    f"{WIKI_AS_BASE_BOTNAME} ({WIKI_AS_BASE_CONTACT}) {WIKI_AS_BASE_LIB}"
+    f"{WIKI_AS_BASE_BOTNAME} ({WIKI_AS_BASE_BOT_CONTACT}) {WIKI_AS_BASE_LIB}"
 )
 USER_AGENT = os.getenv("USER_AGENT", _USER_AGENT_MERGED)
 WIKI_API = os.getenv("WIKI_API", "https://wiki.openstreetmap.org/w/api.php")
@@ -88,7 +90,10 @@ DELAY_GENERIC_CONTACT = int(os.getenv("DELAY_GENERIC_CONTACT", "10"))  # 10 seco
 # DELAY_NONGENERIC_CONTACT = int(
 #     os.getenv("DELAY_GENERIC_CONTACT", "0")
 # )  # 0 seconds (0 seconds + server delay for pagination)
-DELAY_NONGENERIC_CONTACT = 1 # 1 second
+DELAY_NONGENERIC_CONTACT = 1  # 1 second
+WIKI_AS_BASE_BOT_CUSTOM_DELAY = int(
+    os.getenv("WIKI_AS_BASE_BOT_CUSTOM_DELAY", DELAY_NONGENERIC_CONTACT)
+)
 
 # @see https://requests-cache.readthedocs.io/en/stable/
 requests_cache.install_cache(
@@ -148,7 +153,11 @@ def delay_consecutive_request():
     Returns:
         int: delay in seconds
     """
-    if WIKI_AS_BASE_CONTACT == _WIKI_AS_BASE_CONTACT_DEFAULT:
+    # Identified users or not, we allow higher defined delays than the default 10s
+    if WIKI_AS_BASE_BOT_CUSTOM_DELAY > DELAY_NONGENERIC_CONTACT:
+        return WIKI_AS_BASE_BOT_CUSTOM_DELAY
+
+    if WIKI_AS_BASE_BOT_CONTACT == _WIKI_AS_BASE_BOT_CONTACT_DEFAULT:
         return DELAY_GENERIC_CONTACT
     return DELAY_NONGENERIC_CONTACT
 
@@ -720,6 +729,7 @@ class WikitextAsData:
         self.errors = []
         self.is_fetch_required = None
         self.is_fetch_incomplete = None
+        self.is_verbose = False
         self._last_fetch_from_cache = None
         self._last_fetch_expired = None
         self._wikiapi_meta = None
@@ -958,10 +968,11 @@ class WikitextAsData:
                 raise NotImplemented
 
             # Move this to somewhere else
-            print(
-                f"loop... {self._last_fetch_from_cache} {self._last_fetch_expired} delay if not cached {delay_consecutive_request()}",
-                file=sys.stderr,
-            )
+            if self.is_verbose:
+                print(
+                    f"loop... Cached: [{self._last_fetch_from_cache}] Expired: [{self._last_fetch_expired}] delay if not cached [{delay_consecutive_request()}]",
+                    file=sys.stderr,
+                )
 
             if not self._last_fetch_from_cache:
                 time.sleep(delay_consecutive_request())
@@ -1074,6 +1085,10 @@ class WikitextAsData:
         del self._req_params["pageids"]
         del self._req_params["revids"]
 
+        return self
+
+    def set_verbose(self, is_verbose: bool = True):
+        self.is_verbose = is_verbose
         return self
 
     def set_wikitext(self, wikitext: str):

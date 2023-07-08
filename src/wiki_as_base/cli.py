@@ -107,6 +107,7 @@ def main():
         help="[DEBUG] Output RAW, unedited Wiki markup (or API response if remote call)",
     )
 
+
     # parser_filter = parser.add_argument_group('filter2', 'Output data. Optional. Any of the following options will override the default JSON-LD to stdout option.')
     parser_filter = parser.add_argument_group(
         "filter",
@@ -123,7 +124,7 @@ def main():
     parser_filter.add_argument(
         "--filter-item-id",
         # action="store_true",
-        help="(experimental, not 100% implemented) Filter item @id on JSON-LD. Python REGEX value",
+        help="(experimental, not fully implememted) Filter item @id on JSON-LD. Python REGEX value",
         default=None,
     )
 
@@ -177,6 +178,9 @@ def main():
         # }
         # print(args, filters)
         wtdata.set_filters(item_type=args.filter_item_type, item_id=args.filter_item_id)
+
+    if args.verbose:
+        wtdata.set_verbose()
 
     # print(args, filters)
 
