@@ -119,6 +119,9 @@ _JSONSCHEMA = (
     "https://wtxt.etica.ai/schema.json"
 )
 
+# @TODO maybe also implement Wikibase fetch?
+
+# https://wiki.openstreetmap.org/wiki/Special:ApiSandbox#action=wbgetentities&format=json&ids=Q12345
 
 # raise ValueError(WIKI_DATA_LANGS)
 # CACHE_DRIVER = os.getenv("CACHE_DRIVER", "sqlite")
@@ -848,9 +851,9 @@ class WikitextAsData:
     def get_singlefile(self, filename_hint: str) -> Tuple:
         file_mached = False
         list_fileids = []
-        list_weakhint = []
-        list_namesuggested = []
-        list_ambiguoushint = set()
+        list_named = []
+        # list_namesuggested = []
+        list_ambiguous = set()
 
         if not self._reloaded:
             self.prepare()
@@ -865,15 +868,18 @@ class WikitextAsData:
                         break
 
                 if "wtxt:suggestedFilename" in item:
-                    if item["wtxt:suggestedFilename"] in list_namesuggested:
-                        list_ambiguoushint.add(item["wtxt:suggestedFilename"])
+                    if item["wtxt:suggestedFilename"] in list_named:
+                        list_ambiguous.add(item["wtxt:suggestedFilename"])
                     else:
-                        list_namesuggested.append(item["wtxt:suggestedFilename"])
+                        list_named.append(item["wtxt:suggestedFilename"])
                 # print(item)
             # pass
             if not file_mached:
                 _suggested_mached = None
-                for potential in list_namesuggested:
+
+                # @TODO: do a fuzzy match if don't find an near exact.
+                # @TODO: mimic user giving as name the #Title_Hash of a title and get files inside
+                for potential in list_named:
                     if filename_hint == potential:
                         _suggested_mached = potential
                         break
@@ -890,7 +896,7 @@ class WikitextAsData:
             file_mached = wikitext_item_as_file(file_mached)
 
         # self.is_verbose = filename_hint
-        return file_mached, list_fileids, list_weakhint, list(list_ambiguoushint)
+        return file_mached, list_fileids, list_named, list(list_ambiguous)
 
     def is_success(self) -> bool:
         """is_success is remote fetch okay?

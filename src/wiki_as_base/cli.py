@@ -102,9 +102,15 @@ def main():
     )
 
     parser_output.add_argument(
-        "--output-file-stdout",
+        "--output-file-by-name",
         dest="out_file_stdout",
         help="Filename hint for a single file be printed to stdout",
+    )
+
+    parser_output.add_argument(
+        "--output-file-by-content",
+        dest="out_filestr_stdout",
+        help="(NOT IMPLEMNTED YET) Text content hint for a single file to be printed to stdout",
     )
 
     parser_output.add_argument(
@@ -196,8 +202,8 @@ def main():
         (
             file_mached,
             list_fileids,
-            list_weakhint,
-            list_ambiguoushint,
+            list_named,
+            list_ambiguous,
         ) = wtdata.get_singlefile(args.out_file_stdout)
         if not file_mached:
             print(f"# ERROR: file hint <[{args.out_file_stdout}]> not found")
@@ -205,10 +211,10 @@ def main():
                 f"#        list_fileids ({len(list_fileids)}) <[{', '.join(list_fileids)}]>"
             )
             print(
-                f"#        list_weakhint ({len(list_weakhint)}) <[{', '.join(list_weakhint)}]>"
+                f"#        list_named ({len(list_named)}) <[{', '.join(list_named)}]>"
             )
             print(
-                f"#        list_ambiguoushint ({len(list_ambiguoushint)}) <[{', '.join(list_ambiguoushint)}]>"
+                f"#        list_ambiguous ({len(list_ambiguous)}) <[{', '.join(list_ambiguous)}]>"
             )
             return EXIT_ERROR
         else:
