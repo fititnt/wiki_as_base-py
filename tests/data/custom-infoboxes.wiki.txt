@@ -1,0 +1,24 @@
+{{KeyDescription
+|key=IBGE:GEOCODIGO
+|image=
+|group=references
+|description=Used to mark boundary relations in Brazil with official order Number from IBGE
+|onNode=yes
+|onWay=no
+|onArea=no
+|onRelation=yes
+|status=de facto
+|combination=
+* {{Key|admin_level}}
+* {{Key|wikidata}}
+|seeAlso= 
+* {{Key|ref}}
+|url_pattern=https://cidades.ibge.gov.br/xtras/perfil.php?codmun=$1
+}}
+
+{{KeyDescriptionStrict
+|key=IBGE:GEOCODIGO
+|wikidata=P1585
+|url_pattern=https://cidades.ibge.gov.br/xtras/perfil.php?codmun=$1
+|format_constraint=\d{7}
+}}

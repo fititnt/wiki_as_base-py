@@ -196,10 +196,10 @@ def parse_all(
 ) -> list:
     page_data = []
 
-    print(WikipageContext)
-    print(WikipageContext.__dict__)
+    # print(WikipageContext)
+    # print(WikipageContext.__dict__)
 
-    raise ValueError(WikipageContext)
+    # raise ValueError(WikipageContext)
 
     if not itemfilter or itemfilter.allowed_type("wtxt:TextCorpus"):
         tcorpus = wtxt_text_corpus(pagectx.wikitext)

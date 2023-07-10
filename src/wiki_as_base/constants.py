@@ -45,6 +45,7 @@ _default_templates = {
     "Description": "",
     "Feature": "",
     "KeyDescription": "",
+    "KeyDescriptionStrict": "",
     "ValueDescription": "",
     "KeyPrefixDescription": "",
     # https://wiki.openstreetmap.org/wiki/Template:RelationDescription
