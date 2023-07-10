@@ -60,10 +60,11 @@ def main():
         "--revids", help="MediaWiki revision IDs of input, Use | as separator"
     )
 
-    parser_input.add_argument(
-        "--wikibase-ids",
-        help="(Early draft) WikiBase Q items or P properties. Use | as separator",
-    )
+    # Not fully implemented. Hidden at the moment
+    # parser_input.add_argument(
+    #     "--wikibase-ids",
+    #     help="(Early draft) WikiBase Q items or P properties. Use | as separator",
+    # )
 
     parser_input.add_argument(
         "--input-autodetect",

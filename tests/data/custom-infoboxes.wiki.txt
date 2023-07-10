@@ -22,3 +22,29 @@
 |url_pattern=https://cidades.ibge.gov.br/xtras/perfil.php?codmun=$1
 |format_constraint=\d{7}
 }}
+
+<syntaxhighlight lang="turtle">
+# filename = R001_wikidata.shacl.ttl
+PREFIX osmm: <https://example.org/todo-meta/>
+PREFIX osmnode: <https://www.openstreetmap.org/node/>
+PREFIX osmt: <https://wiki.openstreetmap.org/wiki/Key:>
+PREFIX osmway: <https://www.openstreetmap.org/way/>
+PREFIX osmw: <https://wiki.openstreetmap.org/wiki/>
+PREFIX osmx: <https://example.org/todo-xref/>
+PREFIX osmvsh: <https://www.openstreetmap.org/validation/shacl/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX ex: <https://example.org/>
+
+osmvsh:t_IBGE:GEOCODIGO
+    a sh:NodeShape ;
+    sh:targetClass osmw:Node, osmw:Way, osmw:Relation ;
+    sh:property [
+        sh:path osmt:brand:wikidata ;
+        sh:pattern "^\\d{7}$" ;
+        # ... draft, ignore for now ...
+    ]
+.
+</syntaxhighlight>

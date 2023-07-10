@@ -1,0 +1,18 @@
+= Technical guide example =
+
+This is a draft. Maybe delete later
+
+== Requeriments ==
+
+<syntaxhighlight lang="bash">
+# filename = requeriments.sh
+
+# OSM XML / Rails-port live proxy to RDF
+# Uses logic from https://eticaai.github.io/openstreetmap-semantic-conventions-2023/
+pip install osmrdf2023 --upgrade
+
+</syntaxhighlight>
+
+
+== See also ==
+* https://eticaai.github.io/openstreetmap-semantic-conventions-2023/
