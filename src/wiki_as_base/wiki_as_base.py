@@ -662,7 +662,10 @@ class WikitextAsData:
     _wikiapi_meta: dict
     _req_params: dict
     _req_params_rest: dict
+    _req_params_wb: dict
+    _req_params_wb_rest: dict
     _reloaded: bool
+    _mode: str = "wikitext"  # wikitext, wikibase
     # _filters: dict
     _filters: WikitextOutputFilter = None
 
@@ -696,6 +699,26 @@ class WikitextAsData:
             "titles": None,
             "pageids": None,
             "revids": None,
+            "format": "json",
+            "formatversion": "2",
+        }
+
+        default_params_wb = {
+            "action": "wbgetentities",
+            # "prop": "revisions",
+            # "prop": "revisions|categories|templates",
+            "prop": "info|sitelinks|aliases|labels|descriptions|claims|datatype|sitelinks/urls",
+            # nfo%7Csitelinks%7Caliases%7Clabels%7Cdescriptions%7Cclaims%7Cdatatype%7Csitelinks%2Furls
+            # "rvprop": "content",
+            # "rvprop": "content|timestamp|user",
+            # "rvprop": "content|timestamp|user|langlinks",
+            # "rvslots": "main",
+            # "rvlimit": 1,
+            # "titles": title,
+            # "titles": None,
+            # "pageids": None,
+            # "revids": None,
+            "ids": None,
             "format": "json",
             "formatversion": "2",
         }
@@ -736,6 +759,8 @@ class WikitextAsData:
             "pageids": None,
             "revids": None,
         }
+        self._req_params_wb = default_params_wb
+        self._req_params_wb_rest = {"ids": None}
 
         # @TODO deal better with reset of the class to avoid reuse
         self.wikitext = None
@@ -1156,6 +1181,15 @@ class WikitextAsData:
         self.is_verbose = is_verbose
         return self
 
+    def set_wikibaseids(self, wikibaseids: str):
+        self._mode = "wikibase"
+
+        self._req_params_wb["ids"], self._req_params_rest["ids"] = self._pagination(
+            wikibaseids
+        )
+
+        return self
+
     def set_wikitext(self, wikitext: str):
         """set_wikitext set Wikitext directly instead of make API request
 
@@ -1170,6 +1204,9 @@ class WikitextAsData:
         self.is_fetch_required = False
         return self
 
+
+# class WikibaseInternalJSONAsData(WikitextAsData):
+#     pass
 
 # class Wikipage:
 #     pass

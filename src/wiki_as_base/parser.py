@@ -30,6 +30,18 @@ from .constants import WIKI_DATA_LANGS, WIKI_TEMPLATES, _default_langs
 
 
 @dataclass
+class WikibaseContext:
+    wikibasejson: str
+    pageid: int
+    title: str
+    user: str
+    timestamp: str
+    title_norm: str = field(init=False)
+
+    def __post_init__(self):
+        self.title_norm = self.title.replace(" ", "_")
+
+@dataclass
 class WikipageContext:
     wikitext: str
     pageid: int
@@ -183,6 +195,11 @@ def parse_all(
     itemfilter: WikitextOutputFilter = None,
 ) -> list:
     page_data = []
+
+    print(WikipageContext)
+    print(WikipageContext.__dict__)
+
+    raise ValueError(WikipageContext)
 
     if not itemfilter or itemfilter.allowed_type("wtxt:TextCorpus"):
         tcorpus = wtxt_text_corpus(pagectx.wikitext)

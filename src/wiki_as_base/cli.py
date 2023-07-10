@@ -47,13 +47,22 @@ def main():
     )
 
     parser_input.add_argument(
-        "--titles", "--page-title", help="Page titles of input, Use | as separator"
+        "--titles",
+        "--page-title",
+        help="MediaWiki page titles of input, Use | as separator",
     )
 
-    parser_input.add_argument("--pageids", help="Pageids of input, Use | as separator")
+    parser_input.add_argument(
+        "--pageids", help="MediaWiki pageids of input, Use | as separator"
+    )
 
     parser_input.add_argument(
-        "--revids", help="Revision IDs of input, Use | as separator"
+        "--revids", help="MediaWiki revision IDs of input, Use | as separator"
+    )
+
+    parser_input.add_argument(
+        "--wikibase-ids",
+        help="(Early draft) WikiBase Q items or P properties. Use | as separator",
     )
 
     parser_input.add_argument(
@@ -159,6 +168,7 @@ def main():
         not args.page_title
         and not args.pageids
         and not args.revids
+        and not args.wikibase_ids
         and not args.input_autodetect
         and not args.input_stdin
     ):
@@ -181,6 +191,8 @@ def main():
         wtdata = wiki_as_base.WikitextAsData().set_pageids(args.pageids)
     elif args.revids:
         wtdata = wiki_as_base.WikitextAsData().set_revids(args.revids)
+    elif args.wikibase_ids:
+        wtdata = wiki_as_base.WikitextAsData().set_wikibaseids(args.wikibase_ids)
 
     if args.filter_item_type or args.filter_item_id:
         # filters = {
