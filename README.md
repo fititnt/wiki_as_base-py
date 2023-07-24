@@ -33,7 +33,7 @@
 pip install wiki_as_base --upgrade
 
 ## Alternative:
-# pip install wiki_as_base==0.5.9
+# pip install wiki_as_base==0.5.10
 ```
 
 ### Environment variables
@@ -47,7 +47,7 @@ export CACHE_TTL='82800'  # 82800 seconds = 23 hours
 
 **Suggested**. Customize user agent. [Follows the logic of MediaWiki user agent](https://meta.wikimedia.org/wiki/User-Agent_policy). Without `WIKI_AS_BASE_BOT_CONTACT` customization, for recursive and pagination requests already not cached locally will far slower, with a delay 10 seconds. This default may increase in future releases. Does not affect direct requests (likely ones with less than 50 pages).
 
-<!-- export WIKI_AS_BASE_BOTNAME='wiki_as_base-cli-bot/0.5.9' -->
+<!-- export WIKI_AS_BASE_BOTNAME='wiki_as_base-cli-bot/0.5.10' -->
 
 ```bash
 export WIKI_AS_BASE_BOT_CONTACT='https://github.com/fititnt/wiki_as_base-py; generic@example.org'
@@ -214,7 +214,7 @@ wiki_as_base --input-autodetect 'Category:References' --output-zip-file ~/Downlo
 **Production usage**
 ```txt
 # requirements.txt
-wiki_as_base==0.5.9
+wiki_as_base==0.5.10
 ```
 
 **Other cases (or use in your local machine)**

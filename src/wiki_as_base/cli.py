@@ -169,7 +169,7 @@ def main():
         not args.page_title
         and not args.pageids
         and not args.revids
-        and not args.wikibase_ids
+        # and not args.wikibase_ids
         and not args.input_autodetect
         and not args.input_stdin
     ):
@@ -192,8 +192,8 @@ def main():
         wtdata = wiki_as_base.WikitextAsData().set_pageids(args.pageids)
     elif args.revids:
         wtdata = wiki_as_base.WikitextAsData().set_revids(args.revids)
-    elif args.wikibase_ids:
-        wtdata = wiki_as_base.WikitextAsData().set_wikibaseids(args.wikibase_ids)
+    # elif args.wikibase_ids:
+    #     wtdata = wiki_as_base.WikitextAsData().set_wikibaseids(args.wikibase_ids)
 
     if args.filter_item_type or args.filter_item_id:
         # filters = {
