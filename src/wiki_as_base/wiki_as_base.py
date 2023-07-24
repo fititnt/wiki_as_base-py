@@ -53,7 +53,7 @@ from .parser import (
 
 from .constants import WIKI_DATA_LANGS
 
-_REFVER = "0.5.8"
+_REFVER = "0.5.9"
 
 
 WIKI_AS_BASE_BOTNAME = os.getenv(
